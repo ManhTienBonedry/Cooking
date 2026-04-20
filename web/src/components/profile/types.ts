@@ -10,3 +10,23 @@ export interface ProfileStats {
   post_count: number;
   recipe_views_sum: number;
 }
+
+export interface ProfileRecipe {
+  id: number;
+  title: string;
+  image_url?: string | null;
+  category_name?: string;
+}
+
+export interface ProfilePost {
+  id: number;
+  title: string;
+  category_name?: string;
+}
+
+export interface ProfilePlan {
+  id: number;
+  name: string;
+  start_date?: string | null;
+  end_date?: string | null;
+}

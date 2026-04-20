@@ -5,7 +5,7 @@ import { apiFetch, apiJson, resetCsrfCache } from '../../lib/api';
 import { notifyAuthChanged } from '../../lib/authEvents';
 import { Reveal } from '../../components/motion/ScrollReveal';
 
-import type { ProfileUser, ProfileStats } from '../../components/profile/types';
+import type { ProfileUser, ProfileStats, ProfileRecipe, ProfilePost, ProfilePlan } from '../../components/profile/types';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileSidebar from '../../components/profile/ProfileSidebar';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
@@ -20,26 +20,26 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
 
   // States for tabs data
-  const [myRecipes, setMyRecipes] = useState<any[]>([]);
-  const [myPosts, setMyPosts] = useState<any[]>([]);
-  const [savedRecipes, setSavedRecipes] = useState<any[]>([]);
-  const [myPlans, setMyPlans] = useState<any[]>([]);
+  const [myRecipes, setMyRecipes] = useState<ProfileRecipe[]>([]);
+  const [myPosts, setMyPosts] = useState<ProfilePost[]>([]);
+  const [savedRecipes, setSavedRecipes] = useState<ProfileRecipe[]>([]);
+  const [myPlans, setMyPlans] = useState<ProfilePlan[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
   const loadTabData = useCallback(async (tab: string) => {
     setIsDataLoading(true);
     try {
       if (tab === 'recipes') {
-        const d = await apiJson<{ recipes: any[] }>('/api/recipes/mine');
+        const d = await apiJson<{ recipes: ProfileRecipe[] }>('/api/recipes/mine');
         setMyRecipes(d.recipes ?? []);
       } else if (tab === 'posts') {
-        const d = await apiJson<{ posts: any[] }>('/api/blog/posts/mine');
+        const d = await apiJson<{ posts: ProfilePost[] }>('/api/blog/posts/mine');
         setMyPosts(d.posts ?? []);
       } else if (tab === 'saved') {
-        const d = await apiJson<{ recipes: any[] }>('/api/recipes/saved');
+        const d = await apiJson<{ recipes: ProfileRecipe[] }>('/api/recipes/saved');
         setSavedRecipes(d.recipes ?? []);
       } else if (tab === 'health') {
-        const d = await apiJson<{ plans: any[] }>('/api/health/plans');
+        const d = await apiJson<{ plans: ProfilePlan[] }>('/api/health/plans');
         setMyPlans(d.plans ?? []);
       }
     } catch {
@@ -164,7 +164,7 @@ export default function Profile() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {myRecipes.map((r: any) => (
+                      {myRecipes.map((r) => (
                         <div key={r.id} className="border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow group">
                           {r.image_url ? (
                             <img src={r.image_url} alt={r.title} className="w-full h-40 object-cover" />
@@ -196,7 +196,7 @@ export default function Profile() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {myPosts.map((p: any) => (
+                      {myPosts.map((p) => (
                         <div key={p.id} className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow">
                           <span className="text-xs font-semibold text-yellow-600">{p.category_name}</span>
                           <h4 className="font-bold text-gray-900 mt-1 text-lg line-clamp-2">{p.title}</h4>
@@ -219,7 +219,7 @@ export default function Profile() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {savedRecipes.map((r: any) => (
+                      {savedRecipes.map((r) => (
                         <div key={r.id} className="border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
                           {r.image_url ? (
                             <img src={r.image_url} alt={r.title} className="w-full h-40 object-cover" />
@@ -251,7 +251,7 @@ export default function Profile() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {myPlans.map((plan: any) => (
+                      {myPlans.map((plan) => (
                          <div key={plan.id} className="border border-gray-100 rounded-xl p-5 flex items-center justify-between hover:shadow-md transition-shadow bg-gray-50/50">
                            <div>
                              <h4 className="font-bold text-gray-900">{plan.name}</h4>

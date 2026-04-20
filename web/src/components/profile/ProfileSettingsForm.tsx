@@ -28,8 +28,8 @@ export default function ProfileSettingsForm({ isLoading, user, onSuccessSubmit }
       });
       setProfileMsg({ text: 'Cập nhật hồ sơ thành công!', type: 'success' });
       onSuccessSubmit();
-    } catch (err: any) {
-      setProfileMsg({ text: err.message || 'Lỗi cập nhật hồ sơ', type: 'error' });
+    } catch (err: unknown) {
+      setProfileMsg({ text: err instanceof Error ? err.message : 'Lỗi cập nhật hồ sơ', type: 'error' });
     }
   };
 
@@ -55,8 +55,8 @@ export default function ProfileSettingsForm({ isLoading, user, onSuccessSubmit }
       });
       setPassMsg({ text: 'Đổi mật khẩu thành công!', type: 'success' });
       form.reset();
-    } catch (err: any) {
-      setPassMsg({ text: err.message || 'Lỗi đổi mật khẩu', type: 'error' });
+    } catch (err: unknown) {
+      setPassMsg({ text: err instanceof Error ? err.message : 'Lỗi đổi mật khẩu', type: 'error' });
     }
   };
 
