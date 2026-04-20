@@ -5,6 +5,7 @@ import { RecaptchaCook } from './RecaptchaCook';
 import { hasRecaptchaSiteKey } from '../lib/recaptchaSiteKey';
 import { apiFetch, resetCsrfCache } from '../lib/api';
 import { notifyAuthChanged } from '../lib/authEvents';
+import { createPortal } from 'react-dom';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -235,7 +236,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
     }
   };
 
-  return (
+  return createPortal(
     <div className={`blackwhite-auth-overlay ${isOpen ? 'show' : ''}`} onClick={handleOverlayClick}>
       <div className={`blackwhite-container ${isActive ? 'active' : ''}`}>
         {/* Registration Form */}
@@ -256,14 +257,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
                 placeholder="Họ tên"
                 required
                 minLength={3}
-                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
               />
               <input
                 name="email"
                 type="email"
                 placeholder="Email"
                 required
-                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
               />
               <input
                 name="password"
@@ -271,7 +272,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
                 placeholder="Mật khẩu (ít nhất 8 ký tự)"
                 required
                 minLength={8}
-                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
               />
               <p className="text-sm text-gray-600 mt-2 mb-4">
                 Đã có tài khoản?{' '}
@@ -307,7 +308,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
                 maxLength={6}
                 placeholder="Mã 6 số"
                 required
-                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-4 focus:outline-none focus:border-black focus:bg-white transition-all text-sm tracking-widest text-center"
+                className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-4 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm tracking-widest text-center font-bold"
               />
               <button
                 type="submit"
@@ -346,14 +347,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
               type="email"
               placeholder="Email"
               required
-              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
             />
             <input
               name="password"
               type="password"
               placeholder="Mật khẩu"
               required
-              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
             />
             <RecaptchaCook visible={captchaRequired} recaptchaRef={recaptchaRef} />
             <a href="#" onClick={handleShowForgot} className="text-xs text-gray-400 hover:text-black mb-4">
@@ -401,7 +402,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
               type="email"
               placeholder="Email đã đăng ký"
               required
-              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
             />
             <button
               type="submit"
@@ -449,7 +450,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
               maxLength={6}
               placeholder="Mã OTP (6 số)"
               required
-              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
             />
             <input
               name="new_password"
@@ -457,7 +458,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
               placeholder="Mật khẩu mới (≥8 ký tự)"
               required
               minLength={8}
-              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-6 focus:outline-none focus:border-black focus:bg-white transition-all text-sm"
+              className="bg-gray-100 border border-gray-200 rounded-lg w-full p-3 mb-6 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white transition-all text-sm font-medium"
             />
             <button
               type="submit"
@@ -515,6 +516,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

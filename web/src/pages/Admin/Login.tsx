@@ -59,20 +59,30 @@ export default function AdminLogin() {
         <h1 className="text-2xl font-bold mb-1">Admin Login</h1>
         <p className="text-slate-500 mb-5 text-sm">Sign in to management console.</p>
         {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
-        <label className="block text-sm mb-1">Email</label>
+        <label htmlFor="admin-email" className="block text-sm mb-1">Email</label>
         <input
+          id="admin-email"
+          name="email"
           className="w-full border rounded-lg px-3 py-2 mb-3"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
+          placeholder="Enter your email"
+          title="Email address"
+          autoComplete="username"
           required
         />
-        <label className="block text-sm mb-1">Password</label>
+        <label htmlFor="admin-password" className="block text-sm mb-1">Password</label>
         <input
+          id="admin-password"
+          name="password"
           className="w-full border rounded-lg px-3 py-2 mb-3"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           type="password"
+          placeholder="Enter your password"
+          title="Password"
+          autoComplete="current-password"
           required
         />
         <RecaptchaCook visible={captchaRequired} recaptchaRef={recaptchaRef} />

@@ -1,8 +1,9 @@
-﻿import { randomInt } from 'node:crypto';
+import { randomInt } from 'node:crypto';
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { pool } from '../db/pool.js';
 import { ensureCsrfToken, requireCsrf } from '../middleware/csrf.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 import {
   authForgotPasswordRateLimit,
   authLoginRateLimit,
@@ -371,6 +372,67 @@ authRouter.post('/reset-password', requireCsrf, async (req, res) => {
   );
 
   res.json({ success: true, message: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập.' });
+});
+
+authRouter.post('/profile', requireAuth, requireCsrf, async (req, res) => {
+  const userId = req.session.userId;
+  const fullName = String(req.body?.full_name ?? '').trim();
+  const bio = String(req.body?.bio ?? '').trim() || null;
+
+  if (fullName.length < 3) {
+    res.status(422).json({ success: false, message: 'Họ và tên tối thiểu 3 ký tự.' });
+    return;
+  }
+
+  try {
+    const r = await pool.query(
+      'UPDATE users SET full_name = $1, bio = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING id, full_name, email, avatar_url, bio',
+      [fullName, bio, userId]
+    );
+    if (r.rows.length === 0) {
+      res.status(404).json({ success: false, message: 'Người dùng không tồn tại.' });
+      return;
+    }
+    const user = r.rows[0];
+    res.json({ success: true, message: 'Cập nhật hồ sơ thành công.', user });
+  } catch (err) {
+    console.error('Update profile error', err);
+    res.status(500).json({ success: false, message: 'Có lỗi xảy ra khi cập nhật hồ sơ.' });
+  }
+});
+
+authRouter.post('/password', requireAuth, requireCsrf, async (req, res) => {
+  const userId = req.session.userId;
+  const currentPassword = String(req.body?.current_password ?? '');
+  const newPassword = String(req.body?.new_password ?? '');
+
+  if (newPassword.length < 8) {
+    res.status(422).json({ success: false, message: 'Mật khẩu mới phải có ít nhất 8 ký tự.' });
+    return;
+  }
+
+  try {
+    const r = await pool.query('SELECT password_hash FROM users WHERE id = $1', [userId]);
+    if (r.rows.length === 0) {
+      res.status(404).json({ success: false, message: 'Người dùng không tồn tại.' });
+      return;
+    }
+    const row = r.rows[0];
+
+    const currentMatch = await bcrypt.compare(currentPassword, String(row.password_hash));
+    if (!currentMatch) {
+      res.status(401).json({ success: false, message: 'Mật khẩu hiện tại không chính xác.' });
+      return;
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [newHash, userId]);
+
+    res.json({ success: true, message: 'Đổi mật khẩu thành công.' });
+  } catch (err) {
+    console.error('Update password error', err);
+    res.status(500).json({ success: false, message: 'Có lỗi xảy ra khi đổi mật khẩu.' });
+  }
 });
 
 authRouter.post('/logout', requireCsrf, (req, res) => {

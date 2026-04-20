@@ -1,30 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, BookOpen, PenTool, Bookmark, Activity, Settings, Camera, LogOut, CheckCircle, X } from 'lucide-react';
-import { Skeleton } from '../../components/ui/Skeleton';
+import { useNavigate, Link } from 'react-router-dom';
+import { BookOpen, PenTool, Bookmark, Activity, Settings, CheckCircle, X } from 'lucide-react';
 import { apiFetch, apiJson, resetCsrfCache } from '../../lib/api';
 import { notifyAuthChanged } from '../../lib/authEvents';
-import { HeroEnter, Reveal } from '../../components/motion/ScrollReveal';
+import { Reveal } from '../../components/motion/ScrollReveal';
 
-interface ProfileUser {
-  full_name: string;
-  email: string;
-  avatar: string | null;
-  bio: string;
-}
-
-interface ProfileStats {
-  recipe_count: number;
-  post_count: number;
-  recipe_views_sum: number;
-}
-
-function formatStatNumber(n: number): string {
-  if (!Number.isFinite(n) || n < 0) return '0';
-  if (n >= 1_000_000) return `${Math.round(n / 100_000) / 10}M`.replace(/\.0M$/, 'M');
-  if (n >= 1000) return `${Math.round(n / 100) / 10}k`.replace(/\.0k$/, 'k');
-  return String(Math.round(n));
-}
+import type { ProfileUser, ProfileStats } from '../../components/profile/types';
+import ProfileHeader from '../../components/profile/ProfileHeader';
+import ProfileSidebar from '../../components/profile/ProfileSidebar';
+import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -34,6 +18,42 @@ export default function Profile() {
   const [user, setUser] = useState<ProfileUser | null>(null);
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // States for tabs data
+  const [myRecipes, setMyRecipes] = useState<any[]>([]);
+  const [myPosts, setMyPosts] = useState<any[]>([]);
+  const [savedRecipes, setSavedRecipes] = useState<any[]>([]);
+  const [myPlans, setMyPlans] = useState<any[]>([]);
+  const [isDataLoading, setIsDataLoading] = useState(false);
+
+  const loadTabData = useCallback(async (tab: string) => {
+    setIsDataLoading(true);
+    try {
+      if (tab === 'recipes') {
+        const d = await apiJson<{ recipes: any[] }>('/api/recipes/mine');
+        setMyRecipes(d.recipes ?? []);
+      } else if (tab === 'posts') {
+        const d = await apiJson<{ posts: any[] }>('/api/blog/posts/mine');
+        setMyPosts(d.posts ?? []);
+      } else if (tab === 'saved') {
+        const d = await apiJson<{ recipes: any[] }>('/api/recipes/saved');
+        setSavedRecipes(d.recipes ?? []);
+      } else if (tab === 'health') {
+        const d = await apiJson<{ plans: any[] }>('/api/health/plans');
+        setMyPlans(d.plans ?? []);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setIsDataLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user && activeTab !== 'settings') {
+      void loadTabData(activeTab);
+    }
+  }, [activeTab, user, loadTabData]);
 
   const loadMe = useCallback(async () => {
     setIsLoading(true);
@@ -102,107 +122,18 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 pb-24 overflow-x-hidden">
-      {/* Profile Header */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm pt-24 pb-12 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-20"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {!isLoading && user ? (
-          <HeroEnter>
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
-            <div className="relative group">
-              <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.full_name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <User className="w-16 h-16 text-gray-400" />
-                  </div>
-                )}
-              </div>
-              <label className="absolute bottom-0 right-0 p-2 bg-black text-white rounded-full cursor-pointer hover:bg-gray-800 transition-colors shadow-lg shadow-black/20 group-hover:scale-110">
-                <Camera className="w-4 h-4" />
-                <input type="file" className="hidden" accept="image/*" />
-              </label>
-            </div>
-
-            <div className="flex-1 pb-2">
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">{user.full_name}</h1>
-              <p className="text-gray-500 mb-2">{user.email}</p>
-              <p className="text-gray-600 max-w-lg">{user.bio}</p>
-            </div>
-
-            <div className="flex gap-4 pb-2">
-              <div className="text-center px-4">
-                <div className="text-2xl font-bold text-black">{formatStatNumber(stats?.recipe_count ?? 0)}</div>
-                <div className="text-sm text-gray-500 font-medium">Công thức</div>
-              </div>
-              <div className="text-center px-4 border-l border-r border-gray-200">
-                <div className="text-2xl font-bold text-black">{formatStatNumber(stats?.post_count ?? 0)}</div>
-                <div className="text-sm text-gray-500 font-medium">Bài viết</div>
-              </div>
-              <div className="text-center px-4">
-                <div className="text-2xl font-bold text-black">{formatStatNumber(stats?.recipe_views_sum ?? 0)}</div>
-                <div className="text-sm text-gray-500 font-medium">Lượt xem CT</div>
-              </div>
-            </div>
-          </div>
-          </HeroEnter>
-          ) : (
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
-            <div className="relative group">
-              <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
-                <Skeleton className="w-full h-full rounded-full" />
-              </div>
-            </div>
-            <div className="flex-1 pb-2 w-full">
-              <Skeleton className="h-8 w-48 mx-auto md:mx-0 mb-2" />
-              <Skeleton className="h-5 w-32 mx-auto md:mx-0 mb-3" />
-              <Skeleton className="h-5 w-64 mx-auto md:mx-0" />
-            </div>
-            <div className="flex gap-4 pb-2">
-              <div className="px-4"><Skeleton className="h-8 w-12 mb-1 mx-auto" /><Skeleton className="h-4 w-16 mx-auto" /></div>
-              <div className="px-4 border-l border-r border-gray-200"><Skeleton className="h-8 w-12 mb-1 mx-auto" /><Skeleton className="h-4 w-16 mx-auto" /></div>
-              <div className="px-4"><Skeleton className="h-8 w-12 mb-1 mx-auto" /><Skeleton className="h-4 w-16 mx-auto" /></div>
-            </div>
-          </div>
-          )}
-        </div>
-      </div>
+      <ProfileHeader isLoading={isLoading} user={user} stats={stats} />
 
       <Reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" y={22}>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/20 p-2 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto">
-              <nav className="space-y-1">
-                {tabs.map(tab => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
-                        activeTab === tab.id 
-                        ? 'bg-black text-white shadow-md' 
-                        : 'text-gray-600 hover:bg-white hover:text-black hover:shadow-sm'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-                <hr className="my-2 border-gray-100" />
-                <button
-                  type="button"
-                  onClick={() => void handleLogout()}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-red-600 hover:bg-red-50"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Đăng xuất
-                </button>
-              </nav>
-            </div>
+            <ProfileSidebar 
+              tabs={tabs} 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              onLogout={() => void handleLogout()} 
+            />
           </div>
 
           {/* Main Content */}
@@ -224,67 +155,117 @@ export default function Profile() {
               {activeTab === 'recipes' && (
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Công thức của tôi</h2>
-                  <div className="text-center py-12 text-gray-500">
-                    <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    Chưa có công thức nào được đăng.
-                  </div>
+                  {isDataLoading ? (
+                    <div className="text-center py-12 text-gray-500">Đang tải...</div>
+                  ) : myRecipes.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      Chưa có công thức nào được đăng.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {myRecipes.map((r: any) => (
+                        <div key={r.id} className="border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow group">
+                          {r.image_url ? (
+                            <img src={r.image_url} alt={r.title} className="w-full h-40 object-cover" />
+                          ) : (
+                            <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                              <BookOpen className="w-8 h-8 text-gray-300" />
+                            </div>
+                          )}
+                          <div className="p-4">
+                            <h4 className="font-bold text-gray-900 line-clamp-1">{r.title}</h4>
+                            <p className="text-sm text-gray-500 mt-1">{r.category_name}</p>
+                            <Link to={`/recipes/detail/${r.id}`} className="text-yellow-600 text-sm mt-3 inline-block font-medium hover:text-yellow-700">Xem chi tiết &rarr;</Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               {activeTab === 'posts' && (
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Bài viết của tôi</h2>
-                  <div className="text-center py-12 text-gray-500">
-                    <PenTool className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    Chưa có bài viết nào được đăng.
-                  </div>
+                  {isDataLoading ? (
+                    <div className="text-center py-12 text-gray-500">Đang tải...</div>
+                  ) : myPosts.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <PenTool className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      Chưa có bài viết nào được đăng.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {myPosts.map((p: any) => (
+                        <div key={p.id} className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow">
+                          <span className="text-xs font-semibold text-yellow-600">{p.category_name}</span>
+                          <h4 className="font-bold text-gray-900 mt-1 text-lg line-clamp-2">{p.title}</h4>
+                          <Link to={`/blog/detail/${p.id}`} className="text-yellow-600 text-sm mt-3 inline-block font-medium hover:text-yellow-700">Đọc bài &rarr;</Link>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               {activeTab === 'saved' && (
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Công thức đã lưu</h2>
-                  <div className="text-center py-12 text-gray-500">
-                    <Bookmark className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    Bạn chưa lưu công thức nào.
-                  </div>
+                  {isDataLoading ? (
+                    <div className="text-center py-12 text-gray-500">Đang tải...</div>
+                  ) : savedRecipes.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <Bookmark className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      Bạn chưa lưu công thức nào.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {savedRecipes.map((r: any) => (
+                        <div key={r.id} className="border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
+                          {r.image_url ? (
+                            <img src={r.image_url} alt={r.title} className="w-full h-40 object-cover" />
+                          ) : (
+                            <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                              <BookOpen className="w-8 h-8 text-gray-300" />
+                            </div>
+                          )}
+                          <div className="p-4">
+                            <h4 className="font-bold text-gray-900 line-clamp-1">{r.title}</h4>
+                            <p className="text-sm text-gray-500 mt-1">{r.category_name}</p>
+                            <Link to={`/recipes/detail/${r.id}`} className="text-yellow-600 text-sm mt-3 inline-block font-medium hover:text-yellow-700">Xem chi tiết &rarr;</Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               {activeTab === 'health' && (
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Kế hoạch ăn uống</h2>
-                  <div className="text-center py-12 text-gray-500">
-                    <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    Bạn chưa tạo kế hoạch nào.
-                  </div>
+                  {isDataLoading ? (
+                    <div className="text-center py-12 text-gray-500">Đang tải...</div>
+                  ) : myPlans.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      Bạn chưa tạo kế hoạch nào.
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {myPlans.map((plan: any) => (
+                         <div key={plan.id} className="border border-gray-100 rounded-xl p-5 flex items-center justify-between hover:shadow-md transition-shadow bg-gray-50/50">
+                           <div>
+                             <h4 className="font-bold text-gray-900">{plan.name}</h4>
+                             <p className="text-sm text-gray-500 mt-1">{plan.start_date && plan.end_date ? `${plan.start_date.slice(0,10)} → ${plan.end_date.slice(0,10)}` : ''}</p>
+                           </div>
+                           <Link to={`/health/detail/${plan.id}`} className="bg-white text-black px-4 py-2 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-50">Chi tiết</Link>
+                         </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               {activeTab === 'settings' && (
-                <div>
-                  <h2 className="text-2xl font-bold mb-6">Cài đặt tài khoản</h2>
-                  {isLoading ? (
-                     <div className="space-y-6 max-w-lg">
-                       <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-10 w-full rounded-lg"/></div>
-                       <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-10 w-full rounded-lg"/></div>
-                       <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-24 w-full rounded-lg"/></div>
-                       <Skeleton className="h-10 w-32 rounded-lg" />
-                     </div>
-                  ) : (
-                    <form className="space-y-6 max-w-lg" onSubmit={(e) => { e.preventDefault(); setShowSuccessMenu(true); }}>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Họ và tên</label>
-                        <input type="text" defaultValue={user?.full_name} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-black focus:ring-0" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" defaultValue={user?.email} disabled className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Tiểu sử</label>
-                        <textarea defaultValue={user?.bio} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-black focus:ring-0"></textarea>
-                      </div>
-                      <button type="submit" className="bg-black text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800">Cập nhật hồ sơ</button>
-                    </form>
-                  )}
-                </div>
+                <ProfileSettingsForm isLoading={isLoading} user={user} onSuccessSubmit={() => setShowSuccessMenu(true)} />
               )}
               </Reveal>
             </div>

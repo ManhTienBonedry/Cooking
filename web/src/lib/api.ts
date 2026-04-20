@@ -44,12 +44,19 @@ export async function apiJson<T>(path: string, init: RequestInit = {}): Promise<
   const r = await apiFetch(path, init);
   const text = await r.text();
   if (!r.ok) {
+    let parsedMessage: string | null = null;
     try {
-      const err = JSON.parse(text) as { message?: string };
-      throw new Error(err.message ?? (text || r.statusText));
+      const err = JSON.parse(text) as { message?: string; error?: string };
+      parsedMessage =
+        typeof err.message === 'string' && err.message.trim()
+          ? err.message
+          : typeof err.error === 'string' && err.error.trim()
+          ? err.error
+          : null;
     } catch {
-      throw new Error(text || r.statusText);
+      parsedMessage = null;
     }
+    throw new Error(parsedMessage ?? (text || r.statusText));
   }
   return text ? (JSON.parse(text) as T) : ({} as T);
 }

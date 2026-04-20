@@ -1,0 +1,152 @@
+import { useEffect, useState } from 'react';
+import { ChefHat } from 'lucide-react';
+import { Reveal, RevealStaggerItem } from '../motion/ScrollReveal';
+import { Skeleton } from '../ui/Skeleton';
+import { apiJson } from '../../lib/api';
+import RecipeHomeCard from './RecipeHomeCard';
+import type { FeaturedRecipe } from './types';
+import { Link } from 'react-router-dom';
+
+const STATIC_COLLECTIONS = [
+  { text: 'Công thức nấu ăn bằng nồi áp suất', count: 38 },
+  { text: 'Công thức nấu ăn thuần chay', count: 199 },
+  { text: 'Công thức chuẩn bị bữa ăn', count: 38 },
+  { text: 'Công thức nấu ăn nhanh và dễ dàng', count: 497 },
+  { text: 'Các công thức nấu mì Ý', count: 178 },
+  { text: 'Công thức nấu súp', count: 76 },
+  { text: 'Các công thức nấu ăn phổ biến nhất', count: 89 },
+];
+
+export default function FeaturedRecipes() {
+  const [featuredRecipes, setFeaturedRecipes] = useState<FeaturedRecipe[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await apiJson<{ recipes: FeaturedRecipe[] }>('/api/recipes/featured?limit=7');
+        if (!cancelled) setFeaturedRecipes(data.recipes ?? []);
+      } catch {
+        if (!cancelled) setFeaturedRecipes([]);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const mainRecipe = featuredRecipes.length > 0 ? featuredRecipes[0] : null;
+  const otherRecipes = featuredRecipes.length > 1 ? featuredRecipes.slice(1) : [];
+
+  return (
+    <section className="py-20 bg-gradient-to-b from-[#f3f6f9] to-[#ffffff]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <Reveal className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-black mb-4">Công Thức Nổi Bật</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Những món ăn được yêu thích nhất với hướng dẫn chi tiết từng bước
+          </p>
+        </Reveal>
+
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Cột trái: Công thức (Khoảng 2/3) */}
+          <div className="lg:w-2/3">
+            {isLoading ? (
+              <div className="space-y-12">
+                <div>
+                  <Skeleton className="w-full h-[400px] rounded-sm mb-4" />
+                  <Skeleton className="w-2/3 h-8 mb-2" />
+                  <Skeleton className="w-full h-16" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <Skeleton className="w-full h-64 rounded-sm" />
+                  <Skeleton className="w-full h-64 rounded-sm" />
+                </div>
+              </div>
+            ) : featuredRecipes.length === 0 ? (
+              <div className="text-center py-12">
+                <ChefHat className="h-24 w-24 text-gray-200 mx-auto mb-4" />
+                <p className="text-gray-500 text-lg">Chưa có công thức nào</p>
+              </div>
+            ) : (
+              <>
+                {/* Main Spotlight Recipe */}
+                {mainRecipe && (
+                  <RevealStaggerItem index={0} stagger={0.1}>
+                    <div className="mb-16 group">
+                      <Link to={`/recipes/detail/${mainRecipe.id}`} className="block">
+                        <div className="overflow-hidden rounded-sm mb-6">
+                          {mainRecipe.image_url ? (
+                           <img src={mainRecipe.image_url} alt={mainRecipe.title} className="w-full h-[300px] object-cover md:h-[450px] transform group-hover:scale-105 transition-transform duration-700" />
+                          ) : (
+                           <div className="w-full h-[300px] md:h-[450px] bg-gray-100 flex items-center justify-center">
+                              <ChefHat className="w-24 h-24 text-gray-300" />
+                           </div>
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+                            Ngôi sao hôm nay
+                          </span>
+                          <h3 className="text-3xl md:text-4xl font-serif font-bold text-black mb-4 group-hover:text-gray-600 transition-colors">
+                            {mainRecipe.title}
+                          </h3>
+                          {mainRecipe.description && (
+                            <p className="text-gray-700 md:text-lg max-w-3xl mb-6">
+                              {mainRecipe.description.length > 200 ? `${mainRecipe.description.substring(0, 200)}...` : mainRecipe.description}
+                            </p>
+                          )}
+                          <span className="text-xs uppercase tracking-widest font-bold text-amber-600">ĐỌC TIẾP</span>
+                        </div>
+                      </Link>
+                    </div>
+                  </RevealStaggerItem>
+                )}
+
+                {/* Sub Grid of Other Recipes */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
+                  {otherRecipes.map((recipe, idx) => (
+                    <RevealStaggerItem key={recipe.id} index={idx + 1} stagger={0.1}>
+                      <RecipeHomeCard recipe={recipe} />
+                    </RevealStaggerItem>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Cột phải: Sidebar (Khoảng 1/3) */}
+          <div className="lg:w-1/3">
+            <Reveal y={30} className="sticky top-24">
+              <div className="bg-white shadow-sm border border-gray-100 p-8 rounded-sm">
+                <h4 className="font-serif font-black text-lg text-gray-800 uppercase tracking-wider mb-6 text-center border-b border-gray-200 pb-4">
+                  Bộ Sưu Tập Của Chúng Tôi
+                </h4>
+                <ul className="space-y-4">
+                  {STATIC_COLLECTIONS.map((col, i) => (
+                    <li key={i} className="flex justify-between items-center group cursor-pointer border-b border-gray-100 pb-4 last:border-0">
+                      <div className="flex space-x-3 items-center">
+                        <span className="w-5 h-5 rounded-full bg-gray-800 text-white text-[10px] font-bold flex flex-shrink-0 items-center justify-center group-hover:bg-amber-600 transition-colors">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm font-serif text-gray-700 group-hover:text-black">
+                          {col.text}
+                        </span>
+                      </div>
+                      <span className="text-xs font-mono text-gray-400">{col.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}

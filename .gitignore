@@ -73,6 +73,14 @@ frontend/uploads/
 # Vendored agent skills (not part of the Cook app; large third-party tree)
 .agent-skillwebs/
 
+# AI Agent / Tool directories (Antigravity, Gemini, Copilot, etc.)
+.agent-s/
+.gemini/
+.copilot/
+.cursor/
+.claude/
+.antigravity/
+
 # Backup / temp
 *.bak
 *.tmp
@@ -84,3 +92,4 @@ frontend/uploads/
 # backend/config/mail.php
 # backend/logs/*
 # !backend/logs/.gitkeep
+

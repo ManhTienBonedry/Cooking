@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ChefHat, Menu, LogOut } from 'lucide-react';
 import AuthModal from './AuthModal';
 import { apiFetch, apiJson, resetCsrfCache } from '../lib/api';
@@ -18,6 +19,14 @@ type MeState =
         bio: string | null;
       };
     };
+
+const NAV_ITEMS = [
+  { path: '/', label: 'Trang chủ' },
+  { path: '/recipes', label: 'Công thức' },
+  { path: '/blog', label: 'Diễn đàn' },
+  { path: '/health', label: 'Sức khỏe' },
+  { path: '/about', label: 'Về chúng tôi' },
+];
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -81,22 +90,38 @@ export default function Navbar() {
 
   return (
     <>
-      <nav id="navbar" className="fixed w-full top-0 z-50 transition-all duration-300 navbar--dark">
+      <nav id="navbar" className="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" onClick={() => scrollWindowToTop()} className="flex items-center space-x-2 group">
               <div className="bg-black p-2 rounded-full group-hover:scale-110 transition-transform duration-300">
                 <ChefHat className="h-6 w-6 text-white" />
               </div>
-              <span id="brandText" className="text-xl font-bold text-white transition-colors duration-300">CookingBoy</span>
+              <span id="brandText" className="text-xl font-bold text-gray-900 transition-colors duration-300">CookingBoy</span>
             </Link>
             <div className="hidden md:block">
-              <div className="flex items-center space-x-8">
-                <Link to="/" onClick={() => scrollWindowToTop()} className={`nav-link px-3 py-4 text-sm font-medium transition-colors duration-300 ${currentPage === '/' ? 'active text-black' : 'text-gray-600 hover:text-black'}`}>Trang chủ</Link>
-                <Link to="/recipes" onClick={() => scrollWindowToTop()} className={`nav-link px-3 py-4 text-sm font-medium transition-colors duration-300 ${currentPage.startsWith('/recipes') ? 'active text-black' : 'text-gray-600 hover:text-black'}`}>Công thức</Link>
-                <Link to="/blog" onClick={() => scrollWindowToTop()} className={`nav-link px-3 py-4 text-sm font-medium transition-colors duration-300 ${currentPage.startsWith('/blog') ? 'active text-black' : 'text-gray-600 hover:text-black'}`}>Diễn đàn</Link>
-                <Link to="/health" onClick={() => scrollWindowToTop()} className={`nav-link px-3 py-4 text-sm font-medium transition-colors duration-300 ${currentPage.startsWith('/health') ? 'active text-black' : 'text-gray-600 hover:text-black'}`}>Sức khỏe</Link>
-                <Link to="/about" onClick={() => scrollWindowToTop()} className={`nav-link px-3 py-4 text-sm font-medium transition-colors duration-300 ${currentPage.startsWith('/about') ? 'active text-black' : 'text-gray-600 hover:text-black'}`}>Về chúng tôi</Link>
+              <div className="flex items-center space-x-2">
+                {NAV_ITEMS.map((item) => {
+                  const isActive = item.path === '/' ? currentPage === '/' : currentPage.startsWith(item.path);
+                  return (
+                    <Link 
+                      key={item.path}
+                      to={item.path} 
+                      onClick={() => scrollWindowToTop()} 
+                      className={`relative px-4 py-2 text-sm transition-colors duration-300 rounded-full font-medium ${isActive ? 'text-white' : 'text-gray-600 hover:text-black hover:bg-gray-100'}`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="nav-pill-desktop"
+                          className="absolute inset-0 rounded-full bg-black shadow-md border border-gray-800"
+                          transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                          style={{ zIndex: -1 }}
+                        />
+                      )}
+                      <span className="relative z-10">{item.label}</span>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -136,7 +161,12 @@ export default function Navbar() {
                   </>
                 )}
               </div>
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2 rounded-full text-gray-800 hover:text-black hover:bg-gray-100 transition-all duration-300">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2 rounded-full text-gray-800 hover:text-black hover:bg-gray-100 transition-all duration-300"
+                aria-label={isMenuOpen ? 'Đóng menu' : 'Mở menu'}
+                title={isMenuOpen ? 'Đóng menu' : 'Mở menu'}
+              >
                 <Menu className="h-6 w-6" />
               </button>
             </div>
@@ -144,11 +174,29 @@ export default function Navbar() {
           {/* Mobile menu */}
           <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-[30rem] opacity-100 mt-2 pb-4' : 'max-h-0 opacity-0 pointer-events-none'}`}>
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-xl border border-gray-100 rounded-lg relative z-50">
-              <Link to="/" onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }} className={`mobile-menu-item ${isMenuOpen ? 'show' : ''} block px-3 py-2 rounded-md text-base font-medium ${currentPage === '/' ? 'active' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}>Trang chủ</Link>
-              <Link to="/recipes" onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }} className={`mobile-menu-item ${isMenuOpen ? 'show' : ''} block px-3 py-2 rounded-md text-base font-medium ${currentPage.startsWith('/recipes') ? 'active' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}>Công thức</Link>
-              <Link to="/blog" onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }} className={`mobile-menu-item ${isMenuOpen ? 'show' : ''} block px-3 py-2 rounded-md text-base font-medium ${currentPage.startsWith('/blog') ? 'active' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}>Diễn đàn</Link>
-              <Link to="/health" onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }} className={`mobile-menu-item ${isMenuOpen ? 'show' : ''} block px-3 py-2 rounded-md text-base font-medium ${currentPage.startsWith('/health') ? 'active' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}>Sức khỏe</Link>
-              <Link to="/about" onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }} className={`mobile-menu-item ${isMenuOpen ? 'show' : ''} block px-3 py-2 rounded-md text-base font-medium ${currentPage.startsWith('/about') ? 'active' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}>Về chúng tôi</Link>
+              <div className="space-y-1">
+                {NAV_ITEMS.map((item) => {
+                  const isActive = item.path === '/' ? currentPage === '/' : currentPage.startsWith(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }}
+                      className={`relative isolate mobile-menu-item ${isMenuOpen ? 'show' : ''} block px-3 py-2 rounded-md font-medium text-base transition-colors duration-300 ${isActive ? 'text-white' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="nav-pill-mobile"
+                          className="absolute inset-0 rounded-md bg-black shadow-md border border-gray-800"
+                          transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                          style={{ zIndex: -1 }}
+                        />
+                      )}
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
 
               <div className="border-t border-gray-100 pt-2 mt-2 space-y-1">
                 {me === null ? (

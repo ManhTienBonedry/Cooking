@@ -47,7 +47,8 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(ensureCsrfToken);
 
 app.get('/api/healthz', (_req, res) => {
@@ -61,6 +62,15 @@ app.get('/api/readyz', async (_req, res) => {
   } catch {
     res.status(503).json({ ok: false, service: 'cookapp-server', db: false });
   }
+});
+
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Expires', '-1');
+    res.set('Pragma', 'no-cache');
+  }
+  next();
 });
 
 app.use('/api/auth', authRouter);

@@ -38,33 +38,41 @@ async function callGemini(prompt: string): Promise<Record<string, unknown> | unk
   if (!apiKey) return null;
 
   const url =
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey,
-    },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-    }),
-    signal: AbortSignal.timeout(45_000),
-  });
-
-  if (!res.ok) return null;
-  const json = (await res.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
-  const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) return null;
-
-  let jsonText = text.trim();
-  const md = jsonText.match(/```json\s*(.*?)\s*```/s);
-  if (md) jsonText = md[1]!.trim();
-
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
   try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+
+    if (!res.ok) {
+      console.error('Gemini API Error:', res.status, res.statusText, await res.text());
+      return null;
+    }
+    
+    const json = (await res.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      console.error('Gemini API returned no text:', json);
+      return null;
+    }
+
+    let jsonText = text.trim();
+    const md = jsonText.match(/```json\s*(.*?)\s*```/s);
+    if (md) jsonText = md[1]!.trim();
+
     return JSON.parse(jsonText) as Record<string, unknown> | unknown[];
-  } catch {
+  } catch (err) {
+    console.error('Gemini API fetch Exception:', err);
     return null;
   }
 }

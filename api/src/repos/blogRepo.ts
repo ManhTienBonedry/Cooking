@@ -2,6 +2,30 @@
 
 type DbRow = Record<string, unknown>;
 
+const DEFAULT_BLOG_CATEGORIES = ['Mẹo vặt', 'Văn hóa', 'Healthy', 'Kỹ thuật', 'An toàn'];
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 120);
+}
+
+async function ensureDefaultCategories(): Promise<void> {
+  for (const name of DEFAULT_BLOG_CATEGORIES) {
+    const slug = slugify(name);
+    await pool.query(
+      `INSERT INTO blog_categories (name, slug)
+       VALUES ($1, $2)
+       ON CONFLICT (slug) DO NOTHING`,
+      [name, slug]
+    );
+  }
+}
+
 function isAllCategory(category: string | null): boolean {
   return !category || category === 'Tat ca' || category === 'Tất cả';
 }
@@ -13,6 +37,36 @@ export async function searchPosts(search: string | null, category: string | null
      LEFT JOIN users u ON p.author_id = u.id
      WHERE p.status = 'approved'`;
   const params: (string | number)[] = [];
+
+  if (search) {
+    sql += ` AND (p.title ILIKE $${params.length + 1} OR p.content ILIKE $${params.length + 2})`;
+    const t = `%${search}%`;
+    params.push(t, t);
+  }
+  if (!isAllCategory(category)) {
+    sql += ` AND c.name = $${params.length + 1}`;
+    params.push(category as string);
+  }
+  sql += ` ORDER BY p.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+  params.push(limit, offset);
+
+  const { rows } = await pool.query(sql, params);
+  return rows;
+}
+
+export async function searchPostsWithViewer(
+  search: string | null,
+  category: string | null,
+  viewerId: number,
+  limit: number,
+  offset: number
+): Promise<DbRow[]> {
+  let sql = `SELECT p.*, c.name AS category_name, u.full_name AS author_name, u.avatar_url AS author_avatar, u.email AS author_email
+     FROM blog_posts p
+     LEFT JOIN blog_categories c ON p.category_id = c.id
+     LEFT JOIN users u ON p.author_id = u.id
+     WHERE (p.status = 'approved' OR p.author_id = $1)`;
+  const params: (string | number)[] = [viewerId];
 
   if (search) {
     sql += ` AND (p.title ILIKE $${params.length + 1} OR p.content ILIKE $${params.length + 2})`;
@@ -62,4 +116,94 @@ export async function countSearchPosts(search: string | null, category: string |
 
   const { rows } = await pool.query(sql, params);
   return Number(rows[0]?.total ?? 0);
+}
+
+export async function countSearchPostsWithViewer(
+  search: string | null,
+  category: string | null,
+  viewerId: number
+): Promise<number> {
+  let sql = `SELECT COUNT(*) AS total
+     FROM blog_posts p
+     LEFT JOIN blog_categories c ON p.category_id = c.id
+     WHERE (p.status = 'approved' OR p.author_id = $1)`;
+  const params: (string | number)[] = [viewerId];
+
+  if (search) {
+    sql += ` AND (p.title ILIKE $${params.length + 1} OR p.content ILIKE $${params.length + 2})`;
+    const t = `%${search}%`;
+    params.push(t, t);
+  }
+  if (!isAllCategory(category)) {
+    sql += ` AND c.name = $${params.length + 1}`;
+    params.push(category as string);
+  }
+
+  const { rows } = await pool.query(sql, params);
+  return Number(rows[0]?.total ?? 0);
+}
+
+export async function getCategories(): Promise<DbRow[]> {
+  await ensureDefaultCategories();
+  const { rows } = await pool.query('SELECT id, name FROM blog_categories ORDER BY name ASC');
+  return rows;
+}
+
+export async function ensureCategoryExists(name: string): Promise<number | null> {
+  const trimmed = name.trim();
+  if (trimmed.length < 2) return null;
+  const slug = slugify(trimmed);
+  if (!slug) return null;
+
+  await pool.query(
+    `INSERT INTO blog_categories (name, slug)
+     VALUES ($1, $2)
+     ON CONFLICT (slug) DO NOTHING`,
+    [trimmed, slug]
+  );
+
+  const r = await pool.query(
+    `SELECT id FROM blog_categories WHERE slug = $1 OR name = $2 LIMIT 1`,
+    [slug, trimmed]
+  );
+  return Number(r.rows[0]?.id ?? 0) || null;
+}
+
+export async function createPost(data: {
+  title: string;
+  content: string;
+  excerpt: string | null;
+  imageUrl: string | null;
+  categoryId: number;
+  authorId: number;
+  slug: string;
+}): Promise<number | null> {
+  const r = await pool.query(
+    `INSERT INTO blog_posts (title, slug, excerpt, content, image_url, category_id, author_id, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')
+     RETURNING id`,
+    [
+      data.title,
+      data.slug,
+      data.excerpt,
+      data.content,
+      data.imageUrl,
+      data.categoryId,
+      data.authorId,
+    ]
+  );
+  return Number(r.rows[0]?.id ?? 0) || null;
+}
+
+export async function getPostsByAuthor(authorId: number, limit: number, offset: number): Promise<DbRow[]> {
+  const { rows } = await pool.query(
+    `SELECT p.*, c.name AS category_name
+     FROM blog_posts p
+     LEFT JOIN blog_categories c ON p.category_id = c.id
+     WHERE p.author_id = $1
+     ORDER BY p.created_at DESC
+     LIMIT $2 OFFSET $3`,
+    [authorId, limit, offset]
+  );
+  return rows;
 }
