@@ -93,3 +93,11 @@ frontend/uploads/
 # backend/logs/*
 # !backend/logs/.gitkeep
 
+# Ignore AI instructions and outputs
+.github/copilot-sdk/
+.github/devops-rollout-plan/
+.github/instructions/
+.github/web-coder/
+
+# Ignore local public uploads
+web/public/uploads/
