@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Clock, User, Eye, ArrowLeft, Bookmark, BookmarkCheck, Check, ChefHat } from 'lucide-react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { apiFetch, apiJson } from '../../lib/api';
+import { MOCK_RECIPES } from '../../lib/mockData';
 import { HeroEnter, Reveal, RevealStaggerItem } from '../../components/motion/ScrollReveal';
 
 interface RecipeRow {
@@ -39,6 +40,20 @@ export default function RecipeDetail() {
   const loadRecipe = useCallback(async () => {
     if (!id) return;
     setIsLoading(true);
+
+    const numericId = Number(id);
+    if (numericId < 0) {
+      const mockRecipe = MOCK_RECIPES.find((r) => r.id === numericId);
+      if (mockRecipe) {
+        setRecipe(mockRecipe as unknown as RecipeRow);
+        setIsSaved(false);
+      } else {
+        setRecipe(null);
+      }
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const data = await apiJson<{ recipe: RecipeRow; isSaved?: boolean }>(`/api/recipes/${id}`);
       setRecipe(data.recipe);
@@ -147,7 +162,7 @@ export default function RecipeDetail() {
               {diff}
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">{recipe.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">{recipe.title}</h1>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
             <div className="flex items-center space-x-1">
               <Clock className="h-4 w-4" />
@@ -190,7 +205,7 @@ export default function RecipeDetail() {
             {recipe.description && (
               <Reveal y={18}>
                 <div className="bg-white rounded-2xl p-6 shadow-lg">
-                  <h2 className="text-2xl font-bold text-black mb-4">Mô tả</h2>
+                  <h2 className="text-2xl font-serif font-bold text-black mb-4">Mô tả</h2>
                   <p className="text-gray-700 leading-relaxed">{recipe.description}</p>
                 </div>
               </Reveal>
@@ -198,7 +213,7 @@ export default function RecipeDetail() {
 
             <Reveal y={20}>
               <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <h2 className="text-2xl font-bold text-black mb-6">Hướng dẫn nấu ăn</h2>
+                <h2 className="text-2xl font-serif font-bold text-black mb-6">Hướng dẫn nấu ăn</h2>
                 <div className="space-y-4">
                   {instructionLines.length === 0 ? (
                     <p className="text-gray-500 text-sm">Chưa có hướng dẫn.</p>
@@ -224,7 +239,7 @@ export default function RecipeDetail() {
           <div className="space-y-6">
             <Reveal y={18} delay={0.05}>
               <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <h2 className="text-2xl font-bold text-black mb-4">Nguyên liệu</h2>
+                <h2 className="text-2xl font-serif font-bold text-black mb-4">Nguyên liệu</h2>
                 <ul className="space-y-2">
                   {ingredientLines.length === 0 ? (
                     <li className="text-gray-500 text-sm">Chưa có danh sách nguyên liệu.</li>

@@ -100,8 +100,8 @@ export default function Health() {
       <div className="bg-white/60 backdrop-blur-md shadow-sm border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <Reveal className="text-center" y={20}>
-            <h1 className="text-4xl md:text-5xl font-bold text-black mb-4">Quản lý Sức khỏe và Lập kế hoạch</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-serif italic font-bold text-black mb-4">Quản lý Sức khỏe và Lập kế hoạch</h1>
+            <p className="text-xl text-gray-600 font-serif max-w-2xl mx-auto">
               Lập kế hoạch bữa ăn, theo dõi dinh dưỡng và quản lý sức khỏe một cách thông minh
             </p>
           </Reveal>
@@ -118,7 +118,7 @@ export default function Health() {
             {activeTab === 'plans' && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-2xl font-bold text-black">Kế hoạch bữa ăn</h3>
+                  <h3 className="text-2xl font-serif font-bold text-black">Kế hoạch bữa ăn</h3>
                   <button onClick={() => void openCreatePlanModal()} className="bg-black text-white px-5 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors inline-flex items-center space-x-2 text-sm">
                     <Plus className="w-4 h-4"/>
                     <span>Tạo kế hoạch mới</span>
@@ -147,7 +147,7 @@ export default function Health() {
         <Reveal y={24}>
           <div className="bg-white/60 backdrop-blur-md text-black rounded-2xl shadow-md p-8 md:p-12 text-center border border-white/20">
             <HeartPulse className="w-16 h-16 mx-auto mb-6 text-red-500 animate-pulse" />
-            <h2 className="text-3xl font-bold mb-4">Bắt đầu hành trình sức khỏe của bạn ngay hôm nay</h2>
+            <h2 className="text-3xl font-serif font-bold mb-4">Bắt đầu hành trình sức khỏe của bạn ngay hôm nay</h2>
             <p className="text-gray-600 mb-8 max-w-xl mx-auto">
               Trải nghiệm sự tiện lợi của việc lập kế hoạch bữa ăn và để chúng tôi giúp bạn đạt được mục tiêu sức khỏe.
             </p>

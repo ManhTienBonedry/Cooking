@@ -11,7 +11,7 @@ declare global {
 
 export default function Home() {
   return (
-    <main className="bg-white">
+    <main className="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
       <HomeEditorialHeader />
       <FeaturedRecipes />
       <HomeCategories />

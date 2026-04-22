@@ -8,13 +8,13 @@ import type { FeaturedRecipe } from './types';
 import { Link } from 'react-router-dom';
 
 const STATIC_COLLECTIONS = [
-  { text: 'Công thức nấu ăn bằng nồi áp suất', count: 38 },
-  { text: 'Công thức nấu ăn thuần chay', count: 199 },
-  { text: 'Công thức chuẩn bị bữa ăn', count: 38 },
-  { text: 'Công thức nấu ăn nhanh và dễ dàng', count: 497 },
-  { text: 'Các công thức nấu mì Ý', count: 178 },
-  { text: 'Công thức nấu súp', count: 76 },
-  { text: 'Các công thức nấu ăn phổ biến nhất', count: 89 },
+  { text: 'Công thức Nồi áp suất' },
+  { text: 'Món thuần chay' },
+  { text: 'Thực đơn bận rộn' },
+  { text: 'Công thức nhanh & dễ' },
+  { text: 'Các món Mì Ý (Pasta)' },
+  { text: 'Các món Súp & Canh' },
+  { text: 'Công thức xem nhiều nhất' },
 ];
 
 export default function FeaturedRecipes() {
@@ -42,12 +42,12 @@ export default function FeaturedRecipes() {
   const otherRecipes = featuredRecipes.length > 1 ? featuredRecipes.slice(1) : [];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-[#f3f6f9] to-[#ffffff]">
+    <section className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         <Reveal className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-black mb-4">Công Thức Nổi Bật</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-5xl font-serif text-black mb-4">Công Thức Nổi Bật</h2>
+          <p className="text-xl text-gray-500 max-w-3xl mx-auto font-medium">
             Những món ăn được yêu thích nhất với hướng dẫn chi tiết từng bước
           </p>
         </Reveal>
@@ -81,11 +81,11 @@ export default function FeaturedRecipes() {
                       <Link to={`/recipes/detail/${mainRecipe.id}`} className="block">
                         <div className="overflow-hidden rounded-sm mb-6">
                           {mainRecipe.image_url ? (
-                           <img src={mainRecipe.image_url} alt={mainRecipe.title} className="w-full h-[300px] object-cover md:h-[450px] transform group-hover:scale-105 transition-transform duration-700" />
+                            <img src={mainRecipe.image_url} alt={mainRecipe.title} className="w-full h-[300px] object-cover md:h-[450px] transform group-hover:scale-105 transition-transform duration-700" />
                           ) : (
-                           <div className="w-full h-[300px] md:h-[450px] bg-gray-100 flex items-center justify-center">
+                            <div className="w-full h-[300px] md:h-[450px] bg-gray-100 flex items-center justify-center">
                               <ChefHat className="w-24 h-24 text-gray-300" />
-                           </div>
+                            </div>
                           )}
                         </div>
                         <div>
@@ -100,7 +100,7 @@ export default function FeaturedRecipes() {
                               {mainRecipe.description.length > 200 ? `${mainRecipe.description.substring(0, 200)}...` : mainRecipe.description}
                             </p>
                           )}
-                          <span className="text-xs uppercase tracking-widest font-bold text-amber-600">ĐỌC TIẾP</span>
+                          <span className="text-xs uppercase tracking-widest font-bold text-black">ĐỌC TIẾP</span>
                         </div>
                       </Link>
                     </div>
@@ -123,21 +123,20 @@ export default function FeaturedRecipes() {
           <div className="lg:w-1/3">
             <Reveal y={30} className="sticky top-24">
               <div className="bg-white shadow-sm border border-gray-100 p-8 rounded-sm">
-                <h4 className="font-serif font-black text-lg text-gray-800 uppercase tracking-wider mb-6 text-center border-b border-gray-200 pb-4">
-                  Bộ Sưu Tập Của Chúng Tôi
+                <h4 className="font-black text-lg text-gray-800 uppercase tracking-wider mb-6 text-center border-b border-gray-200 pb-4">
+                  Bộ Sưu Tập Công Thức
                 </h4>
                 <ul className="space-y-4">
                   {STATIC_COLLECTIONS.map((col, i) => (
                     <li key={i} className="flex justify-between items-center group cursor-pointer border-b border-gray-100 pb-4 last:border-0">
                       <div className="flex space-x-3 items-center">
-                        <span className="w-5 h-5 rounded-full bg-gray-800 text-white text-[10px] font-bold flex flex-shrink-0 items-center justify-center group-hover:bg-amber-600 transition-colors">
+                        <span className="w-5 h-5 rounded-full bg-gray-800 text-white text-[10px] font-bold flex flex-shrink-0 items-center justify-center group-hover:bg-gray-600 transition-colors">
                           {i + 1}
                         </span>
-                        <span className="text-sm font-serif text-gray-700 group-hover:text-black">
+                        <span className="text-sm text-gray-700 group-hover:text-black">
                           {col.text}
                         </span>
                       </div>
-                      <span className="text-xs font-mono text-gray-400">{col.count}</span>
                     </li>
                   ))}
                 </ul>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 import AuthModal from '../../components/AuthModal';
 import { apiJson } from '../../lib/api';
 import { Reveal } from '../../components/motion/ScrollReveal';
@@ -8,8 +8,9 @@ import RecipeFilterBar from '../../components/recipes/RecipeFilterBar';
 import RecipeList from '../../components/recipes/RecipeList';
 import CreateRecipeModal from '../../components/recipes/CreateRecipeModal';
 import type { RecipeListRow, RecipeCategory } from '../../components/recipes/types';
+import { MOCK_RECIPES } from '../../lib/mockData';
 
-const LEGACY_RECIPE_CATEGORIES = ['Món chính', 'Món khai vị', 'Tráng miệng', 'Đồ uống'];
+const LEGACY_RECIPE_CATEGORIES = ['Bữa Tối', 'Nhanh & Gọn', 'Món Salad', 'Eat Clean', 'Món Chay', 'Nồi Áp Suất', 'Thuần Chay', 'Thực đơn bận rộn', 'Súp & Canh'];
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,10 +31,11 @@ export default function Recipes() {
       try {
         const data = await apiJson<{ categories: RecipeCategory[] }>('/api/recipes/categories');
         const options = data.categories ?? [];
-        const names = options.length ? options.map((c) => c.name) : LEGACY_RECIPE_CATEGORIES;
+        const dbNames = options.map((c) => c.name);
+        const allNames = Array.from(new Set([...LEGACY_RECIPE_CATEGORIES, ...dbNames]));
         if (!cancelled) {
           setCategoryOptions(options);
-          setCategories(['Tất cả', ...names]);
+          setCategories(['Tất cả', ...allNames]);
         }
       } catch {
         if (!cancelled) {
@@ -55,9 +57,23 @@ export default function Recipes() {
       q.set('limit', '24');
       q.set('offset', '0');
       const data = await apiJson<{ recipes: RecipeListRow[] }>(`/api/recipes/search?${q.toString()}`);
-      setRecipes(data.recipes ?? []);
+      
+      // Merge mock recipes
+      const realRecipes = data.recipes ?? [];
+      const filteredMocks = MOCK_RECIPES.filter(r => {
+        const matchSearch = searchQuery ? r.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? r.category_name === selectedCategory : true;
+        return matchSearch && matchCat;
+      });
+      setRecipes([...realRecipes, ...filteredMocks]);
     } catch {
-      setRecipes([]);
+      // Fallback to only mocks if API fails
+      const filteredMocks = MOCK_RECIPES.filter(r => {
+        const matchSearch = searchQuery ? r.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? r.category_name === selectedCategory : true;
+        return matchSearch && matchCat;
+      });
+      setRecipes(filteredMocks);
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +117,7 @@ export default function Recipes() {
       <div className="bg-white/60 backdrop-blur-md border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Reveal y={16}>
-            <h1 className="text-4xl font-bold text-black mb-4">Công Thức Nấu Ăn</h1>
+            <h1 className="text-4xl font-serif italic font-bold text-black mb-4">Công Thức Nấu Ăn</h1>
             <p className="text-gray-600 text-lg">
               Khám phá <strong className="text-black">{recipes.length}</strong> công thức nấu ăn đa dạng
             </p>
@@ -110,19 +126,34 @@ export default function Recipes() {
       </div>
 
       <RecipeFilterBar 
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
         categories={categories}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 text-center">
-          <button onClick={openCreateModal} className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition-all duration-300 inline-flex items-center space-x-2">
+        <div className="mb-8 flex flex-col md:flex-row items-center justify-center gap-4">
+          <button onClick={openCreateModal} className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition-all duration-300 inline-flex items-center space-x-2 whitespace-nowrap">
             <Plus className="h-5 w-5" />
             <span>Đăng công thức</span>
           </button>
+          <div className="relative w-full max-w-md">
+            <button className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors">
+              <Search className="h-5 w-5" />
+            </button>
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm kiếm công thức..." 
+              className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-full focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-300 bg-white" 
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         <RecipeList 

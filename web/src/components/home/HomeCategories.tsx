@@ -8,11 +8,11 @@ export default function HomeCategories() {
   }, []);
 
   return (
-    <section className="py-20 bg-gray-50 border-t border-b border-gray-100 categories-container">
+    <section className="py-20 bg-white/40 backdrop-blur-sm border-t border-b border-white/60 categories-container">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal className="text-center mb-16">
-          <h2 className="text-sm font-black text-amber-600 uppercase tracking-[0.2em] mb-4">Các Danh Mục Chính</h2>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto font-serif">
+          <h2 className="text-5xl font-serif text-black mb-4">Các Danh Mục Chính</h2>
+          <p className="text-xl text-gray-500 max-w-3xl mx-auto font-medium">
             Khám phá nguồn cảm hứng nấu nướng thông qua các lựa chọn phổ biến nhất.
           </p>
         </Reveal>
@@ -42,7 +42,7 @@ export default function HomeCategories() {
                       <h3 className="text-white text-2xl font-serif font-bold tracking-widest uppercase mb-2 group-hover:-translate-y-1 transition-transform duration-500">
                         {cat}
                       </h3>
-                      <div className="w-8 h-1 bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mt-2"></div>
+                      <div className="w-8 h-1 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-500 mt-2"></div>
                     </div>
                   </Link>
                 </div>

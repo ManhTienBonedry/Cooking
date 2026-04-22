@@ -13,4 +13,4 @@ export interface BlogCategory {
   name: string;
 }
 
-export const LEGACY_BLOG_CATEGORIES = ['An toàn', 'Healthy', 'Kỹ thuật', 'Mẹo vặt', 'Văn hóa'];
+export const LEGACY_BLOG_CATEGORIES = ['Mẹo Vặt', 'Review Nhà Hàng', 'Dinh Dưỡng', 'Văn Hóa Ẩm Thực', 'Kỹ Thuật Nấu'];

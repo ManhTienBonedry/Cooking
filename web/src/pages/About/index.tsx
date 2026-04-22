@@ -15,7 +15,7 @@ export default function About() {
       <section className="relative py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <HeroEnter className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-black">
+            <h1 className="text-5xl md:text-6xl font-serif italic font-black mb-6 text-black">
               Về <span className="text-gradient-live">CookingBoy</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -113,7 +113,7 @@ export default function About() {
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <Reveal y={28}>
             <div className="bg-white/60 backdrop-blur-md rounded-3xl p-12 shadow-xl border border-white/20">
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">Sứ Mệnh Của Chúng Tôi</h2>
+              <h2 className="text-4xl md:text-5xl font-serif italic font-black text-black mb-6">Sứ Mệnh Của Chúng Tôi</h2>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                 Bảo tồn và phát triển nền ẩm thực Việt Nam, đồng thời tạo ra một cộng đồng những người yêu thích nấu ăn có thể học hỏi, chia sẻ và cùng nhau sáng tạo những món ăn ngon miệng.
               </p>

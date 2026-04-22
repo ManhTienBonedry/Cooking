@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 import { apiJson } from '../../lib/api';
 import { Reveal } from '../../components/motion/ScrollReveal';
 import AuthModal from '../../components/AuthModal';
 
 import type { BlogPostRow, BlogCategory } from '../../components/blog/types';
 import { LEGACY_BLOG_CATEGORIES } from '../../components/blog/types';
+import { MOCK_BLOG_POSTS } from '../../lib/mockData';
 import BlogFilterBar from '../../components/blog/BlogFilterBar';
 import BlogList from '../../components/blog/BlogList';
 import CreatePostModal from '../../components/blog/CreatePostModal';
@@ -31,10 +32,11 @@ export default function Blog() {
   }, [isModalOpen]);
 
   const [categoryOptions, setCategoryOptions] = useState<BlogCategory[]>([]);
-  const categories = useMemo(
-    () => ['Tất cả', ...(categoryOptions.length ? categoryOptions.map((c) => c.name) : LEGACY_BLOG_CATEGORIES)],
-    [categoryOptions]
-  );
+  const categories = useMemo(() => {
+    const dbNames = categoryOptions.map((c) => c.name);
+    const allNames = Array.from(new Set([...LEGACY_BLOG_CATEGORIES, ...dbNames]));
+    return ['Tất cả', ...allNames];
+  }, [categoryOptions]);
   
   const [posts, setPosts] = useState<BlogPostRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,9 +61,21 @@ export default function Blog() {
       q.set('limit', '24');
       q.set('offset', '0');
       const data = await apiJson<{ posts: BlogPostRow[] }>(`/api/blog/posts?${q.toString()}`);
-      setPosts(data.posts ?? []);
+      
+      const realPosts = data.posts ?? [];
+      const filteredMocks = MOCK_BLOG_POSTS.filter(p => {
+        const matchSearch = searchQuery ? p.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? p.category_name === selectedCategory : true;
+        return matchSearch && matchCat;
+      });
+      setPosts([...realPosts, ...filteredMocks]);
     } catch {
-      setPosts([]);
+      const filteredMocks = MOCK_BLOG_POSTS.filter(p => {
+        const matchSearch = searchQuery ? p.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? p.category_name === selectedCategory : true;
+        return matchSearch && matchCat;
+      });
+      setPosts(filteredMocks);
     } finally {
       setIsLoading(false);
       setHasLoadedOnce(true);
@@ -119,7 +133,7 @@ export default function Blog() {
       <div className="bg-white/60 backdrop-blur-md shadow-sm border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <Reveal className="text-center" y={18}>
-            <h1 className="text-4xl md:text-5xl font-bold text-black mb-4">Diễn đàn Ẩm Thực</h1>
+            <h1 className="text-4xl md:text-5xl font-serif italic font-black text-black mb-4">Diễn đàn Ẩm Thực</h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Chia sẻ kiến thức, mẹo vặt và câu chuyện thú vị về ẩm thực Việt Nam
             </p>
@@ -131,19 +145,46 @@ export default function Blog() {
       </div>
 
       <BlogFilterBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
         categories={categories}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 text-center">
-          <button onClick={openCreateModal} className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition-all duration-300 inline-flex items-center space-x-2">
+        <div className="mb-8 flex flex-col md:flex-row items-center justify-center gap-4">
+          <button
+            onClick={openCreateModal}
+            className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition-all duration-300 inline-flex items-center space-x-2 whitespace-nowrap"
+          >
             <Plus className="h-5 w-5" />
-            <span>Đăng bài mới</span>
+            <span>Đăng bài</span>
           </button>
+          <div className="relative w-full max-w-md">
+            <button
+              type="button"
+              title="Tìm kiếm bài viết"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm kiếm bài viết..."
+              className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-full focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all duration-300 bg-white"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                title="Xóa từ khóa tìm kiếm"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         <BlogList 

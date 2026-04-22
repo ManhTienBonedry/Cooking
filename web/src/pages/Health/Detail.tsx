@@ -99,7 +99,7 @@ export default function HealthDetail() {
         <HeroEnter className="bg-white rounded-lg shadow-md p-8 mb-8">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-black mb-4">{plan.name}</h1>
+              <h1 className="text-4xl font-serif font-bold text-black mb-4">{plan.name}</h1>
               <p className="text-xl text-gray-600 mb-6">{plan.description}</p>
               <div className="flex flex-wrap gap-6 text-gray-600">
                 <div className="flex items-center">
@@ -127,7 +127,7 @@ export default function HealthDetail() {
         {/* Weekly Meal Plan */}
         <Reveal y={20}>
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h2 className="text-3xl font-bold text-black mb-6">Thực đơn trong tuần</h2>
+          <h2 className="text-3xl font-serif font-bold text-black mb-6">Thực đơn trong tuần</h2>
           <div className="space-y-6">
             {days.map((item, idx) => (
               <RevealStaggerItem key={idx} index={idx} stagger={0.06} maxStaggerIndex={8}>
@@ -191,7 +191,7 @@ export default function HealthDetail() {
         <Reveal y={22}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-3xl font-bold text-black mb-6">Tổng quan dinh dưỡng</h2>
+            <h2 className="text-3xl font-serif font-bold text-black mb-6">Tổng quan dinh dưỡng</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 { bg: 'bg-green-50', Icon: Zap, iconClass: 'text-green-600', val: '0', label: 'Calories/ngày' },
@@ -226,7 +226,7 @@ export default function HealthDetail() {
         <Reveal y={20}>
         <div className="bg-white rounded-lg shadow-md p-8">
           <div className="flex justify-between items-center mb-6">
-             <h2 className="text-3xl font-bold text-black">Danh sách mua sắm</h2>
+             <h2 className="text-3xl font-serif font-bold text-black">Danh sách mua sắm</h2>
           </div>
           <div className="mb-6">
             <div className="flex gap-3">

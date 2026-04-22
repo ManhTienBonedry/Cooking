@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, User, Tag, Heart, MessageCircle, Share2, FileText 
 import AuthModal from '../../components/AuthModal';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { apiJson } from '../../lib/api';
+import { MOCK_BLOG_POSTS } from '../../lib/mockData';
 import { Reveal } from '../../components/motion/ScrollReveal';
 import DOMPurify from 'dompurify';
 
@@ -33,6 +34,19 @@ export default function BlogDetail() {
   const load = useCallback(async () => {
     if (!id) return;
     setIsLoading(true);
+
+    const numericId = Number(id);
+    if (numericId < 0) {
+      const mockPost = MOCK_BLOG_POSTS.find(p => p.id === numericId);
+      if (mockPost) {
+        setPost(mockPost as unknown as BlogPost);
+      } else {
+        setPost(null);
+      }
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const [me, data] = await Promise.all([
         apiJson<{ authenticated: boolean }>('/api/auth/me'),
@@ -128,7 +142,7 @@ export default function BlogDetail() {
               </div>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">{post.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-serif font-black text-black mb-4">{post.title}</h1>
           </div>
           </Reveal>
 

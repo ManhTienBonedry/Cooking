@@ -3,49 +3,56 @@ import { Reveal, RevealStaggerItem } from '../motion/ScrollReveal';
 
 
 const FEATURED_TALL_CATEGORIES = [
-  { name: 'BỮA TỐI', image: '/assets/images/monchinh.jpg' },
-  { name: 'NHANH CHÓNG VÀ DỄ DÀNG', image: '/assets/images/monkhaivi.jpg' },
-  { name: 'SALAD', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop' },
-  { name: 'KHỎE MẠNH', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=2053&auto=format&fit=crop' },
+  { name: 'Bữa Tối', image: '/assets/images/monchinh.jpg' },
+  { name: 'Nhanh & Gọn', image: '/assets/images/monkhaivi.jpg' },
+  { name: 'Món Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Eat Clean', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=2053&auto=format&fit=crop' },
 ];
 
 const CIRCLE_CATEGORIES = [
-  { name: 'NHANH CHÓNG VÀ DỄ DÀNG', image: '/assets/images/monkhaivi.jpg' },
-  { name: 'BỮA TỐI', image: '/assets/images/monchinh.jpg' },
-  { name: 'NGƯỜI ĂN CHAY', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1968&auto=format&fit=crop' },
-  { name: 'KHỎE MẠNH', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=2053&auto=format&fit=crop' },
-  { name: 'NỒI ÁP SUẤT', image: 'https://images.unsplash.com/photo-1585931668832-6a695dbbf77c?q=80&w=1928&auto=format&fit=crop' },
-  { name: 'THUẦN CHAY', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop' },
-  { name: 'CHUẨN BỊ BỮA ĂN', image: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=2070&auto=format&fit=crop' },
-  { name: 'SÚP', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=2071&auto=format&fit=crop' },
-  { name: 'SALAD', image: 'https://images.unsplash.com/photo-1551248429-40975aa4de74?q=80&w=1990&auto=format&fit=crop' },
+  { name: 'Nhanh & Gọn', image: '/assets/images/monkhaivi.jpg' },
+  { name: 'Bữa Tối', image: '/assets/images/monchinh.jpg' },
+  { name: 'Món Chay', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1968&auto=format&fit=crop' },
+  { name: 'Eat Clean', image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=2053&auto=format&fit=crop' },
+  { name: 'Nồi Áp Suất', image: 'https://images.unsplash.com/photo-1585931668832-6a695dbbf77c?q=80&w=1928&auto=format&fit=crop' },
+  { name: 'Thuần Chay', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Thực đơn bận rộn', image: 'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Súp & Canh', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=2071&auto=format&fit=crop' },
+  { name: 'Món Salad', image: 'https://images.unsplash.com/photo-1551248429-40975aa4de74?q=80&w=1990&auto=format&fit=crop' },
 ];
 
 export default function HomeEditorialHeader() {
   return (
-    <section className="pt-24 pb-12 bg-white">
+    <section className="pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Typographic Top */}
-        <Reveal className="text-center py-10 mb-8 border-b border-gray-100 flex flex-col md:flex-row items-center justify-center gap-2">
-          <span className="text-[13px] md:text-sm font-bold text-gray-800 uppercase tracking-[0.2em]">CÔNG THỨC NẤU ĂN ĐƠN GIẢN DÀNH CHO</span> 
-          <span className="font-serif italic text-2xl md:text-3xl text-gray-400 lowercase tracking-wide">cuộc sống đời thực mỗi ngày.</span>
+        <Reveal className="text-center py-20 mb-12 border-b border-gray-100 flex flex-col items-center justify-center">
+          {/* Dòng này đã được tăng size lên text-base và md:text-xl */}
+          <span className="text-base md:text-xl font-bold text-gray-400 uppercase tracking-[0.3em] mb-6">
+            Công thức nấu ăn đơn giản dành cho
+          </span>
+
+          <h1 className="font-serif italic text-5xl md:text-7xl text-gray-900 leading-[1.1] tracking-tight">
+            cuộc sống đời thực mỗi ngày.
+          </h1>
         </Reveal>
 
         {/* 4 Tall Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {FEATURED_TALL_CATEGORIES.map((cat, idx) => (
             <RevealStaggerItem key={idx} index={idx} stagger={0.08} y={20}>
-              <Link to={`/recipes?category=${encodeURIComponent(cat.name)}`} className="group block relative w-full h-[32rem] md:h-[28rem] lg:h-[24rem] xl:h-[28rem] rounded-sm overflow-hidden mb-8 md:mb-0">
-                <img 
-                  src={cat.image} 
-                  alt={cat.name} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="eager"
-                />
-                {/* Overlay gradients just slightly for text readability if needed, but the ref has labels partly outside */}
-                <div className="absolute inset-x-0 bottom-0 flex justify-center translate-y-1/2 z-10 p-4">
-                  <div className="bg-white/95 backdrop-blur font-serif text-sm tracking-widest font-bold uppercase py-3 px-6 shadow-md text-amber-600 border border-amber-100 min-w-[70%] text-center group-hover:text-amber-700 transition-colors">
+              <Link to={`/recipes?category=${encodeURIComponent(cat.name)}`} className="group block relative w-full h-[32rem] md:h-[28rem] lg:h-[24rem] xl:h-[28rem] rounded-sm mb-8 md:mb-0">
+                <div className="w-full h-full overflow-hidden rounded-sm">
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="eager"
+                  />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 flex justify-center translate-y-1/2 z-10 px-4">
+                  <div className="bg-white/95 backdrop-blur font-serif text-sm tracking-widest font-bold uppercase py-3 px-6 shadow-md text-black border border-gray-200 min-w-[70%] text-center group-hover:text-gray-700 transition-colors">
                     {cat.name}
                   </div>
                 </div>

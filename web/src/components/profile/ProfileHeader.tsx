@@ -41,7 +41,7 @@ export default function ProfileHeader({ isLoading, user, stats }: ProfileHeaderP
               </div>
 
               <div className="flex-1 pb-2">
-                <h1 className="text-3xl font-bold text-gray-900 mb-1">{user.full_name}</h1>
+                <h1 className="text-3xl font-serif font-bold text-gray-900 mb-1">{user.full_name}</h1>
                 <p className="text-gray-500 mb-2">{user.email}</p>
                 <p className="text-gray-600 max-w-lg">{user.bio}</p>
               </div>

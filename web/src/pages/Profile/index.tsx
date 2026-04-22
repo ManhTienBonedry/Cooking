@@ -154,7 +154,7 @@ export default function Profile() {
               <Reveal key={activeTab} y={14}>
               {activeTab === 'recipes' && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">Công thức của tôi</h2>
+                  <h2 className="text-2xl font-serif font-bold mb-6">Công thức của tôi</h2>
                   {isDataLoading ? (
                     <div className="text-center py-12 text-gray-500">Đang tải...</div>
                   ) : myRecipes.length === 0 ? (
@@ -186,7 +186,7 @@ export default function Profile() {
               )}
               {activeTab === 'posts' && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">Bài viết của tôi</h2>
+                  <h2 className="text-2xl font-serif font-bold mb-6">Bài viết của tôi</h2>
                   {isDataLoading ? (
                     <div className="text-center py-12 text-gray-500">Đang tải...</div>
                   ) : myPosts.length === 0 ? (
@@ -209,7 +209,7 @@ export default function Profile() {
               )}
               {activeTab === 'saved' && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">Công thức đã lưu</h2>
+                  <h2 className="text-2xl font-serif font-bold mb-6">Công thức đã lưu</h2>
                   {isDataLoading ? (
                     <div className="text-center py-12 text-gray-500">Đang tải...</div>
                   ) : savedRecipes.length === 0 ? (
@@ -241,7 +241,7 @@ export default function Profile() {
               )}
               {activeTab === 'health' && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">Kế hoạch ăn uống</h2>
+                  <h2 className="text-2xl font-serif font-bold mb-6">Kế hoạch ăn uống</h2>
                   {isDataLoading ? (
                     <div className="text-center py-12 text-gray-500">Đang tải...</div>
                   ) : myPlans.length === 0 ? (
