@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus, Search, X, ChefHat } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AuthModal from '../../components/AuthModal';
 import { apiJson } from '../../lib/api';
 import { Reveal } from '../../components/motion/ScrollReveal';
@@ -133,6 +134,10 @@ export default function Recipes() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex flex-col md:flex-row items-center justify-center gap-4">
+          <Link to="/recipes/fridge" className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition-all duration-300 inline-flex items-center space-x-2 whitespace-nowrap">
+            <ChefHat className="h-5 w-5" />
+            <span>Khám phá Tủ lạnh</span>
+          </Link>
           <button onClick={openCreateModal} className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition-all duration-300 inline-flex items-center space-x-2 whitespace-nowrap">
             <Plus className="h-5 w-5" />
             <span>Đăng công thức</span>

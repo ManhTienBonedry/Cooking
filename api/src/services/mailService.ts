@@ -16,6 +16,10 @@ function getTransporter(): nodemailer.Transporter | null {
         user: env.smtpUser,
         pass: env.smtpPass,
       },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
     });
   }
   return transporter;
@@ -114,16 +118,25 @@ export async function sendOtpEmail(to: string, code: string, purpose: OtpEmailPu
   const t = getTransporter();
   if (t) {
     try {
-      await t.sendMail({
+      const info = await t.sendMail({
         from: env.mailFrom,
         to,
         subject,
         text,
         html,
       });
+      console.info(`[SMTP] OTP sent to ${to} — messageId: ${info.messageId}, response: ${info.response}`);
       return true;
-    } catch (e) {
-      console.error('sendOtpEmail failed:', e instanceof Error ? e.message : e);
+    } catch (e: unknown) {
+      const err = e as Record<string, unknown>;
+      console.error('[SMTP] sendOtpEmail FAILED:', {
+        to,
+        code: err.code ?? '?',
+        responseCode: err.responseCode ?? '?',
+        response: err.response ?? '?',
+        message: err.message ?? String(e),
+        command: err.command ?? '?',
+      });
       return false;
     }
   }

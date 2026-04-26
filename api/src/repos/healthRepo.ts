@@ -1,4 +1,4 @@
-﻿import type { Pool } from 'pg';
+import type { Pool } from 'pg';
 
 export interface PlanMealRecipeInput {
   id: string;
@@ -163,4 +163,24 @@ export function getNutritionTotalsFromMeals(
     totals.fat = Math.round(totals.fat / daysWithMeals);
   }
   return totals;
+}
+
+export async function getNutritionDashboardStats(pool: Pool, userId: number): Promise<DbRow[]> {
+  const query = `
+    SELECT 
+      TO_CHAR(pm.date, 'YYYY-MM-DD') as date,
+      hp.target_calories,
+      SUM(COALESCE((pm.nutrition_info->>'calories')::numeric, 0)) as calories,
+      SUM(COALESCE((pm.nutrition_info->>'protein')::numeric, 0)) as protein,
+      SUM(COALESCE((pm.nutrition_info->>'carbs')::numeric, 0)) as carbs,
+      SUM(COALESCE((pm.nutrition_info->>'fat')::numeric, 0)) as fat
+    FROM plan_meals pm
+    JOIN health_plans hp ON pm.plan_id = hp.id
+    WHERE hp.user_id = $1
+    GROUP BY pm.date, hp.target_calories
+    ORDER BY pm.date ASC
+    LIMIT 14
+  `;
+  const { rows } = await pool.query(query, [userId]);
+  return rows;
 }

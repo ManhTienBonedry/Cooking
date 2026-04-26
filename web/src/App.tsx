@@ -8,6 +8,7 @@ import { scrollWindowToTop } from './lib/scroll';
 import Home from './pages/Home';
 import About from './pages/About';
 import Recipes from './pages/Recipes';
+import FridgeSearch from './pages/Recipes/FridgeSearch';
 import RecipeDetail from './pages/Recipes/Detail';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/Blog/Detail';
@@ -106,6 +107,7 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/recipes" element={<Recipes />} />
+              <Route path="/recipes/fridge" element={<FridgeSearch />} />
               <Route path="/recipes/detail/:id" element={<RecipeDetail />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/detail/:id" element={<BlogDetail />} />

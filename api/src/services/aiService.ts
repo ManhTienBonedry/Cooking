@@ -48,12 +48,14 @@ async function callGemini(prompt: string): Promise<Record<string, unknown> | unk
       },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2 },
       }),
-      signal: AbortSignal.timeout(45_000),
+      signal: AbortSignal.timeout(12_000),
     });
 
     if (!res.ok) {
-      console.error('Gemini API Error:', res.status, res.statusText, await res.text());
+      const errBody = await res.text().catch(() => '');
+      console.error('[AI] Gemini API Error:', res.status, res.statusText, errBody.slice(0, 300));
       return null;
     }
     
@@ -62,17 +64,47 @@ async function callGemini(prompt: string): Promise<Record<string, unknown> | unk
     };
     const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) {
-      console.error('Gemini API returned no text:', json);
+      console.error('[AI] Gemini API returned no text:', JSON.stringify(json).slice(0, 200));
       return null;
     }
 
-    let jsonText = text.trim();
-    const md = jsonText.match(/```json\s*(.*?)\s*```/s);
-    if (md) jsonText = md[1]!.trim();
-
-    return JSON.parse(jsonText) as Record<string, unknown> | unknown[];
+    return parseAiJson(text);
   } catch (err) {
-    console.error('Gemini API fetch Exception:', err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[AI] Gemini fetch exception:', msg);
     return null;
   }
+}
+
+/**
+ * Parse JSON từ output AI – xử lý nhiều dạng markdown/code fence mà Gemini thường trả về.
+ */
+function parseAiJson(raw: string): Record<string, unknown> | unknown[] | null {
+  let cleaned = raw.trim();
+
+  // Strip markdown code fences: ```json ... ``` or ``` ... ```
+  const fenceMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) cleaned = fenceMatch[1]!.trim();
+
+  // Try direct parse first
+  try {
+    return JSON.parse(cleaned) as Record<string, unknown> | unknown[];
+  } catch { /* continue */ }
+
+  // Fallback: extract first JSON object {...} or array [...]
+  const objMatch = cleaned.match(/(\{[\s\S]*\})/);
+  if (objMatch) {
+    try {
+      return JSON.parse(objMatch[1]!) as Record<string, unknown>;
+    } catch { /* continue */ }
+  }
+  const arrMatch = cleaned.match(/(\[[\s\S]*\])/);
+  if (arrMatch) {
+    try {
+      return JSON.parse(arrMatch[1]!) as unknown[];
+    } catch { /* continue */ }
+  }
+
+  console.error('[AI] Could not parse JSON from AI response:', cleaned.slice(0, 200));
+  return null;
 }

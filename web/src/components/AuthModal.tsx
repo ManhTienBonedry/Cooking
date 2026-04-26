@@ -238,7 +238,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
 
   return createPortal(
     <div className={`blackwhite-auth-overlay ${isOpen ? 'show' : ''}`} onClick={handleOverlayClick}>
-      <div className={`blackwhite-container ${isActive ? 'active' : ''}`}>
+      <div className={`blackwhite-container ${isActive ? 'active' : ''} bg-white dark:bg-slate-900 overflow-hidden`}>
         {/* Registration Form */}
         <div className="blackwhite-form-container blackwhite-sign-up">
           {registerStep === 1 ? (
@@ -385,7 +385,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
             width: '50%',
             height: '100%',
             zIndex: 10,
-            background: '#fff',
+
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
@@ -428,7 +428,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
             width: '50%',
             height: '100%',
             zIndex: 10,
-            background: '#fff',
+
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
@@ -485,7 +485,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
               <div className="absolute inset-0 bg-black/60"></div>
               <div className="relative z-10 w-full">
                 <h1 className="text-3xl font-bold mb-4">Chào mừng trở lại!</h1>
-                <p className="text-sm text-gray-200 mb-6">Nhập thông tin cá nhân để sử dụng tất cả tính năng của trang</p>
+                <p className="text-sm text-gray-200 mb-6">Đăng nhập để tiếp tục nấu ăn</p>
                 <button
                   type="button"
                   onClick={handleFocusSignIn}
@@ -503,7 +503,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
               <div className="absolute inset-0 bg-black/60"></div>
               <div className="relative z-10 w-full">
                 <h1 className="text-3xl font-bold mb-4">Xin chào, bạn mới!</h1>
-                <p className="text-sm text-gray-200 mb-6">Đăng ký với email — xác thực OTP để kích hoạt tài khoản</p>
+                <p className="text-sm text-gray-200 mb-6">Nhập thông tin cá nhân để khám phá thế giới ẩm thực</p>
                 <button
                   type="button"
                   onClick={handleFocusSignUp}

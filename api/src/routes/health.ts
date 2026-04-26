@@ -47,6 +47,16 @@ function fallbackCalories(input: {
   return Math.max(1000, Math.min(6000, Math.round(adjusted)));
 }
 
+healthRouter.get('/dashboard', requireAuth, async (req, res) => {
+  try {
+    const stats = await healthRepo.getNutritionDashboardStats(pool, req.session.userId!);
+    res.json({ success: true, stats });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: 'Lỗi khi lấy dữ liệu dashboard.' });
+  }
+});
+
 healthRouter.post('/ai/calorie-target', requireAuth, requireCsrf, async (req, res) => {
   const age = normalizePositiveNumber(req.body?.age);
   const heightCm = normalizePositiveNumber(req.body?.height_cm);

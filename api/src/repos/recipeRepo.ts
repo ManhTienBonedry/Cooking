@@ -1,4 +1,4 @@
-﻿import { pool } from '../db/pool.js';
+import { pool } from '../db/pool.js';
 
 type DbRow = Record<string, unknown>;
 
@@ -269,4 +269,57 @@ export async function getSavedRecipesByUser(userId: number, limit: number, offse
     [userId, limit, offset]
   );
   return rows;
+}
+
+export async function searchRecipesByIngredients(ingredients: string[], limit: number, offset: number): Promise<{ rows: DbRow[]; total: number }> {
+  if (!ingredients || ingredients.length === 0) return { rows: [], total: 0 };
+
+  // Filter and sanitize ingredients
+  const validIngredients = ingredients
+    .map(i => i.trim().toLowerCase())
+    .filter(i => i.length > 0)
+    .slice(0, 10); // Max 10 ingredients to prevent abuse
+
+  if (validIngredients.length === 0) return { rows: [], total: 0 };
+
+  const conditions: string[] = ["r.status = 'approved'"];
+  const params: (string | number)[] = [];
+  
+  // Build dynamic match clauses
+  const matchCases: string[] = [];
+  const orConditions: string[] = [];
+  
+  validIngredients.forEach(ing => {
+    params.push(`%${ing}%`);
+    const paramIdx = params.length;
+    matchCases.push(`(CASE WHEN r.ingredients ILIKE $${paramIdx} THEN 1 ELSE 0 END)`);
+    orConditions.push(`r.ingredients ILIKE $${paramIdx}`);
+  });
+
+  conditions.push(`(${orConditions.join(' OR ')})`);
+  
+  const matchCountSql = matchCases.join(' + ');
+
+  const sql = `SELECT r.*, r.calories, r.protein, r.carbs, r.fat, c.name AS category_name, u.full_name AS author_name, u.avatar_url AS author_avatar,
+               (${matchCountSql}) AS match_count
+     FROM recipes r
+     LEFT JOIN recipe_categories c ON r.category_id = c.id
+     LEFT JOIN users u ON r.author_id = u.id
+     WHERE ${conditions.join(' AND ')}
+     ORDER BY match_count DESC, r.views DESC, r.created_at DESC
+     LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+     
+  const countSql = `SELECT COUNT(*) AS total
+     FROM recipes r
+     WHERE ${conditions.join(' AND ')}`;
+
+  const [dataResult, countResult] = await Promise.all([
+    pool.query(sql, [...params, limit, offset]),
+    pool.query(countSql, params)
+  ]);
+
+  return { 
+    rows: dataResult.rows, 
+    total: parseTotal(countResult.rows[0]?.total) 
+  };
 }

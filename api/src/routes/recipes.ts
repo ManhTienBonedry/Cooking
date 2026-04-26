@@ -106,6 +106,16 @@ recipesRouter.post('/toggle-save', requireAuth, requireCsrf, async (req, res) =>
   }
 });
 
+recipesRouter.get('/fridge-search', async (req, res) => {
+  const q = String(req.query.ingredients || '');
+  const ingredients = q.split(',').map(i => i.trim()).filter(Boolean);
+  const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 12));
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+
+  const { rows, total } = await recipeRepo.searchRecipesByIngredients(ingredients, limit, offset);
+  res.json({ recipes: rows, total, limit, offset });
+});
+
 recipesRouter.get('/:id', async (req, res) => {
   const id = Number(req.params.id);
   const viewerId = req.session.userId ?? null;

@@ -9,6 +9,7 @@ import HealthFeatures from '../../components/health/HealthFeatures';
 import HealthTabs from '../../components/health/HealthTabs';
 import HealthPlanList from '../../components/health/HealthPlanList';
 import CreatePlanModal from '../../components/health/CreatePlanModal';
+import NutritionDashboard from '../../components/health/NutritionDashboard';
 import type { HealthPlanCard } from '../../components/health/types';
 
 export default function Health() {
@@ -135,11 +136,7 @@ export default function Health() {
               </div>
             )}
             {activeTab === 'nutrition' && (
-              <div className="text-center py-12">
-                <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                <h3 className="text-2xl font-bold mb-2 dark:text-white">Biểu đồ dinh dưỡng</h3>
-                <p className="text-gray-500 dark:text-gray-400">Thêm công thức vào kế hoạch để xem phân tích dinh dưỡng tại đây.</p>
-              </div>
+              <NutritionDashboard />
             )}
           </div>
         </div>

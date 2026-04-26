@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Tag, Heart, MessageCircle, Share2, FileText } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Tag, Heart, MessageCircle, Share2, FileText, Send, Copy, Check } from 'lucide-react';
 import AuthModal from '../../components/AuthModal';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { apiJson } from '../../lib/api';
+import { apiJson, apiFetch } from '../../lib/api';
 import { MOCK_BLOG_POSTS } from '../../lib/mockData';
 import { Reveal } from '../../components/motion/ScrollReveal';
 import DOMPurify from 'dompurify';
@@ -21,39 +22,82 @@ interface BlogPost {
   created_at?: string | null;
 }
 
+interface Comment {
+  id: number;
+  full_name: string;
+  avatar_url: string | null;
+  content: string;
+  created_at: string;
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Vừa xong';
+  if (mins < 60) return `${mins} phút trước`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} ngày trước`;
+  return new Date(dateStr).toLocaleDateString('vi-VN');
+}
+
 export default function BlogDetail() {
   const { id } = useParams();
-  const [isLiked, setIsLiked] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [post, setPost] = useState<BlogPost | null>(null);
-  const [comments] = useState<{ id: number; full_name: string; avatar_url: string; content: string }[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Like state
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [likeAnimating, setLikeAnimating] = useState(false);
+
+  // Comment form
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+
+  // Share
+  const [copied, setCopied] = useState(false);
+
+  // Sticky bar visibility
+  const [showSticky, setShowSticky] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
     setIsLoading(true);
 
+    // Fetch auth status immediately regardless of mock or real post
+    try {
+      const me = await apiJson<{ authenticated: boolean }>('/api/auth/me');
+      setIsAuthenticated(Boolean(me.authenticated));
+    } catch {
+      setIsAuthenticated(false);
+    }
+
     const numericId = Number(id);
     if (numericId < 0) {
       const mockPost = MOCK_BLOG_POSTS.find(p => p.id === numericId);
-      if (mockPost) {
-        setPost(mockPost as unknown as BlogPost);
-      } else {
-        setPost(null);
-      }
+      if (mockPost) setPost(mockPost as unknown as BlogPost);
+      else setPost(null);
       setIsLoading(false);
       return;
     }
 
     try {
-      const [me, data] = await Promise.all([
-        apiJson<{ authenticated: boolean }>('/api/auth/me'),
+      const [data, likeData, commentData] = await Promise.all([
         apiJson<{ post: BlogPost }>(`/api/blog/posts/${id}`),
+        apiJson<{ liked: boolean; total: number }>(`/api/blog/posts/${id}/like`),
+        apiJson<{ comments: Comment[] }>(`/api/blog/posts/${id}/comments`),
       ]);
-      setIsAuthenticated(Boolean(me.authenticated));
       setPost(data.post);
+      setIsLiked(likeData.liked);
+      setLikeCount(likeData.total);
+      setComments(commentData.comments ?? []);
     } catch {
       setPost(null);
     } finally {
@@ -61,16 +105,90 @@ export default function BlogDetail() {
     }
   }, [id]);
 
+  useEffect(() => { void load(); }, [load]);
+
+  // Sticky bar on scroll
   useEffect(() => {
-    void load();
-  }, [load]);
+    const onScroll = () => setShowSticky(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Like toggle — Optimistic UI
+  const handleLike = async () => {
+    if (!isAuthenticated) { setIsAuthOpen(true); return; }
+    // Optimistic
+    setIsLiked(prev => !prev);
+    setLikeCount(prev => prev + (isLiked ? -1 : 1));
+    setLikeAnimating(true);
+    setTimeout(() => setLikeAnimating(false), 400);
+
+    // Skip API for mock posts
+    if (Number(id) < 0) return;
+
+    try {
+      const data = await apiJson<{ liked: boolean; total: number }>(`/api/blog/posts/${id}/like`, { method: 'POST' });
+      setIsLiked(data.liked);
+      setLikeCount(data.total);
+    } catch {
+      // Revert on error
+      setIsLiked(prev => !prev);
+      setLikeCount(prev => prev + (isLiked ? 1 : -1));
+    }
+  };
+
+  // Submit comment
+  const handleComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim() || commentLoading) return;
+    if (!isAuthenticated) { setIsAuthOpen(true); return; }
+
+    // Mock post handling
+    if (Number(id) < 0) {
+      const newComment: Comment = {
+        id: Date.now(),
+        content: commentText,
+        created_at: new Date().toISOString(),
+        full_name: 'Bạn',
+        avatar_url: null,
+      };
+      setComments(prev => [newComment, ...prev]);
+      setCommentText('');
+      return;
+    }
+
+    setCommentLoading(true);
+    try {
+      const data = await apiJson<{ success: boolean; comment: Comment }>(`/api/blog/posts/${id}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ content: commentText }),
+      });
+      if (data.success && data.comment) {
+        setComments(prev => [data.comment, ...prev]);
+        setCommentText('');
+      }
+    } catch { /* ignore */ }
+    finally { setCommentLoading(false); }
+  };
+
+  // Share
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const scrollToComments = () => {
+    document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   if (isLoading) {
     return (
-      <main className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <main className="min-h-screen pt-16 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Skeleton className="h-10 w-32 mb-8 rounded-lg" />
-          <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8">
             <Skeleton className="h-6 w-1/3 mb-4 rounded-full" />
             <Skeleton className="h-12 w-full mb-6 rounded-lg" />
             <Skeleton className="h-64 md:h-96 w-full mb-8 rounded-2xl" />
@@ -87,13 +205,13 @@ export default function BlogDetail() {
 
   if (!post) {
     return (
-      <main className="min-h-screen pt-32 pb-20 bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center text-center">
-        <FileText className="h-24 w-24 text-gray-300 mb-6 drop-shadow-md" />
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Không tìm thấy bài viết</h2>
-        <p className="text-gray-500 mb-8 max-w-md">Bài viết này có thể đã bị xóa hoặc đường dẫn không chính xác.</p>
+      <main className="min-h-screen pt-32 pb-20 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center text-center">
+        <FileText className="h-24 w-24 text-gray-300 dark:text-slate-600 mb-6 drop-shadow-md" />
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Không tìm thấy bài viết</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">Bài viết này có thể đã bị xóa hoặc đường dẫn không chính xác.</p>
         <Link
           to="/blog"
-          className="bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-colors inline-flex items-center space-x-2 font-medium"
+          className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-full hover:opacity-80 transition-opacity inline-flex items-center space-x-2 font-medium"
         >
           <ArrowLeft className="h-5 w-5" />
           <span>Quay lại trang Blog</span>
@@ -102,186 +220,223 @@ export default function BlogDetail() {
     );
   }
 
-  const likeBase = Number(post.likes ?? 0);
-  const html = DOMPurify.sanitize(String(post.content ?? ''), {
-    USE_PROFILES: { html: true },
-  });
+  const html = DOMPurify.sanitize(String(post.content ?? ''), { USE_PROFILES: { html: true } });
 
   return (
-    <main className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
-      <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-slate-800/20">
+    <main className="min-h-screen pt-16 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors duration-300">
+
+      {/* ── Sticky Action Bar (Portaled to body to escape transform context) ── */}
+      {createPortal(
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${showSticky ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}>
+          <div className="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200/50 dark:border-slate-700/50 px-5 py-3">
+            <button onClick={handleLike} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${isLiked ? 'text-red-500 bg-red-50 dark:bg-red-500/10' : 'text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10'}`}>
+              <Heart className={`h-4 w-4 transition-transform duration-300 ${likeAnimating ? 'scale-125' : ''} ${isLiked ? 'fill-current' : ''}`} />
+              <span className="text-sm font-medium">{likeCount}</span>
+            </button>
+            <div className="w-px h-5 bg-gray-200 dark:bg-slate-700" />
+            <button onClick={scrollToComments} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-gray-600 dark:text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all duration-300">
+              <MessageCircle className="h-4 w-4" />
+              <span className="text-sm font-medium">{comments.length}</span>
+            </button>
+            <div className="w-px h-5 bg-gray-200 dark:bg-slate-700" />
+            <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-gray-600 dark:text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all duration-300">
+              {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Share2 className="h-4 w-4" />}
+              <span className="text-sm font-medium">{copied ? 'Đã copy' : 'Chia sẻ'}</span>
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Top Back Nav Button - Moved inside Hero Banner */}
+      {/* <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-slate-800/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Reveal y={12}>
-            <Link
-              to="/blog"
-              className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-300"
-            >
+            <Link to="/blog" className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
               <ArrowLeft className="h-4 w-4" />
               <span>Quay lại danh sách</span>
             </Link>
           </Reveal>
         </div>
-      </div>
+      </div> */}
 
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-slate-700">
+
+          {/* ── Hero Image ── */}
           <Reveal y={16}>
-          <div className="p-8 border-b border-gray-200 dark:border-slate-700">
-            <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
-              <div className="flex items-center space-x-1">
-                <Calendar className="h-4 w-4" />
-                <span>{post.created_at ? String(post.created_at).slice(0, 10) : '—'}</span>
+            <div className="relative">
+              {/* Back Button overlay */}
+              <div className="absolute top-4 left-4 z-10">
+                <Link to="/blog" className="bg-white/15 backdrop-blur-md text-white px-4 py-2 rounded-full hover:bg-white/25 transition-colors flex items-center text-sm">
+                  <ArrowLeft className="h-4 w-4 mr-1.5" /> Quay lại
+                </Link>
               </div>
-              <div className="flex items-center space-x-1">
-                <User className="h-4 w-4" />
-                <span>{post.author_name ?? '—'}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Tag className="h-4 w-4" />
-                <span>{post.category_name ?? '—'}</span>
-              </div>
-            </div>
-
-            <h1 className="text-3xl md:text-4xl font-serif font-black text-black dark:text-white mb-4">{post.title}</h1>
-          </div>
-          </Reveal>
-
-          <Reveal y={18} delay={0.05}>
-          <div className="relative">
-            {post.image_url ? (
-              <img src={post.image_url} alt={post.title} className="w-full h-64 md:h-96 object-cover" />
-            ) : (
-              <div className="w-full h-64 md:h-96 bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-400 dark:text-gray-500">
-                <FileText className="h-20 w-20" />
-              </div>
-            )}
-            <div className="absolute top-4 left-4">
-              <span className="bg-black/80 text-white px-3 py-1 rounded-full text-sm">
-                {post.category_name ?? ''}
-              </span>
-            </div>
-          </div>
-          </Reveal>
-
-          <Reveal y={16} delay={0.08}>
-          <div className="p-8 prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
-          </Reveal>
-
-          <Reveal y={14} delay={0.06}>
-          <div className="px-8 py-4 border-t border-gray-200 dark:border-slate-700">
-            <div className="flex items-center space-x-6">
-              <button
-                onClick={() => {
-                  if (!isAuthenticated) setIsAuthOpen(true);
-                  else setIsLiked(!isLiked);
-                }}
-                className={`flex items-center space-x-2 transition-colors duration-300 ${isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400'}`}
-              >
-                <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
-                <span>{likeBase + (isLiked ? 1 : 0)} Thích</span>
-              </button>
-              <a href="#comments" className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300">
-                <MessageCircle className="h-5 w-5" />
-                <span>{comments.length} Bình luận</span>
-              </a>
-              <button className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors duration-300">
-                <Share2 className="h-5 w-5" />
-                <span>Chia sẻ</span>
-              </button>
-            </div>
-          </div>
-          </Reveal>
-
-          <Reveal y={16}>
-          <div className="p-8 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
-            <h3 className="text-lg font-semibold text-black dark:text-white mb-4">Về tác giả</h3>
-            <div className="flex items-center space-x-4">
-              {post.author_avatar ? (
-                <img src={post.author_avatar} alt={post.author_name ?? ''} className="w-16 h-16 rounded-full object-cover" />
+              
+              {post.image_url ? (
+                <img src={post.image_url} alt={post.title} className="w-full h-72 md:h-[28rem] object-cover scale-105 hover:scale-100 transition-transform duration-[3000ms]" />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
-                  <User className="h-8 w-8 text-gray-500 dark:text-gray-400" />
+                <div className="w-full h-72 md:h-[28rem] bg-gradient-to-br from-amber-100 to-orange-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
+                  <FileText className="h-20 w-20 text-white/60" />
                 </div>
               )}
-              <div>
-                <h4 className="font-bold text-black dark:text-white">{post.author_name ?? '—'}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{post.author_email ?? ''}</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 z-10">
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  {post.category_name && (
+                    <span className="bg-amber-400/90 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                      {post.category_name}
+                    </span>
+                  )}
+                  {post.created_at && (
+                    <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {String(post.created_at).slice(0, 10)}
+                    </span>
+                  )}
+                </div>
+                <h1 className="text-3xl md:text-4xl font-serif font-black text-white leading-tight drop-shadow-lg">{post.title}</h1>
               </div>
             </div>
-          </div>
           </Reveal>
 
-          <Reveal y={18}>
-          <div id="comments" className="p-8 border-t border-gray-200 dark:border-slate-700">
-            <h3 className="text-2xl font-bold text-black dark:text-white mb-6">Bình luận ({comments.length})</h3>
-
-            {isAuthenticated ? (
-              <form className="mb-8" onSubmit={(e) => e.preventDefault()}>
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
-                      <User className="h-6 w-6 text-gray-500 dark:text-gray-400" />
-                    </div>
+          {/* ── Author bar ── */}
+          <Reveal y={14} delay={0.04}>
+            <div className="flex items-center justify-between px-6 md:px-8 py-4 border-b border-gray-100 dark:border-slate-700">
+              <div className="flex items-center gap-3">
+                {post.author_avatar ? (
+                  <img src={post.author_avatar} alt={post.author_name ?? ''} className="w-10 h-10 rounded-full object-cover ring-2 ring-amber-400/50" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                    <User className="h-5 w-5 text-white" />
                   </div>
-                  <div className="flex-grow">
-                    <textarea
-                      rows={3}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-black dark:text-white rounded-lg focus:border-black dark:focus:border-white focus:ring-0 transition-all duration-300"
-                      placeholder="Viết bình luận của bạn..."
-                    ></textarea>
-                    <div className="mt-2 flex justify-end">
+                )}
+                <div>
+                  <p className="font-semibold text-sm text-black dark:text-white">{post.author_name ?? '—'}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{post.author_email ?? 'Tác giả'}</p>
+                </div>
+              </div>
+
+              {/* Inline action buttons */}
+              <div className="flex items-center gap-4">
+                <button onClick={handleLike} className={`flex items-center gap-1.5 transition-all duration-300 ${isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400 hover:text-red-500'}`}>
+                  <Heart className={`h-5 w-5 transition-transform duration-300 ${likeAnimating ? 'scale-125' : ''} ${isLiked ? 'fill-current' : ''}`} />
+                  <span className="text-sm font-medium">{likeCount}</span>
+                </button>
+                <button onClick={scrollToComments} className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors">
+                  <MessageCircle className="h-5 w-5" />
+                  <span className="text-sm font-medium">{comments.length}</span>
+                </button>
+                <button onClick={handleShare} className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-emerald-500 transition-colors">
+                  {copied ? <Copy className="h-5 w-5 text-emerald-500" /> : <Share2 className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* ── Content ── */}
+          <Reveal y={16} delay={0.08}>
+            <div className="px-6 md:px-8 py-8 prose prose-lg dark:prose-invert max-w-none
+                          prose-headings:font-serif prose-headings:text-black dark:prose-headings:text-white
+                          prose-a:text-amber-600 dark:prose-a:text-amber-400
+                          prose-img:rounded-xl"
+                 dangerouslySetInnerHTML={{ __html: html }} />
+          </Reveal>
+
+          {/* ── Tags / metadata ── */}
+          <Reveal y={14}>
+            <div className="px-6 md:px-8 py-4 border-t border-gray-100 dark:border-slate-700 flex flex-wrap items-center gap-2">
+              <Tag className="h-4 w-4 text-gray-400" />
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-full">
+                {post.category_name ?? 'Chưa phân loại'}
+              </span>
+            </div>
+          </Reveal>
+
+          {/* ── Comments section ── */}
+          <Reveal y={18}>
+            <div id="comments-section" className="px-6 md:px-8 py-8 border-t border-gray-100 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50">
+              <h3 className="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-amber-500" />
+                Bình luận ({comments.length})
+              </h3>
+
+              {/* Comment form */}
+              {isAuthenticated ? (
+                <form className="mb-8" onSubmit={handleComment}>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 pt-1">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
+                    </div>
+                    <div className="flex-grow relative">
+                      <textarea
+                        ref={commentRef}
+                        value={commentText}
+                        onChange={e => setCommentText(e.target.value)}
+                        rows={2}
+                        required
+                        maxLength={2000}
+                        className="w-full px-4 py-3 pr-12 border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-black dark:text-white rounded-xl focus:border-amber-400 dark:focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all text-sm resize-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        placeholder="Viết bình luận..."
+                      />
                       <button
                         type="submit"
-                        className="bg-black text-white px-6 py-2 rounded-full font-semibold hover:bg-gray-800 transition-all"
+                        disabled={commentLoading || !commentText.trim()}
+                        className="absolute right-3 bottom-3 p-1.5 rounded-full bg-amber-400 text-black hover:bg-amber-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       >
-                        Gửi bình luận
+                        <Send className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
+                </form>
+              ) : (
+                <div className="bg-white dark:bg-slate-700/50 rounded-xl p-5 text-center mb-8 border border-gray-100 dark:border-slate-600">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    Vui lòng{' '}
+                    <button type="button" onClick={() => setIsAuthOpen(true)} className="text-amber-600 dark:text-amber-400 font-semibold hover:underline">
+                      đăng nhập
+                    </button>{' '}
+                    để bình luận.
+                  </p>
                 </div>
-              </form>
-            ) : (
-              <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-6 text-center mb-8">
-                <p className="text-gray-600 dark:text-gray-300">
-                  Vui lòng{' '}
-                  <button
-                    type="button"
-                    onClick={() => setIsAuthOpen(true)}
-                    className="text-yellow-600 font-semibold hover:underline"
-                  >
-                    đăng nhập
-                  </button>{' '}
-                  để bình luận.
-                </p>
-              </div>
-            )}
+              )}
 
-            <div className="space-y-6">
-              {comments.map((comment) => (
-                <div key={comment.id} className="flex space-x-4 group">
-                  <div className="flex-shrink-0">
-                    <img src={comment.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
-                  </div>
-                  <div className="flex-grow">
-                    <div className="bg-gray-50 dark:bg-slate-700/50 rounded-2xl px-4 py-3 relative">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-bold text-sm text-black dark:text-white">{comment.full_name}</h4>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">2 ngày trước</span>
+              {/* Comment list */}
+              <div className="space-y-4">
+                {comments.length === 0 && (
+                  <p className="text-center text-gray-400 dark:text-gray-500 text-sm py-4">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+                )}
+                {comments.map((c) => (
+                  <div key={c.id} className="flex gap-3 group">
+                    <div className="flex-shrink-0 pt-0.5">
+                      {c.avatar_url ? (
+                        <img src={c.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-600 flex items-center justify-center">
+                          <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                         </div>
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="bg-white dark:bg-slate-700 rounded-xl px-4 py-3 border border-gray-100 dark:border-slate-600 group-hover:border-gray-200 dark:group-hover:border-slate-500 transition-colors">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold text-xs text-black dark:text-white">{c.full_name}</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500">{timeAgo(c.created_at)}</span>
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{c.content}</p>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm">{comment.content}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
           </Reveal>
         </div>
       </article>
 
+      {/* Related posts placeholder */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Reveal y={20}>
           <h2 className="text-2xl font-bold text-black dark:text-white mb-6">Bài viết liên quan</h2>
