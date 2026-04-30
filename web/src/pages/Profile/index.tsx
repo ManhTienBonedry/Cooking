@@ -1,14 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { BookOpen, PenTool, Bookmark, Activity, Settings, CheckCircle, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Activity, BookOpen, Bookmark, CheckCircle, PenTool, Settings, X } from 'lucide-react';
 import { apiFetch, apiJson, resetCsrfCache } from '../../lib/api';
 import { notifyAuthChanged } from '../../lib/authEvents';
 import { Reveal } from '../../components/motion/ScrollReveal';
+import Pagination from '../../components/ui/Pagination';
 
 import type { ProfileUser, ProfileStats, ProfileRecipe, ProfilePost, ProfilePlan } from '../../components/profile/types';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileSidebar from '../../components/profile/ProfileSidebar';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
+
+const PROFILE_PAGE_SIZE = 6;
+type PagedTab = 'recipes' | 'posts' | 'saved';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -19,35 +23,56 @@ export default function Profile() {
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // States for tabs data
   const [myRecipes, setMyRecipes] = useState<ProfileRecipe[]>([]);
   const [myPosts, setMyPosts] = useState<ProfilePost[]>([]);
   const [savedRecipes, setSavedRecipes] = useState<ProfileRecipe[]>([]);
   const [myPlans, setMyPlans] = useState<ProfilePlan[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
+  const [pageByTab, setPageByTab] = useState<Record<PagedTab, number>>({ recipes: 1, posts: 1, saved: 1 });
+  const [totalByTab, setTotalByTab] = useState<Record<PagedTab, number>>({ recipes: 0, posts: 0, saved: 0 });
+
   const loadTabData = useCallback(async (tab: string) => {
+    const getPageQuery = (pagedTab: PagedTab) => {
+      const q = new URLSearchParams();
+      q.set('limit', String(PROFILE_PAGE_SIZE));
+      q.set('offset', String((pageByTab[pagedTab] - 1) * PROFILE_PAGE_SIZE));
+      return q.toString();
+    };
+
     setIsDataLoading(true);
     try {
       if (tab === 'recipes') {
-        const d = await apiJson<{ recipes: ProfileRecipe[] }>('/api/recipes/mine');
+        const d = await apiJson<{ recipes: ProfileRecipe[]; total?: number }>(`/api/recipes/mine?${getPageQuery('recipes')}`);
         setMyRecipes(d.recipes ?? []);
+        setTotalByTab((prev) => ({ ...prev, recipes: d.total ?? 0 }));
       } else if (tab === 'posts') {
-        const d = await apiJson<{ posts: ProfilePost[] }>('/api/blog/posts/mine');
+        const d = await apiJson<{ posts: ProfilePost[]; total?: number }>(`/api/blog/posts/mine?${getPageQuery('posts')}`);
         setMyPosts(d.posts ?? []);
+        setTotalByTab((prev) => ({ ...prev, posts: d.total ?? 0 }));
       } else if (tab === 'saved') {
-        const d = await apiJson<{ recipes: ProfileRecipe[] }>('/api/recipes/saved');
+        const d = await apiJson<{ recipes: ProfileRecipe[]; total?: number }>(`/api/recipes/saved?${getPageQuery('saved')}`);
         setSavedRecipes(d.recipes ?? []);
+        setTotalByTab((prev) => ({ ...prev, saved: d.total ?? 0 }));
       } else if (tab === 'health') {
         const d = await apiJson<{ plans: ProfilePlan[] }>('/api/health/plans');
         setMyPlans(d.plans ?? []);
       }
     } catch {
-      // ignore
+      if (tab === 'recipes') {
+        setMyRecipes([]);
+        setTotalByTab((prev) => ({ ...prev, recipes: 0 }));
+      } else if (tab === 'posts') {
+        setMyPosts([]);
+        setTotalByTab((prev) => ({ ...prev, posts: 0 }));
+      } else if (tab === 'saved') {
+        setSavedRecipes([]);
+        setTotalByTab((prev) => ({ ...prev, saved: 0 }));
+      }
     } finally {
       setIsDataLoading(false);
     }
-  }, []);
+  }, [pageByTab]);
 
   useEffect(() => {
     if (user && activeTab !== 'settings') {
@@ -70,9 +95,7 @@ export default function Profile() {
           bio: me.user.bio ?? '',
           avatar: me.user.avatar_url ?? null,
         });
-        setStats(
-          me.stats ?? { recipe_count: 0, post_count: 0, recipe_views_sum: 0 }
-        );
+        setStats(me.stats ?? { recipe_count: 0, post_count: 0, recipe_views_sum: 0 });
       } else {
         setUser(null);
         setStats(null);
@@ -108,6 +131,11 @@ export default function Profile() {
     navigate('/', { replace: true });
   };
 
+  const handleProfilePageChange = (tab: PagedTab, page: number) => {
+    setPageByTab((prev) => ({ ...prev, [tab]: page }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const tabs = [
     { id: 'recipes', label: 'Công thức của tôi', icon: BookOpen },
     { id: 'posts', label: 'Bài viết của tôi', icon: PenTool },
@@ -121,152 +149,173 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300 pb-24 overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-blue-50 to-indigo-50 pb-24 transition-colors duration-300 dark:from-slate-900 dark:to-slate-800">
       <ProfileHeader isLoading={isLoading} user={user} stats={stats} />
 
-      <Reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" y={22}>
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
+      <Reveal className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" y={22}>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <div className="lg:col-span-1">
-            <ProfileSidebar 
-              tabs={tabs} 
-              activeTab={activeTab} 
-              setActiveTab={setActiveTab} 
-              onLogout={() => void handleLogout()} 
+            <ProfileSidebar
+              tabs={tabs}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              onLogout={() => void handleLogout()}
             />
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-3">
             {showSuccessMenu && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 px-6 py-4 rounded-lg shadow-sm mb-6 flex items-center justify-between">
+              <div className="mb-6 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-6 py-4 text-green-800 shadow-sm dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
                 <div className="flex items-center">
-                  <CheckCircle className="h-6 w-6 text-green-500 mr-3" />
+                  <CheckCircle className="mr-3 h-6 w-6 text-green-500" />
                   <span className="font-medium">Cập nhật thành công!</span>
                 </div>
-                <button onClick={() => setShowSuccessMenu(false)} className="text-green-600 hover:text-green-800 transition-colors">
+                <button onClick={() => setShowSuccessMenu(false)} className="text-green-600 transition-colors hover:text-green-800 dark:text-green-300 dark:hover:text-green-200">
                   <X className="h-5 w-5" />
                 </button>
               </div>
             )}
 
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/20 dark:border-slate-700/20 p-6 min-h-[500px]">
+            <div className="min-h-[500px] rounded-2xl border border-gray-200 bg-white/90 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/85">
               <Reveal key={activeTab} y={14}>
-              {activeTab === 'recipes' && (
-                <div>
-                  <h2 className="text-2xl font-serif font-bold mb-6 dark:text-white">Công thức của tôi</h2>
-                  {isDataLoading ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">Đang tải...</div>
-                  ) : myRecipes.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                      <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                      Chưa có công thức nào được đăng.
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {myRecipes.map((r) => (
-                        <div key={r.id} className="border border-gray-100 dark:border-slate-700 rounded-xl overflow-hidden hover:shadow-md transition-shadow group bg-white dark:bg-slate-800">
-                          {r.image_url ? (
-                            <img src={r.image_url} alt={r.title} className="w-full h-40 object-cover" />
-                          ) : (
-                            <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
-                              <BookOpen className="w-8 h-8 text-gray-300" />
+                {activeTab === 'recipes' && (
+                  <div>
+                    <h2 className="mb-6 text-2xl font-bold font-serif text-gray-950 dark:text-white">Công thức của tôi</h2>
+                    {isDataLoading ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">Đang tải...</div>
+                    ) : myRecipes.length === 0 ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                        <BookOpen className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-slate-600" />
+                        Chưa có công thức nào được đăng.
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                          {myRecipes.map((r) => (
+                            <div key={r.id} className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+                              {r.image_url ? (
+                                <img src={r.image_url} alt={r.title} className="h-40 w-full object-cover" />
+                              ) : (
+                                <div className="flex h-40 w-full items-center justify-center bg-gray-100 dark:bg-slate-700">
+                                  <BookOpen className="h-8 w-8 text-gray-300 dark:text-slate-500" />
+                                </div>
+                              )}
+                              <div className="p-4">
+                                <h4 className="line-clamp-1 font-bold text-gray-900 dark:text-white">{r.title}</h4>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{r.category_name}</p>
+                                <Link to={`/recipes/detail/${r.id}`} className="mt-3 inline-block text-sm font-medium text-yellow-600 hover:text-yellow-700 dark:text-yellow-500 dark:hover:text-yellow-400">
+                                  Xem chi tiết &rarr;
+                                </Link>
+                              </div>
                             </div>
-                          )}
-                          <div className="p-4">
-                            <h4 className="font-bold text-gray-900 dark:text-white line-clamp-1">{r.title}</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{r.category_name}</p>
-                            <Link to={`/recipes/detail/${r.id}`} className="text-yellow-600 dark:text-yellow-500 text-sm mt-3 inline-block font-medium hover:text-yellow-700 dark:hover:text-yellow-400">Xem chi tiết &rarr;</Link>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              {activeTab === 'posts' && (
-                <div>
-                  <h2 className="text-2xl font-serif font-bold mb-6 dark:text-white">Bài viết của tôi</h2>
-                  {isDataLoading ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">Đang tải...</div>
-                  ) : myPosts.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                      <PenTool className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                      Chưa có bài viết nào được đăng.
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {myPosts.map((p) => (
-                        <div key={p.id} className="border border-gray-100 dark:border-slate-700 rounded-xl p-5 hover:shadow-md transition-shadow bg-white dark:bg-slate-800">
-                          <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-500">{p.category_name}</span>
-                          <h4 className="font-bold text-gray-900 dark:text-white mt-1 text-lg line-clamp-2">{p.title}</h4>
-                          <Link to={`/blog/detail/${p.id}`} className="text-yellow-600 dark:text-yellow-500 text-sm mt-3 inline-block font-medium hover:text-yellow-700 dark:hover:text-yellow-400">Đọc bài &rarr;</Link>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              {activeTab === 'saved' && (
-                <div>
-                  <h2 className="text-2xl font-serif font-bold mb-6 dark:text-white">Công thức đã lưu</h2>
-                  {isDataLoading ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">Đang tải...</div>
-                  ) : savedRecipes.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                      <Bookmark className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                      Bạn chưa lưu công thức nào.
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {savedRecipes.map((r) => (
-                        <div key={r.id} className="border border-gray-100 dark:border-slate-700 rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white dark:bg-slate-800">
-                          {r.image_url ? (
-                            <img src={r.image_url} alt={r.title} className="w-full h-40 object-cover" />
-                          ) : (
-                            <div className="w-full h-40 bg-gray-100 dark:bg-slate-700 flex items-center justify-center">
-                              <BookOpen className="w-8 h-8 text-gray-300 dark:text-slate-500" />
+                        <Pagination currentPage={pageByTab.recipes} totalItems={totalByTab.recipes} pageSize={PROFILE_PAGE_SIZE} onPageChange={(page) => handleProfilePageChange('recipes', page)} />
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'posts' && (
+                  <div>
+                    <h2 className="mb-6 text-2xl font-bold font-serif text-gray-950 dark:text-white">Bài viết của tôi</h2>
+                    {isDataLoading ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">Đang tải...</div>
+                    ) : myPosts.length === 0 ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                        <PenTool className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-slate-600" />
+                        Chưa có bài viết nào được đăng.
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                          {myPosts.map((p) => (
+                            <div key={p.id} className="rounded-xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+                              <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-500">{p.category_name}</span>
+                              <h4 className="mt-1 line-clamp-2 text-lg font-bold text-gray-900 dark:text-white">{p.title}</h4>
+                              <Link to={`/blog/detail/${p.id}`} className="mt-3 inline-block text-sm font-medium text-yellow-600 hover:text-yellow-700 dark:text-yellow-500 dark:hover:text-yellow-400">
+                                Đọc bài &rarr;
+                              </Link>
                             </div>
-                          )}
-                          <div className="p-4">
-                            <h4 className="font-bold text-gray-900 dark:text-white line-clamp-1">{r.title}</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{r.category_name}</p>
-                            <Link to={`/recipes/detail/${r.id}`} className="text-yellow-600 dark:text-yellow-500 text-sm mt-3 inline-block font-medium hover:text-yellow-700 dark:hover:text-yellow-400">Xem chi tiết &rarr;</Link>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              {activeTab === 'health' && (
-                <div>
-                  <h2 className="text-2xl font-serif font-bold mb-6 dark:text-white">Kế hoạch ăn uống</h2>
-                  {isDataLoading ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">Đang tải...</div>
-                  ) : myPlans.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                      <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                      Bạn chưa tạo kế hoạch nào.
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {myPlans.map((plan) => (
-                         <div key={plan.id} className="border border-gray-100 dark:border-slate-700 rounded-xl p-5 flex items-center justify-between hover:shadow-md transition-shadow bg-gray-50/50 dark:bg-slate-800/50">
-                           <div>
-                             <h4 className="font-bold text-gray-900 dark:text-white">{plan.name}</h4>
-                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{plan.start_date && plan.end_date ? `${plan.start_date.slice(0,10)} → ${plan.end_date.slice(0,10)}` : ''}</p>
-                           </div>
-                           <Link to={`/health/detail/${plan.id}`} className="bg-white dark:bg-slate-700 text-black dark:text-white px-4 py-2 border border-gray-200 dark:border-slate-600 rounded-full text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">Chi tiết</Link>
-                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              {activeTab === 'settings' && (
-                <ProfileSettingsForm isLoading={isLoading} user={user} onSuccessSubmit={() => setShowSuccessMenu(true)} />
-              )}
+                        <Pagination currentPage={pageByTab.posts} totalItems={totalByTab.posts} pageSize={PROFILE_PAGE_SIZE} onPageChange={(page) => handleProfilePageChange('posts', page)} />
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'saved' && (
+                  <div>
+                    <h2 className="mb-6 text-2xl font-bold font-serif text-gray-950 dark:text-white">Công thức đã lưu</h2>
+                    {isDataLoading ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">Đang tải...</div>
+                    ) : savedRecipes.length === 0 ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                        <Bookmark className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-slate-600" />
+                        Bạn chưa lưu công thức nào.
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                          {savedRecipes.map((r) => (
+                            <div key={r.id} className="overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+                              {r.image_url ? (
+                                <img src={r.image_url} alt={r.title} className="h-40 w-full object-cover" />
+                              ) : (
+                                <div className="flex h-40 w-full items-center justify-center bg-gray-100 dark:bg-slate-700">
+                                  <BookOpen className="h-8 w-8 text-gray-300 dark:text-slate-500" />
+                                </div>
+                              )}
+                              <div className="p-4">
+                                <h4 className="line-clamp-1 font-bold text-gray-900 dark:text-white">{r.title}</h4>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{r.category_name}</p>
+                                <Link to={`/recipes/detail/${r.id}`} className="mt-3 inline-block text-sm font-medium text-yellow-600 hover:text-yellow-700 dark:text-yellow-500 dark:hover:text-yellow-400">
+                                  Xem chi tiết &rarr;
+                                </Link>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <Pagination currentPage={pageByTab.saved} totalItems={totalByTab.saved} pageSize={PROFILE_PAGE_SIZE} onPageChange={(page) => handleProfilePageChange('saved', page)} />
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'health' && (
+                  <div>
+                    <h2 className="mb-6 text-2xl font-bold font-serif text-gray-950 dark:text-white">Kế hoạch ăn uống</h2>
+                    {isDataLoading ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">Đang tải...</div>
+                    ) : myPlans.length === 0 ? (
+                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                        <Activity className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-slate-600" />
+                        Bạn chưa tạo kế hoạch nào.
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {myPlans.map((plan) => (
+                          <div key={plan.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50/80 p-5 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800/70">
+                            <div>
+                              <h4 className="font-bold text-gray-900 dark:text-white">{plan.name}</h4>
+                              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                {plan.start_date && plan.end_date ? `${plan.start_date.slice(0, 10)} -> ${plan.end_date.slice(0, 10)}` : ''}
+                              </p>
+                            </div>
+                            <Link to={`/health/detail/${plan.id}`} className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600">
+                              Chi tiết
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'settings' && (
+                  <ProfileSettingsForm isLoading={isLoading} user={user} onSuccessSubmit={() => setShowSuccessMenu(true)} />
+                )}
               </Reveal>
             </div>
           </div>

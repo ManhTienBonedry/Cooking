@@ -6,14 +6,17 @@ import AuthModal from '../../components/AuthModal';
 
 import type { BlogPostRow, BlogCategory } from '../../components/blog/types';
 import { LEGACY_BLOG_CATEGORIES } from '../../components/blog/types';
-import { MOCK_BLOG_POSTS } from '../../lib/mockData';
 import BlogFilterBar from '../../components/blog/BlogFilterBar';
 import BlogList from '../../components/blog/BlogList';
 import CreatePostModal from '../../components/blog/CreatePostModal';
+import Pagination from '../../components/ui/Pagination';
+
+const PAGE_SIZE = 24;
 
 export default function Blog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
@@ -34,11 +37,11 @@ export default function Blog() {
   const [categoryOptions, setCategoryOptions] = useState<BlogCategory[]>([]);
   const categories = useMemo(() => {
     const dbNames = categoryOptions.map((c) => c.name);
-    const allNames = Array.from(new Set([...LEGACY_BLOG_CATEGORIES, ...dbNames]));
-    return ['Tất cả', ...allNames];
+    return ['Tất cả', ...(dbNames.length ? dbNames : LEGACY_BLOG_CATEGORIES)];
   }, [categoryOptions]);
   
   const [posts, setPosts] = useState<BlogPostRow[]>([]);
+  const [totalPosts, setTotalPosts] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
@@ -58,29 +61,20 @@ export default function Blog() {
       const q = new URLSearchParams();
       if (searchQuery.trim()) q.set('q', searchQuery.trim());
       if (selectedCategory && selectedCategory !== 'Tất cả') q.set('category', selectedCategory);
-      q.set('limit', '24');
-      q.set('offset', '0');
-      const data = await apiJson<{ posts: BlogPostRow[] }>(`/api/blog/posts?${q.toString()}`);
+      q.set('limit', String(PAGE_SIZE));
+      q.set('offset', String((currentPage - 1) * PAGE_SIZE));
+      const data = await apiJson<{ posts: BlogPostRow[]; total?: number }>(`/api/blog/posts?${q.toString()}`);
       
-      const realPosts = data.posts ?? [];
-      const filteredMocks = MOCK_BLOG_POSTS.filter(p => {
-        const matchSearch = searchQuery ? p.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
-        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? p.category_name === selectedCategory : true;
-        return matchSearch && matchCat;
-      });
-      setPosts([...realPosts, ...filteredMocks]);
+      setPosts(data.posts ?? []);
+      setTotalPosts(data.total ?? 0);
     } catch {
-      const filteredMocks = MOCK_BLOG_POSTS.filter(p => {
-        const matchSearch = searchQuery ? p.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
-        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? p.category_name === selectedCategory : true;
-        return matchSearch && matchCat;
-      });
-      setPosts(filteredMocks);
+      setPosts([]);
+      setTotalPosts(0);
     } finally {
       setIsLoading(false);
       setHasLoadedOnce(true);
     }
-  }, [searchQuery, selectedCategory, hasLoadedOnce]);
+  }, [searchQuery, selectedCategory, currentPage, hasLoadedOnce]);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,6 +109,15 @@ export default function Blog() {
     };
   }, [loadPosts]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const openCreateModal = async () => {
     try {
       const me = await apiJson<{ authenticated?: boolean }>('/api/auth/me');
@@ -138,7 +141,7 @@ export default function Blog() {
               Chia sẻ kiến thức, mẹo vặt và câu chuyện thú vị về ẩm thực Việt Nam
             </p>
             <p className="text-lg text-gray-500 dark:text-gray-400 mt-2">
-              Hiện có <strong className="text-black dark:text-white">{posts.length}</strong> bài viết
+              Hiện có <strong className="text-black dark:text-white">{totalPosts}</strong> bài viết
             </p>
           </Reveal>
         </div>
@@ -195,6 +198,14 @@ export default function Blog() {
             setSelectedCategory('Tất cả');
           }} 
         />
+        {!isLoading && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalPosts}
+            pageSize={PAGE_SIZE}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
 
       <CreatePostModal

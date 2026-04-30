@@ -8,14 +8,31 @@ import { Reveal } from '../../components/motion/ScrollReveal';
 import RecipeFilterBar from '../../components/recipes/RecipeFilterBar';
 import RecipeList from '../../components/recipes/RecipeList';
 import CreateRecipeModal from '../../components/recipes/CreateRecipeModal';
+import Pagination from '../../components/ui/Pagination';
 import type { RecipeListRow, RecipeCategory } from '../../components/recipes/types';
-import { MOCK_RECIPES } from '../../lib/mockData';
 
-const LEGACY_RECIPE_CATEGORIES = ['Bữa Tối', 'Nhanh & Gọn', 'Món Salad', 'Eat Clean', 'Món Chay', 'Nồi Áp Suất', 'Thuần Chay', 'Thực đơn bận rộn', 'Súp & Canh'];
+const LEGACY_RECIPE_CATEGORIES = [
+  'Bữa Tối',
+  'Nhanh & Gọn',
+  'Món Salad',
+  'Eat Clean',
+  'Món Chay',
+  'Nồi Áp Suất',
+  'Thuần Chay',
+  'Thực đơn bận rộn',
+  'Súp & Canh',
+  'Đồ uống',
+  'Món chính',
+  'Món khai vị',
+  'Tráng miệng',
+];
+
+const PAGE_SIZE = 24;
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
@@ -23,6 +40,7 @@ export default function Recipes() {
   const [categories, setCategories] = useState<string[]>(['Tất cả']);
   
   const [recipes, setRecipes] = useState<RecipeListRow[]>([]);
+  const [totalRecipes, setTotalRecipes] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load Categories
@@ -32,16 +50,14 @@ export default function Recipes() {
       try {
         const data = await apiJson<{ categories: RecipeCategory[] }>('/api/recipes/categories');
         const options = data.categories ?? [];
-        const dbNames = options.map((c) => c.name);
-        const allNames = Array.from(new Set([...LEGACY_RECIPE_CATEGORIES, ...dbNames]));
         if (!cancelled) {
           setCategoryOptions(options);
-          setCategories(['Tất cả', ...allNames]);
+          setCategories(['Tất cả', ...options.map((c) => c.name)]);
         }
       } catch {
         if (!cancelled) {
           setCategoryOptions([]);
-          setCategories((c) => (c.length ? c : ['Tất cả']));
+          setCategories(['Tất cả', ...LEGACY_RECIPE_CATEGORIES]);
         }
       }
     })();
@@ -55,35 +71,33 @@ export default function Recipes() {
       const q = new URLSearchParams();
       if (searchQuery.trim()) q.set('q', searchQuery.trim());
       if (selectedCategory && selectedCategory !== 'Tất cả') q.set('category', selectedCategory);
-      q.set('limit', '24');
-      q.set('offset', '0');
-      const data = await apiJson<{ recipes: RecipeListRow[] }>(`/api/recipes/search?${q.toString()}`);
+      q.set('limit', String(PAGE_SIZE));
+      q.set('offset', String((currentPage - 1) * PAGE_SIZE));
+      const data = await apiJson<{ recipes: RecipeListRow[]; total?: number }>(`/api/recipes/search?${q.toString()}`);
       
-      // Merge mock recipes
-      const realRecipes = data.recipes ?? [];
-      const filteredMocks = MOCK_RECIPES.filter(r => {
-        const matchSearch = searchQuery ? r.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
-        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? r.category_name === selectedCategory : true;
-        return matchSearch && matchCat;
-      });
-      setRecipes([...realRecipes, ...filteredMocks]);
+      setRecipes(data.recipes ?? []);
+      setTotalRecipes(data.total ?? 0);
     } catch {
-      // Fallback to only mocks if API fails
-      const filteredMocks = MOCK_RECIPES.filter(r => {
-        const matchSearch = searchQuery ? r.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
-        const matchCat = (selectedCategory && selectedCategory !== 'Tất cả') ? r.category_name === selectedCategory : true;
-        return matchSearch && matchCat;
-      });
-      setRecipes(filteredMocks);
+      setRecipes([]);
+      setTotalRecipes(0);
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, currentPage]);
 
   useEffect(() => {
     const t = window.setTimeout(() => fetchRecipes(), 350);
     return () => clearTimeout(t);
   }, [fetchRecipes]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Auth & Modal handling
   useEffect(() => {
@@ -120,7 +134,7 @@ export default function Recipes() {
           <Reveal y={16}>
             <h1 className="text-4xl font-serif italic font-bold text-black dark:text-white mb-4">Công Thức Nấu Ăn</h1>
             <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Khám phá <strong className="text-black dark:text-white">{recipes.length}</strong> công thức nấu ăn đa dạng
+              Khám phá <strong className="text-black dark:text-white">{totalRecipes}</strong> công thức nấu ăn đa dạng
             </p>
           </Reveal>
         </div>
@@ -169,6 +183,14 @@ export default function Recipes() {
             setSelectedCategory('Tất cả');
           }} 
         />
+        {!isLoading && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalRecipes}
+            pageSize={PAGE_SIZE}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
 
       <CreateRecipeModal 

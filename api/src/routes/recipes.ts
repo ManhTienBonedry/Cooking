@@ -33,16 +33,22 @@ recipesRouter.get('/mine', requireAuth, async (req, res) => {
   const userId = req.session.userId!;
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const offset = Math.max(0, Number(req.query.offset) || 0);
-  const recipes = await recipeRepo.getRecipesByAuthor(userId, limit, offset);
-  res.json({ recipes, limit, offset });
+  const [recipes, total] = await Promise.all([
+    recipeRepo.getRecipesByAuthor(userId, limit, offset),
+    recipeRepo.countRecipesByAuthor(userId),
+  ]);
+  res.json({ recipes, total, limit, offset });
 });
 
 recipesRouter.get('/saved', requireAuth, async (req, res) => {
   const userId = req.session.userId!;
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const offset = Math.max(0, Number(req.query.offset) || 0);
-  const recipes = await recipeRepo.getSavedRecipesByUser(userId, limit, offset);
-  res.json({ recipes, limit, offset });
+  const [recipes, total] = await Promise.all([
+    recipeRepo.getSavedRecipesByUser(userId, limit, offset),
+    recipeRepo.countSavedRecipesByUser(userId),
+  ]);
+  res.json({ recipes, total, limit, offset });
 });
 
 recipesRouter.get('/categories', async (_req, res) => {

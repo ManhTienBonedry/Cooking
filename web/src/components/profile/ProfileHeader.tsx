@@ -18,66 +18,75 @@ function formatStatNumber(n: number): string {
 
 export default function ProfileHeader({ isLoading, user, stats }: ProfileHeaderProps) {
   return (
-    <div className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm pt-24 pb-12 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-20"></div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div className="relative overflow-hidden border-b border-gray-200 bg-white pb-12 pt-24 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="absolute left-0 top-0 h-32 w-full bg-yellow-200/70 dark:bg-slate-800" />
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {!isLoading && user ? (
           <HeroEnter>
-            <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
+            <div className="flex flex-col items-center gap-6 text-center md:flex-row md:items-end md:text-left">
+              <div className="group relative">
+                <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-white shadow-xl dark:border-slate-900 dark:bg-slate-800">
                   {user.avatar ? (
-                    <img src={user.avatar} alt={user.full_name} className="w-full h-full object-cover" />
+                    <img src={user.avatar} alt={user.full_name} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                      <User className="w-16 h-16 text-gray-400" />
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-slate-700 dark:to-slate-800">
+                      <User className="h-16 w-16 text-gray-400 dark:text-slate-400" />
                     </div>
                   )}
                 </div>
-                <label className="absolute bottom-0 right-0 p-2 bg-black text-white rounded-full cursor-pointer hover:bg-gray-800 transition-colors shadow-lg shadow-black/20 group-hover:scale-110">
-                  <Camera className="w-4 h-4" />
+                <label className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-black p-2 text-white shadow-lg shadow-black/20 transition-colors hover:bg-gray-800 group-hover:scale-110 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+                  <Camera className="h-4 w-4" />
                   <input type="file" className="hidden" accept="image/*" />
                 </label>
               </div>
 
               <div className="flex-1 pb-2">
-                <h1 className="text-3xl font-serif font-bold text-gray-900 mb-1">{user.full_name}</h1>
-                <p className="text-gray-500 mb-2">{user.email}</p>
-                <p className="text-gray-600 max-w-lg">{user.bio}</p>
+                <h1 className="mb-1 text-3xl font-bold font-serif text-gray-900 dark:text-white">{user.full_name}</h1>
+                <p className="mb-2 text-gray-600 dark:text-slate-300">{user.email}</p>
+                <p className="max-w-lg text-gray-700 dark:text-slate-300">{user.bio}</p>
               </div>
 
               <div className="flex gap-4 pb-2">
-                <div className="text-center px-4">
-                  <div className="text-2xl font-bold text-black">{formatStatNumber(stats?.recipe_count ?? 0)}</div>
-                  <div className="text-sm text-gray-500 font-medium">Công thức</div>
+                <div className="px-4 text-center">
+                  <div className="text-2xl font-bold text-black dark:text-white">{formatStatNumber(stats?.recipe_count ?? 0)}</div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-slate-300">Công thức</div>
                 </div>
-                <div className="text-center px-4 border-l border-r border-gray-200">
-                  <div className="text-2xl font-bold text-black">{formatStatNumber(stats?.post_count ?? 0)}</div>
-                  <div className="text-sm text-gray-500 font-medium">Bài viết</div>
+                <div className="border-l border-r border-gray-300 px-4 text-center dark:border-slate-700">
+                  <div className="text-2xl font-bold text-black dark:text-white">{formatStatNumber(stats?.post_count ?? 0)}</div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-slate-300">Bài viết</div>
                 </div>
-                <div className="text-center px-4">
-                  <div className="text-2xl font-bold text-black">{formatStatNumber(stats?.recipe_views_sum ?? 0)}</div>
-                  <div className="text-sm text-gray-500 font-medium">Lượt xem CT</div>
+                <div className="px-4 text-center">
+                  <div className="text-2xl font-bold text-black dark:text-white">{formatStatNumber(stats?.recipe_views_sum ?? 0)}</div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-slate-300">Lượt xem CT</div>
                 </div>
               </div>
             </div>
           </HeroEnter>
         ) : (
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
-            <div className="relative group">
-              <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
-                <Skeleton className="w-full h-full rounded-full" />
+          <div className="flex flex-col items-center gap-6 text-center md:flex-row md:items-end md:text-left">
+            <div className="group relative">
+              <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-white shadow-xl dark:border-slate-900 dark:bg-slate-800">
+                <Skeleton className="h-full w-full rounded-full" />
               </div>
             </div>
-            <div className="flex-1 pb-2 w-full">
-              <Skeleton className="h-8 w-48 mx-auto md:mx-0 mb-2" />
-              <Skeleton className="h-5 w-32 mx-auto md:mx-0 mb-3" />
-              <Skeleton className="h-5 w-64 mx-auto md:mx-0" />
+            <div className="w-full flex-1 pb-2">
+              <Skeleton className="mx-auto mb-2 h-8 w-48 md:mx-0" />
+              <Skeleton className="mx-auto mb-3 h-5 w-32 md:mx-0" />
+              <Skeleton className="mx-auto h-5 w-64 md:mx-0" />
             </div>
             <div className="flex gap-4 pb-2">
-              <div className="px-4"><Skeleton className="h-8 w-12 mb-1 mx-auto" /><Skeleton className="h-4 w-16 mx-auto" /></div>
-              <div className="px-4 border-l border-r border-gray-200"><Skeleton className="h-8 w-12 mb-1 mx-auto" /><Skeleton className="h-4 w-16 mx-auto" /></div>
-              <div className="px-4"><Skeleton className="h-8 w-12 mb-1 mx-auto" /><Skeleton className="h-4 w-16 mx-auto" /></div>
+              <div className="px-4">
+                <Skeleton className="mx-auto mb-1 h-8 w-12" />
+                <Skeleton className="mx-auto h-4 w-16" />
+              </div>
+              <div className="border-l border-r border-gray-300 px-4 dark:border-slate-700">
+                <Skeleton className="mx-auto mb-1 h-8 w-12" />
+                <Skeleton className="mx-auto h-4 w-16" />
+              </div>
+              <div className="px-4">
+                <Skeleton className="mx-auto mb-1 h-8 w-12" />
+                <Skeleton className="mx-auto h-4 w-16" />
+              </div>
             </div>
           </div>
         )}

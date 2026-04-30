@@ -29,8 +29,11 @@ blogRouter.get('/posts/mine', requireAuth, async (req, res) => {
   const userId = req.session.userId!;
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
   const offset = Math.max(0, Number(req.query.offset) || 0);
-  const posts = await blogRepo.getPostsByAuthor(userId, limit, offset);
-  res.json({ posts, limit, offset });
+  const [posts, total] = await Promise.all([
+    blogRepo.getPostsByAuthor(userId, limit, offset),
+    blogRepo.countPostsByAuthor(userId),
+  ]);
+  res.json({ posts, total, limit, offset });
 });
 
 blogRouter.get('/posts/:id', async (req, res) => {

@@ -9,6 +9,10 @@ interface ProfileSettingsFormProps {
   onSuccessSubmit: () => void;
 }
 
+const inputClass =
+  'w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-900 transition-all placeholder:text-gray-400 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/20 dark:border-slate-600 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500';
+const labelClass = 'mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200';
+
 export default function ProfileSettingsForm({ isLoading, user, onSuccessSubmit }: ProfileSettingsFormProps) {
   const [profileMsg, setProfileMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [passMsg, setPassMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -61,69 +65,78 @@ export default function ProfileSettingsForm({ isLoading, user, onSuccessSubmit }
   };
 
   return (
-    <div className="space-y-12 pb-8">
+    <div className="space-y-12 pb-8 text-gray-900 dark:text-slate-100">
       <div>
-        <h2 className="text-2xl font-bold mb-6">Thông tin cơ bản</h2>
+        <h2 className="mb-6 text-2xl font-bold text-gray-950 dark:text-white">Thông tin cơ bản</h2>
         {isLoading ? (
-          <div className="space-y-6 max-w-lg">
-            <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-10 w-full rounded-lg"/></div>
-            <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-10 w-full rounded-lg"/></div>
-            <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-24 w-full rounded-lg"/></div>
+          <div className="max-w-lg space-y-6">
+            <div><Skeleton className="mb-2 h-5 w-24" /><Skeleton className="h-10 w-full rounded-lg" /></div>
+            <div><Skeleton className="mb-2 h-5 w-24" /><Skeleton className="h-10 w-full rounded-lg" /></div>
+            <div><Skeleton className="mb-2 h-5 w-24" /><Skeleton className="h-24 w-full rounded-lg" /></div>
             <Skeleton className="h-10 w-32 rounded-lg" />
           </div>
         ) : (
-          <form className="space-y-6 max-w-lg" onSubmit={handleProfileSubmit}>
+          <form className="max-w-lg space-y-6" onSubmit={handleProfileSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Họ và tên</label>
-              <input name="full_name" type="text" defaultValue={user?.full_name} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all font-medium" />
+              <label className={labelClass}>Họ và tên</label>
+              <input name="full_name" type="text" defaultValue={user?.full_name} required className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input type="email" defaultValue={user?.email} disabled className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-gray-500" />
+              <label className={labelClass}>Email</label>
+              <input
+                type="email"
+                defaultValue={user?.email}
+                disabled
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 font-medium text-gray-600 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tiểu sử</label>
-              <textarea name="bio" defaultValue={user?.bio} rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all font-medium"></textarea>
+              <label className={labelClass}>Tiểu sử</label>
+              <textarea name="bio" defaultValue={user?.bio} rows={4} className={inputClass} />
             </div>
             {profileMsg && (
-              <div className={`p-3 rounded-md text-sm ${profileMsg.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+              <div className={`rounded-md border p-3 text-sm ${profileMsg.type === 'success' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300' : 'border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300'}`}>
                 {profileMsg.text}
               </div>
             )}
-            <button type="submit" className="bg-black text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors">Lưu thông tin</button>
+            <button type="submit" className="rounded-lg bg-black px-6 py-2 font-medium text-white transition-colors hover:bg-gray-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+              Lưu thông tin
+            </button>
           </form>
         )}
       </div>
 
-      <div className="pt-8 border-t border-gray-200">
-        <h2 className="text-2xl font-bold mb-6">Đổi mật khẩu</h2>
+      <div className="border-t border-gray-200 pt-8 dark:border-slate-700">
+        <h2 className="mb-6 text-2xl font-bold text-gray-950 dark:text-white">Đổi mật khẩu</h2>
         {isLoading ? (
-          <div className="space-y-6 max-w-lg">
-            <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-10 w-full rounded-lg"/></div>
-            <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-10 w-full rounded-lg"/></div>
-            <div><Skeleton className="h-5 w-24 mb-2"/><Skeleton className="h-10 w-full rounded-lg"/></div>
+          <div className="max-w-lg space-y-6">
+            <div><Skeleton className="mb-2 h-5 w-24" /><Skeleton className="h-10 w-full rounded-lg" /></div>
+            <div><Skeleton className="mb-2 h-5 w-24" /><Skeleton className="h-10 w-full rounded-lg" /></div>
+            <div><Skeleton className="mb-2 h-5 w-24" /><Skeleton className="h-10 w-full rounded-lg" /></div>
             <Skeleton className="h-10 w-32 rounded-lg" />
           </div>
         ) : (
-          <form className="space-y-6 max-w-lg" onSubmit={handlePasswordSubmit}>
+          <form className="max-w-lg space-y-6" onSubmit={handlePasswordSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu hiện tại</label>
-              <input name="current_password" type="password" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" />
+              <label className={labelClass}>Mật khẩu hiện tại</label>
+              <input name="current_password" type="password" required className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
-              <input name="new_password" type="password" required minLength={8} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" />
+              <label className={labelClass}>Mật khẩu mới</label>
+              <input name="new_password" type="password" required minLength={8} className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu mới</label>
-              <input name="confirm_password" type="password" required minLength={8} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" />
+              <label className={labelClass}>Xác nhận mật khẩu mới</label>
+              <input name="confirm_password" type="password" required minLength={8} className={inputClass} />
             </div>
             {passMsg && (
-              <div className={`p-3 rounded-md text-sm ${passMsg.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+              <div className={`rounded-md border p-3 text-sm ${passMsg.type === 'success' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300' : 'border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300'}`}>
                 {passMsg.text}
               </div>
             )}
-            <button type="submit" className="bg-black text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors">Đổi mật khẩu</button>
+            <button type="submit" className="rounded-lg bg-black px-6 py-2 font-medium text-white transition-colors hover:bg-gray-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+              Đổi mật khẩu
+            </button>
           </form>
         )}
       </div>

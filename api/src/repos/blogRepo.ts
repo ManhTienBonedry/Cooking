@@ -1,8 +1,8 @@
 ﻿import { pool } from '../db/pool.js';
 
-type DbRow = Record<string, unknown>;
+import { DEFAULT_BLOG_CATEGORIES } from '../data/defaultCategories.js';
 
-const DEFAULT_BLOG_CATEGORIES = ['Mẹo vặt', 'Văn hóa', 'Healthy', 'Kỹ thuật', 'An toàn'];
+type DbRow = Record<string, unknown>;
 
 function slugify(input: string): string {
   return input
@@ -20,7 +20,7 @@ async function ensureDefaultCategories(): Promise<void> {
     await pool.query(
       `INSERT INTO blog_categories (name, slug)
        VALUES ($1, $2)
-       ON CONFLICT (slug) DO NOTHING`,
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name`,
       [name, slug]
     );
   }
@@ -206,4 +206,14 @@ export async function getPostsByAuthor(authorId: number, limit: number, offset: 
     [authorId, limit, offset]
   );
   return rows;
+}
+
+export async function countPostsByAuthor(authorId: number): Promise<number> {
+  const { rows } = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM blog_posts
+     WHERE author_id = $1`,
+    [authorId]
+  );
+  return Number(rows[0]?.total ?? 0);
 }

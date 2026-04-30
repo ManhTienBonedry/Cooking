@@ -1,18 +1,7 @@
 import { pool } from '../db/pool.js';
+import { DEFAULT_RECIPE_CATEGORIES, slugify } from '../data/defaultCategories.js';
 
 type DbRow = Record<string, unknown>;
-
-const DEFAULT_RECIPE_CATEGORIES = ['Món chính', 'Món khai vị', 'Tráng miệng', 'Đồ uống'];
-
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 120);
-}
 
 async function ensureDefaultCategories(): Promise<void> {
   for (const name of DEFAULT_RECIPE_CATEGORIES) {
@@ -20,7 +9,7 @@ async function ensureDefaultCategories(): Promise<void> {
     await pool.query(
       `INSERT INTO recipe_categories (name, slug)
        VALUES ($1, $2)
-       ON CONFLICT (slug) DO NOTHING`,
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name`,
       [name, slug]
     );
   }
@@ -257,6 +246,16 @@ export async function getRecipesByAuthor(authorId: number, limit: number, offset
   return rows;
 }
 
+export async function countRecipesByAuthor(authorId: number): Promise<number> {
+  const { rows } = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM recipes
+     WHERE author_id = $1`,
+    [authorId]
+  );
+  return parseTotal(rows[0]?.total);
+}
+
 export async function getSavedRecipesByUser(userId: number, limit: number, offset: number): Promise<DbRow[]> {
   const { rows } = await pool.query(
     `SELECT r.*, c.name AS category_name, s.created_at AS saved_at
@@ -269,6 +268,16 @@ export async function getSavedRecipesByUser(userId: number, limit: number, offse
     [userId, limit, offset]
   );
   return rows;
+}
+
+export async function countSavedRecipesByUser(userId: number): Promise<number> {
+  const { rows } = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM saved_recipes
+     WHERE user_id = $1`,
+    [userId]
+  );
+  return parseTotal(rows[0]?.total);
 }
 
 export async function searchRecipesByIngredients(ingredients: string[], limit: number, offset: number): Promise<{ rows: DbRow[]; total: number }> {
