@@ -21,7 +21,7 @@ CSS truyền thống phải đẻ ra file `style.css`, đặt class `.nav-bar`, 
 Ví dụ: Bạn có 5 request truy xuất DB, thay vì PHP đợi thực thi xong req1 mới mở cổng nhận cho req2. NodeJS nhận tuốt 5 req rồi ném luồng trích xuất dữ liệu qua DB xử lý ngầm, và Node lại đứng đợi sẵn sàng nghênh tiếp req thứ 6. Khi db trả output về req2 xong, Node lập tức phản hồi (Callback) gửi req2 lên cho Khách hàng. Node chạy theo hướng bất đồng bộ (Asynchronous) xử lí được nhiều yêu cầu trong 1 đơn vị thời gian. Express là bộ khung chuẩn hóa cho Node để viết Router dễ nhìn.
 
 ## 5. Middleware Auth: Vì sao cần Thư viện Mã Hóa (Bcrypt) & Rào CSRF?
-- **Bcrypt**: Băm bằng MD5 / SHA256 thì ngày nay bị bắt bẻ cực nhanh nhờ vào Bảng dò phần cứng máy cực mạnh. Bcrypt đi kèm khái niệm **Salt** (Rắc Muối), sinh ra 1 đoạn String ảo gắn trộn ngẫu nhiên vô Pass gốc, khiến cùng 1 password `123456` mà mỗi User lại băm ra 1 chuỗi dài ngoằn ngoèo y hệt và không thể dò mã ngược (Decryption is impossible). 
+- **Bcrypt**: Băm bằng MD5 / SHA256 thì ngày nay bị bắt bẻ cực nhanh nhờ vào Bảng dò phần cứng máy cực mạnh. Bcrypt đi kèm khái niệm **Salt** (Rắc Muối), sinh ra một đoạn ngẫu nhiên trộn vào mật khẩu gốc, khiến cùng một mật khẩu mạnh ở mỗi User lại băm ra một chuỗi dài khác nhau và không thể dò mã ngược (Decryption is impossible).
 - **CSRF Token**: Là một chuỗi ký tự mà Client lấy từ API của ta trên Session bảo mật. Nhờ chuỗi này, kể cả khi nạn nhân bị chèn iframe / tab link độc ở bên ngoài để click câu lệnh (Cross Site), trình duyệt hacker vẫn không có Token để POST thay cho nạn nhân.
 
 ## 6. Cơ Sở Dữ Liệu SQL (PostgreSQL vs MongoDB NoSQL)

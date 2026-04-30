@@ -13,4 +13,14 @@ export interface BlogCategory {
   name: string;
 }
 
-export const LEGACY_BLOG_CATEGORIES = ['Mẹo Vặt', 'Review Nhà Hàng', 'Dinh Dưỡng', 'Văn Hóa Ẩm Thực', 'Kỹ Thuật Nấu'];
+export const LEGACY_BLOG_CATEGORIES = [
+  'Mẹo Vặt',
+  'Review Nhà Hàng',
+  'Dinh Dưỡng',
+  'Văn Hóa Ẩm Thực',
+  'Kỹ Thuật Nấu',
+  'An toàn',
+  'Healthy',
+  'Kỹ thuật',
+  'Văn hóa',
+];

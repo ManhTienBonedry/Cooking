@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 interface DataTableProps {
   title: string;
   rows: Record<string, unknown>[];
-  columns: { key: string; label: string; render?: (val: any, row: Record<string, unknown>) => ReactNode }[];
+  columns: { key: string; label: string; render?: (val: unknown, row: Record<string, unknown>) => ReactNode }[];
   actions?: (row: Record<string, unknown>) => ReactNode;
 }
 

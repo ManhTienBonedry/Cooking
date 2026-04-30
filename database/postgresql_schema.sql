@@ -169,8 +169,5 @@ CREATE INDEX IF NOT EXISTS idx_recipes_status_created ON recipes(status, created
 CREATE INDEX IF NOT EXISTS idx_blog_posts_status_created ON blog_posts(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_health_plans_user_created ON health_plans(user_id, created_at DESC);
 
--- Bootstrap admin uses a plaintext password here; hash it before production:
---   npm --prefix api run migrate:admin-passwords
-INSERT INTO quantrivien ("HoTen", "SDT", "Email", "MatKhau")
-VALUES ('Super Admin', '0909123456', 'admin@gmail.com', '123456')
-ON CONFLICT ("Email") DO NOTHING;
+-- Create the first admin explicitly with a bcrypt password before production.
+-- Do not keep predictable default admin credentials in schema/bootstrap SQL.

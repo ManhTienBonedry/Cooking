@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import DataTableTab from './DataTableTab';
 import { apiJson } from '../../../lib/api';
 import toast from 'react-hot-toast';
@@ -8,7 +8,7 @@ export default function CategoriesTab() {
   const [categories, setCategories] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       const c = await apiJson<{ categories: Record<string, unknown>[] }>(`/api/admin/categories/${type}`);
@@ -19,11 +19,11 @@ export default function CategoriesTab() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [type]);
 
   useEffect(() => {
     void load();
-  }, [type]);
+  }, [load]);
 
   const handleAdd = async () => {
     const name = window.prompt('Nhập tên danh mục mới:');

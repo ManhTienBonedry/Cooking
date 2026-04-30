@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { Clock, User, Eye, ArrowLeft, Bookmark, BookmarkCheck, ChefHat, Flame, Drumstick, Wheat, Droplets, Timer } from 'lucide-react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { apiFetch, apiJson } from '../../lib/api';
-import { MOCK_RECIPES } from '../../lib/mockData';
 import { HeroEnter, Reveal, RevealStaggerItem } from '../../components/motion/ScrollReveal';
 
 interface RecipeRow {
@@ -49,15 +48,6 @@ export default function RecipeDetail() {
     if (!id) return;
     setIsLoading(true);
 
-    const numericId = Number(id);
-    if (numericId < 0) {
-      const mockRecipe = MOCK_RECIPES.find((r) => r.id === numericId);
-      if (mockRecipe) { setRecipe(mockRecipe as unknown as RecipeRow); setIsSaved(false); }
-      else setRecipe(null);
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const data = await apiJson<{ recipe: RecipeRow; isSaved?: boolean }>(`/api/recipes/${id}`);
       setRecipe(data.recipe);
@@ -79,7 +69,7 @@ export default function RecipeDetail() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [activeTimer?.step]);
+  }, [activeTimer]);
 
   const toggleIngredient = (index: number) => {
     setCheckedIngredients(prev => {

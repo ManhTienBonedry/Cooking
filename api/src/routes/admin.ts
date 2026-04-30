@@ -9,6 +9,7 @@ import { requireCsrf } from '../middleware/csrf.js';
 import { adminLoginRateLimit } from '../middleware/rateLimits.js';
 import { logAuthLogin } from '../lib/auditLog.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
+import { slugify } from '../data/defaultCategories.js';
 
 export const adminRouter = Router();
 
@@ -150,7 +151,7 @@ adminRouter.post('/admins/:id/reset-password', requireAdmin, requireCsrf, async 
     res.status(400).json({ success: false, message: 'Invalid admin id.' });
     return;
   }
-  const newPassword = String(req.body?.newPassword ?? '123456');
+  const newPassword = String(req.body?.newPassword ?? '');
   if (newPassword.length < 8) {
     res.status(422).json({ success: false, message: 'Password must be at least 8 chars.' });
     return;
@@ -291,7 +292,19 @@ adminRouter.post('/categories/:type', requireAdmin, requireCsrf, async (req, res
   const table = type === 'recipe' ? 'recipe_categories' : 'blog_categories';
   const name = String(req.body?.name ?? '').trim();
   if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
-  await pool.query(`INSERT INTO ${table} (name) VALUES ($1)`, [name]);
+  const slug = slugify(name);
+  if (!slug) return res.status(422).json({ success: false, message: 'Invalid category name.' });
+  const r = await pool.query(
+    `INSERT INTO ${table} (name, slug)
+     VALUES ($1, $2)
+     ON CONFLICT (slug) DO NOTHING
+     RETURNING id`,
+    [name, slug]
+  );
+  if (r.rows.length === 0) {
+    res.status(409).json({ success: false, message: 'Category already exists.' });
+    return;
+  }
   res.json({ success: true });
 });
 
@@ -299,9 +312,13 @@ adminRouter.put('/categories/:type/:id', requireAdmin, requireCsrf, async (req, 
   const type = req.params.type;
   if (type !== 'recipe' && type !== 'blog') return res.status(400).json({ success: false });
   const table = type === 'recipe' ? 'recipe_categories' : 'blog_categories';
+  const id = Number(req.params.id);
+  if (!id) return res.status(400).json({ success: false, message: 'Invalid category id.' });
   const name = String(req.body?.name ?? '').trim();
   if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
-  await pool.query(`UPDATE ${table} SET name = $1 WHERE id = $2`, [name, Number(req.params.id)]);
+  const slug = slugify(name);
+  if (!slug) return res.status(422).json({ success: false, message: 'Invalid category name.' });
+  await pool.query(`UPDATE ${table} SET name = $1, slug = $2 WHERE id = $3`, [name, slug, id]);
   res.json({ success: true });
 });
 
@@ -309,6 +326,8 @@ adminRouter.delete('/categories/:type/:id', requireAdmin, requireCsrf, async (re
   const type = req.params.type;
   if (type !== 'recipe' && type !== 'blog') return res.status(400).json({ success: false });
   const table = type === 'recipe' ? 'recipe_categories' : 'blog_categories';
-  await pool.query(`DELETE FROM ${table} WHERE id = $1`, [Number(req.params.id)]);
+  const id = Number(req.params.id);
+  if (!id) return res.status(400).json({ success: false, message: 'Invalid category id.' });
+  await pool.query(`DELETE FROM ${table} WHERE id = $1`, [id]);
   res.json({ success: true });
 });

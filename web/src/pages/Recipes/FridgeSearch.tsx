@@ -1,4 +1,4 @@
-import React, { useState, type KeyboardEvent, useEffect } from 'react';
+import { useState, type KeyboardEvent, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, X, ChefHat, Info, Clock, Users, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

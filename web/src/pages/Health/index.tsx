@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, ArrowRight, HeartPulse, ShoppingBag, Activity } from 'lucide-react';
+import { Plus, ArrowRight, HeartPulse, ShoppingBag } from 'lucide-react';
 import AuthModal from '../../components/AuthModal';
 import { apiJson } from '../../lib/api';
 import { Reveal } from '../../components/motion/ScrollReveal';

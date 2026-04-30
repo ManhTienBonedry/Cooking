@@ -11,7 +11,6 @@
   [![Node.js](https://img.shields.io/badge/Node.js-Express_5-339933?logo=nodedotjs&logoColor=white&style=for-the-badge)](#tech-stack)
   [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white&style=for-the-badge)](#tech-stack)
   [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white&style=for-the-badge)](#tech-stack)
-  [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white&style=for-the-badge)](#deployment)
   [![TailwindCSS](https://img.shields.io/badge/Tailwind-4.2-06B6D4?logo=tailwindcss&logoColor=white&style=for-the-badge)](#tech-stack)
   [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](#license)
 
@@ -37,7 +36,7 @@
 | 🔒 **Bảo mật cấp doanh nghiệp** | OTP Email, ReCaptcha v2, CSRF Token, Rate Limiting, bcrypt, Helmet.js |
 | ⚡ **Hiệu năng cao** | Vite 8 (HMR <50ms), Framer Motion page transitions, Lazy loading |
 | 📱 **Responsive hoàn hảo** | TailwindCSS 4.2 utility-first, tương thích mọi thiết bị từ mobile → desktop |
-| 🐳 **Production-Ready** | Docker Compose one-command deploy, Nginx reverse proxy, Health checks |
+| 🚀 **Production-Ready** | Build production, Nginx reverse proxy, Health checks |
 
 ---
 
@@ -199,14 +198,12 @@
 | **cookie-parser** | `1.4` | Parse & quản lý cookies |
 | **tsx** | `4.21` | Dev runner — watch mode TypeScript |
 
-### 🐳 DevOps & Deployment
+### 🚀 DevOps & Deployment
 
 | Công nghệ | Vai trò |
 | :--- | :--- |
-| **Docker Compose** | Orchestrate multi-container (db + api + web) |
 | **Nginx** | Reverse proxy, static file serving, SSL termination |
-| **PostgreSQL Alpine** | Lightweight production database image |
-| **Health Checks** | Tự động kiểm tra sức khỏe từng container |
+| **Health Checks** | Kiểm tra tình trạng API và kết nối database |
 | **ESLint** | Code quality & consistent style enforcement |
 
 ---
@@ -380,7 +377,6 @@ CookingBoy triển khai mô hình bảo mật **nhiều lớp (Defense-in-Depth)
 | npm | `9.0` trở lên |
 | PostgreSQL | `14` trở lên (khuyến nghị `16`) |
 | Git | Bất kỳ |
-| Docker *(tùy chọn)* | `24.0` trở lên |
 
 ### ⚡ Phương pháp 1: Chạy local (Development)
 
@@ -403,32 +399,16 @@ cp web/.env.example web/.env
 psql -U postgres -c "CREATE DATABASE CookingDB;"
 psql -U postgres -d CookingDB -f database/postgresql_schema.sql
 
-# 6. (Khuyến nghị) Hash mật khẩu admin mặc định
-npm --prefix api run migrate:admin-passwords
+# 6. Tạo tài khoản admin bằng mật khẩu mạnh
+$env:ADMIN_EMAIL="admin@example.com"
+$env:ADMIN_PASSWORD="ThayBangMatKhauManhHon12KyTu"
+npm --prefix api run admin:create
 
 # 7. Khởi chạy cả Frontend + Backend đồng thời
 npm run dev
 ```
 
 > **Kết quả:** Frontend chạy tại `http://localhost:5173` · Backend API tại `http://localhost:3001`
-
-### 🐳 Phương pháp 2: Docker Compose (Production)
-
-```bash
-# 1. Tạo file cấu hình môi trường Docker
-cp deploy/docker.env.example .env.docker
-
-# 2. Chỉnh sửa các biến cần thiết
-#    DB_PASSWORD, SESSION_SECRET, SMTP_*, RECAPTCHA_*...
-
-# 3. Khởi chạy toàn bộ hệ thống
-docker compose --env-file .env.docker up -d --build
-
-# 4. Kiểm tra sức khỏe hệ thống
-docker compose ps
-```
-
-> **Kết quả:** Ứng dụng chạy tại `http://localhost:8080` với Nginx reverse proxy
 
 ### 📜 Scripts có sẵn
 
@@ -503,7 +483,6 @@ CookingBoy/
 │   │   │   └── mealPlanHandler.ts#     Xử lý kế hoạch bữa ăn
 │   │   ├── repos/                #   Data access layer
 │   │   └── types/                #   TypeScript interfaces
-│   ├── Dockerfile                #   Docker image cho API
 │   ├── tsconfig.json
 │   └── package.json
 │
@@ -530,7 +509,6 @@ CookingBoy/
 │   │   ├── lib/                 #   Utilities & helpers
 │   │   └── assets/              #   Static resources
 │   ├── public/                  #   Public assets
-│   ├── Dockerfile               #   Docker image cho Frontend
 │   ├── vite.config.ts
 │   └── package.json
 │
@@ -540,9 +518,7 @@ CookingBoy/
 │   └── migration_pending_registrations.sql
 │
 ├── deploy/                      # ─── Deployment ───
-│   ├── docker.env.example       #   Mẫu biến môi trường Docker
-│   ├── nginx-cookapp.conf.example  # Nginx production config
-│   └── nginx.docker.conf        #   Nginx Docker config
+│   └── nginx-cookapp.conf.example  # Nginx production config
 │
 ├── Tutorial/                    # ─── Tài liệu kỹ thuật ───
 │   ├── README.md                #   Tổng quan tài liệu
@@ -553,7 +529,6 @@ CookingBoy/
 │   ├── ham_cau_lenh_be.md       #   API Backend reference
 │   └── cau_lenh_sql.md          #   Hướng dẫn SQL
 │
-├── docker-compose.yml           #   Docker Compose orchestration
 ├── package.json                 #   Root workspace scripts
 ├── DEPLOY.md                    #   Hướng dẫn triển khai chi tiết
 └── .gitignore                   #   Bảo mật: loại bỏ .env, keys, secrets
@@ -573,7 +548,7 @@ Bộ tài liệu toàn diện dành cho lập trình viên muốn cài đặt, m
 | 🎨 [Kiến Trúc Frontend](./Tutorial/tags_fe.md) | Định hướng thiết kế các thành phần giao diện, Component trong ReactJS |
 | 🔌 [Tài Liệu API Backend](./Tutorial/ham_cau_lenh_be.md) | Danh sách cụ thể Endpoint, mô tả luồng hoạt động của các hàm backend |
 | 🗄️ [Triển Khai Database](./Tutorial/cau_lenh_sql.md) | Hướng dẫn thao tác, cài đặt cấu trúc PostgreSQL và các câu lệnh SQL mẫu |
-| 🐳 [Hướng Dẫn Deploy](./DEPLOY.md) | Triển khai production với Docker Compose & Nginx reverse proxy |
+| 🚀 [Hướng Dẫn Deploy](./DEPLOY.md) | Triển khai production với Nginx reverse proxy |
 
 ---
 
@@ -649,8 +624,6 @@ Dự án được phân phối dưới giấy phép **MIT License**. Xem file [L
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nodejs/nodejs-original.svg" width="24" height="24">
   &nbsp;&nbsp;
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original.svg" width="24" height="24">
-  &nbsp;&nbsp;
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg" width="24" height="24">
   &nbsp;&nbsp;
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" width="24" height="24">
   &nbsp;&nbsp;

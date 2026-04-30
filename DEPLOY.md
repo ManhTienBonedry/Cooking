@@ -1,11 +1,11 @@
 # Deploy production (Cook)
 
-Tài liệu ngắn: build, biến môi trường, Nginx, Docker, health check và log audit.
+Tài liệu ngắn: build, biến môi trường, Nginx, health check và log audit.
 
 ## Kiến trúc gợi ý
 
 - **Nginx** (HTTPS): phục vụ thư mục `web/dist` + reverse proxy `/api` → Node (mặc định `127.0.0.1:3001`).
-- **Node API** (`api`): `npm run build` rồi `npm run start` (hoặc Docker, xem dưới).
+- **Node API** (`api`): `npm run build` rồi `npm run start`.
 - **PostgreSQL**: import schema lần đầu từ `database/postgresql_schema.sql` (và migration nếu có).
 
 ## Build
@@ -52,22 +52,9 @@ Gồm: redirect HTTP→HTTPS, HSTS, CSP (khớp `web/vite.config.ts` preview), `
 
 ## Audit đăng nhập
 
-Mỗi lần đăng nhập user/admin (thành công hoặc sai mật khẩu), API ghi **một dòng JSON** ra stdout (`event: auth_login`, `realm`, `email`, `success`, `ip`, `userAgent`, `subjectId` khi thành công). Thu thập bằng journald, Docker logs, hoặc agent log.
+Mỗi lần đăng nhập user/admin (thành công hoặc sai mật khẩu), API ghi **một dòng JSON** ra stdout (`event: auth_login`, `realm`, `email`, `success`, `ip`, `userAgent`, `subjectId` khi thành công). Thu thập bằng journald hoặc agent log.
 
-## Docker Compose (một lệnh thử stack)
-
-```bash
-copy deploy\docker.env.example .env.docker
-# chỉnh DB_PASSWORD, SESSION_SECRET, CORS_ORIGIN, VITE_*, SMTP, RECAPTCHA...
-
-docker compose --env-file .env.docker up --build
-```
-
-Ứng dụng: `http://localhost:8080` (cổng đổi bằng `HTTP_PORT` trong `.env.docker`). API không publish ra host, chỉ lộ qua Nginx trong container `web` (xem `web/Dockerfile` + `deploy/nginx.docker.conf`).
-
-Chi tiết biến: `deploy/docker.env.example`.
-
-## Chạy API thủ công (không Docker)
+## Chạy API thủ công
 
 ```bash
 cd api

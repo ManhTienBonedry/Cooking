@@ -4,8 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Tag, Heart, MessageCircle, Share2, FileText, Send, Copy, Check } from 'lucide-react';
 import AuthModal from '../../components/AuthModal';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { apiJson, apiFetch } from '../../lib/api';
-import { MOCK_BLOG_POSTS } from '../../lib/mockData';
+import { apiJson } from '../../lib/api';
 import { Reveal } from '../../components/motion/ScrollReveal';
 import DOMPurify from 'dompurify';
 
@@ -77,15 +76,6 @@ export default function BlogDetail() {
       setIsAuthenticated(Boolean(me.authenticated));
     } catch {
       setIsAuthenticated(false);
-    }
-
-    const numericId = Number(id);
-    if (numericId < 0) {
-      const mockPost = MOCK_BLOG_POSTS.find(p => p.id === numericId);
-      if (mockPost) setPost(mockPost as unknown as BlogPost);
-      else setPost(null);
-      setIsLoading(false);
-      return;
     }
 
     try {

@@ -8,7 +8,7 @@ function userAgent(req: Request): string {
   return String(req.headers['user-agent'] ?? '').slice(0, 400);
 }
 
-/** Một dòng JSON ra stdout — dễ ship tới journald / Docker / ELK. */
+/** Một dòng JSON ra stdout — dễ ship tới journald hoặc ELK. */
 export function logAuthLogin(
   realm: 'user' | 'admin',
   input: { success: boolean; email: string; req: Request; subjectId?: number }

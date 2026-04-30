@@ -22,7 +22,7 @@ export default function AdminLayout() {
           apiJson<Record<string, number>>('/api/admin/dashboard'),
         ]);
         setStats({ pending: (d.pendingRecipes ?? 0) + (d.pendingBlogs ?? 0) });
-      } catch (err) {
+      } catch {
         navigate('/admin/login');
       } finally {
         setLoading(false);
