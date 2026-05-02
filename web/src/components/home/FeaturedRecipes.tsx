@@ -20,7 +20,6 @@ const STATIC_COLLECTIONS = [
 export default function FeaturedRecipes() {
   const [featuredRecipes, setFeaturedRecipes] = useState<FeaturedRecipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [spotlightImageFailed, setSpotlightImageFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,11 +40,6 @@ export default function FeaturedRecipes() {
 
   const mainRecipe = featuredRecipes.length > 0 ? featuredRecipes[0] : null;
   const otherRecipes = featuredRecipes.length > 1 ? featuredRecipes.slice(1, 5) : [];
-  const hasSpotlightImage = Boolean(mainRecipe?.image_url && !spotlightImageFailed);
-
-  useEffect(() => {
-    setSpotlightImageFailed(false);
-  }, [mainRecipe?.image_url]);
 
   return (
     <section className="py-16 sm:py-20">

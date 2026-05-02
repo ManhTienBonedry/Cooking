@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Clock, ChefHat, Star, ArrowRight } from 'lucide-react';
+import { Clock, Star, ArrowRight } from 'lucide-react';
 import type { FeaturedRecipe } from './types';
 import ImageWithFallback from '../../lib/ImageWithFallback';
 
