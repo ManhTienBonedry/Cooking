@@ -27,6 +27,7 @@ export default function CreatePostModal({
     imageUrl: '',
   });
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [imageName, setImageName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +37,7 @@ export default function CreatePostModal({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageName(file.name);
       const reader = new FileReader();
       reader.onload = (evt) => {
         const img = evt.target?.result as string;
@@ -44,6 +46,7 @@ export default function CreatePostModal({
       };
       reader.readAsDataURL(file);
     } else {
+      setImageName('');
       setPreviewImage(null);
       setFormData((prev) => ({ ...prev, imageUrl: '' }));
     }
@@ -80,6 +83,7 @@ export default function CreatePostModal({
       setFormSuccess('Đăng bài thành công. Bài viết đang chờ duyệt.');
       setFormData({ title: '', categoryId: 0, categoryName: '', content: '', imageUrl: '' });
       setPreviewImage(null);
+      setImageName('');
       await onSuccess();
       onClose();
     } catch (err) {
@@ -143,7 +147,25 @@ export default function CreatePostModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Hình ảnh đại diện</label>
-              <input type="file" onChange={handleImageChange} accept="image/*" className="w-full px-4 py-2.5 border border-gray-300 rounded-2xl focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" required />
+              <div className="flex items-center gap-3">
+                <input
+                  id="blog-image"
+                  type="file"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="sr-only"
+                  required
+                />
+                <label
+                  htmlFor="blog-image"
+                  className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Chọn ảnh
+                </label>
+                <span className="text-sm text-gray-500 truncate">
+                  {imageName || 'Chưa chọn tệp'}
+                </span>
+              </div>
               {previewImage && (
                 <div className="mt-2 text-center">
                   <img src={previewImage} alt="Preview" className="w-full h-32 object-cover rounded-lg" />

@@ -157,4 +157,23 @@ body {
     .stagger-card.active {
         transition-duration: 0.01ms !important;
     }
+
+    .badge-grain {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .badge-grain::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+            radial-gradient(rgba(0, 0, 0, 0.16) 1px, transparent 1px);
+        background-size: 6px 6px, 6px 6px;
+        background-position: 0 0, 3px 3px;
+        opacity: 0.35;
+        mix-blend-mode: soft-light;
+        pointer-events: none;
+    }
 }

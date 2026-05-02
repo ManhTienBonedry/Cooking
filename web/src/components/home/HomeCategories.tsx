@@ -8,11 +8,11 @@ export default function HomeCategories() {
   }, []);
 
   return (
-    <section className="py-20 bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border-t border-b border-white/60 dark:border-slate-800/60 transition-colors duration-300 categories-container">
+    <section className="py-12 sm:py-20 bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border-t border-b border-white/60 dark:border-slate-800/60 transition-colors duration-300 categories-container">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Reveal className="text-center mb-16">
-          <h2 className="text-5xl font-serif text-black dark:text-white mb-4">Các Danh Mục Chính</h2>
-          <p className="text-xl text-gray-500 dark:text-gray-400 max-w-3xl mx-auto font-medium">
+        <Reveal className="text-center mb-10 sm:mb-16">
+          <h2 className="text-3xl sm:text-5xl font-serif text-black dark:text-white mb-3 sm:mb-4">Các Danh Mục Chính</h2>
+          <p className="text-base sm:text-xl text-gray-500 dark:text-gray-400 max-w-3xl mx-auto font-medium">
             Khám phá nguồn cảm hứng nấu nướng thông qua các lựa chọn phổ biến nhất.
           </p>
         </Reveal>
@@ -26,7 +26,7 @@ export default function HomeCategories() {
             };
             return (
               <RevealStaggerItem key={cat} index={idx} stagger={0.07} y={22}>
-                <div className="h-64">
+                <div className="h-48 sm:h-64">
                   <Link
                     to={`/recipes?category=${encodeURIComponent(cat)}`}
                     className="block w-full h-full group relative overflow-hidden rounded-sm transition-all duration-500 shadow-sm hover:shadow-xl"
@@ -38,8 +38,8 @@ export default function HomeCategories() {
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-300"></div>
-                    <div className="absolute inset-0 flex flex-col justify-center items-center p-6">
-                      <h3 className="text-white text-2xl font-serif font-bold tracking-widest uppercase mb-2 group-hover:-translate-y-1 transition-transform duration-500">
+                    <div className="absolute inset-0 flex flex-col justify-center items-center p-4 sm:p-6">
+                      <h3 className="text-white text-xl sm:text-2xl font-serif font-bold tracking-widest uppercase mb-2 group-hover:-translate-y-1 transition-transform duration-500">
                         {cat}
                       </h3>
                       <div className="w-8 h-1 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-500 mt-2"></div>

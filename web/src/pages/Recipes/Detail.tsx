@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Clock, User, Eye, ArrowLeft, Bookmark, BookmarkCheck, ChefHat, Flame, Drumstick, Wheat, Droplets, Timer } from 'lucide-react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { apiFetch, apiJson } from '../../lib/api';
+import ImageWithFallback from '../../lib/ImageWithFallback';
 import { HeroEnter, Reveal, RevealStaggerItem } from '../../components/motion/ScrollReveal';
 
 interface RecipeRow {
@@ -26,7 +27,7 @@ function splitLines(text: string | null | undefined): string[] {
   return text.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
 }
 
-/** Phân tích thời gian từ bước nấu (VD: "Luộc 15 phút" → 15) */
+/** Phân tích thời gian từ bước nấu (VD: "Luộc 15 phút" -> 15) */
 function extractMinutes(step: string): number | null {
   const match = step.match(/(\d+)\s*(phút|minutes?|mins?)/i);
   return match ? Number(match[1]) : null;
@@ -91,18 +92,18 @@ export default function RecipeDetail() {
 
   const getDiffBadge = (d: string) => {
     const map: Record<string, string> = {
-      'Dễ': 'bg-emerald-400/90 text-emerald-900',
-      'Trung bình': 'bg-amber-400/90 text-amber-900',
-      'Khó': 'bg-rose-400/90 text-rose-900',
+      'Dễ': 'bg-emerald-500/90 text-white ring-1 ring-emerald-300/60 shadow-sm dark:bg-emerald-400/20 dark:text-emerald-100 dark:ring-emerald-300/30',
+      'Trung bình': 'bg-amber-500/90 text-white ring-1 ring-amber-300/60 shadow-sm dark:bg-amber-400/20 dark:text-amber-100 dark:ring-amber-300/30',
+      'Khó': 'bg-rose-500/90 text-white ring-1 ring-rose-300/60 shadow-sm dark:bg-rose-400/20 dark:text-rose-100 dark:ring-rose-300/30',
     };
-    return map[d] ?? 'bg-gray-200 text-gray-800';
+    return map[d] ?? 'bg-slate-500/80 text-white ring-1 ring-slate-300/60 shadow-sm dark:bg-slate-400/20 dark:text-slate-100 dark:ring-slate-300/30';
   };
 
   const formatTimer = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   if (isLoading) {
     return (
-      <main className="min-h-screen pt-16 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors">
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors">
         <div className="relative h-96 overflow-hidden"><Skeleton className="w-full h-full rounded-none" /></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -122,7 +123,7 @@ export default function RecipeDetail() {
 
   if (!recipe) {
     return (
-      <main className="min-h-screen pt-32 pb-20 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center text-center">
+      <main className="min-h-screen pt-16 pb-20 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center text-center">
         <ChefHat className="h-24 w-24 text-gray-300 dark:text-slate-600 mb-6" />
         <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Không tìm thấy công thức</h2>
         <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">Công thức này có thể đã bị xóa hoặc đường dẫn không chính xác.</p>
@@ -147,28 +148,21 @@ export default function RecipeDetail() {
   };
 
   return (
-    <main className="min-h-screen pt-16 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors duration-300">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors duration-300">
 
-      {/* ── Hero Banner ── */}
+      {/* â”€â”€ Hero Banner â”€â”€ */}
       <div className="relative h-[28rem] md:h-[32rem] overflow-hidden">
-        {recipe.image_url ? (
-          <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-[3000ms]" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
-            <ChefHat className="h-24 w-24 text-white/40" />
-          </div>
-        )}
+        <ImageWithFallback src={recipe.image_url || '/assets/images/vietnam1.jpg'} alt={recipe.title} className="block w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-[3000ms]" />
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
         </div>
 
         <HeroEnter className="absolute bottom-8 left-6 md:left-10 right-6 text-white z-10">
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="bg-amber-400/90 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+            <span className="inline-flex items-center bg-amber-400/90 text-black px-3 h-7 rounded-full text-xs font-bold uppercase tracking-wider">
               {recipe.category_name ?? '—'}
             </span>
-            <span className={`${getDiffBadge(diff)} px-3 py-1 rounded-full text-xs font-bold`}>
+            <span className={`${getDiffBadge(diff)} inline-flex items-center h-7 px-3 rounded-full text-xs font-bold badge-grain`}>
               {diff}
             </span>
           </div>
@@ -197,7 +191,7 @@ export default function RecipeDetail() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* ── Main column ── */}
+          {/* â”€â”€ Main column â”€â”€ */}
           <div className="lg:col-span-2 space-y-8">
 
             {/* Description */}
@@ -262,7 +256,7 @@ export default function RecipeDetail() {
             </Reveal>
           </div>
 
-          {/* ── Sidebar ── */}
+          {/* â”€â”€ Sidebar â”€â”€ */}
           <div className="space-y-6">
 
             {/* Nutrition Box */}
@@ -336,7 +330,7 @@ export default function RecipeDetail() {
                 <h3 className="text-lg font-bold text-black dark:text-white mb-4">Tác giả</h3>
                 <div className="flex items-center gap-3">
                   {recipe.author_avatar ? (
-                    <img src={recipe.author_avatar} alt={recipe.author_name ?? ''} className="w-12 h-12 rounded-full object-cover ring-2 ring-amber-400/50" />
+                    <ImageWithFallback src={recipe.author_avatar} alt={recipe.author_name ?? ''} className="w-12 h-12 rounded-full object-cover ring-2 ring-amber-400/50" />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
                       <User className="h-6 w-6 text-white" />
@@ -375,3 +369,4 @@ export default function RecipeDetail() {
     </main>
   );
 }
+

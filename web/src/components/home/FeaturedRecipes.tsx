@@ -5,6 +5,7 @@ import { Reveal, RevealStaggerItem } from '../motion/ScrollReveal';
 import { Skeleton } from '../ui/Skeleton';
 import { apiJson } from '../../lib/api';
 import RecipeHomeCard from './RecipeHomeCard';
+import ImageWithFallback from '../../lib/ImageWithFallback';
 import type { FeaturedRecipe } from './types';
 
 const STATIC_COLLECTIONS = [
@@ -96,19 +97,11 @@ export default function FeaturedRecipes() {
                     to={`/recipes/detail/${mainRecipe.id}`}
                     className="group relative block min-h-[440px] overflow-hidden rounded-lg border border-gray-200 bg-gray-100 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 dark:hover:shadow-none"
                   >
-                    {hasSpotlightImage ? (
-                      <img
-                        src={mainRecipe.image_url}
-                        alt={mainRecipe.title}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        onError={() => setSpotlightImageFailed(true)}
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-100 text-gray-400 dark:bg-slate-800 dark:text-slate-500">
-                        <ChefHat className="h-20 w-20" />
-                        <span className="text-xs font-bold uppercase tracking-widest">Ảnh món ăn</span>
-                      </div>
-                    )}
+                    <ImageWithFallback
+                      src={mainRecipe?.image_url || '/assets/images/vietnam1.jpg'}
+                      alt={mainRecipe?.title}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
                     <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
                       <div className="mb-4 flex flex-wrap items-center gap-2">

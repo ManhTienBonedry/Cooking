@@ -1,45 +1,45 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, ChefHat, Star, ArrowRight } from 'lucide-react';
 import type { FeaturedRecipe } from './types';
+import ImageWithFallback from '../../lib/ImageWithFallback';
 
 export default function RecipeHomeCard({ recipe }: { recipe: FeaturedRecipe }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const hasImage = Boolean(recipe.image_url && !imageFailed);
+  const getDiffBadge = (d?: string) => {
+    const map: Record<string, string> = {
+      'Dễ': 'bg-emerald-500/90 text-white ring-1 ring-emerald-300/60 shadow-sm dark:bg-emerald-400/20 dark:text-emerald-100 dark:ring-emerald-300/30',
+      'Trung bình': 'bg-amber-500/90 text-white ring-1 ring-amber-300/60 shadow-sm dark:bg-amber-400/20 dark:text-amber-100 dark:ring-amber-300/30',
+      'Khó': 'bg-rose-500/90 text-white ring-1 ring-rose-300/60 shadow-sm dark:bg-rose-400/20 dark:text-rose-100 dark:ring-rose-300/30',
+    };
+    return map[d ?? ''] ?? 'bg-slate-500/80 text-white ring-1 ring-slate-300/60 shadow-sm dark:bg-slate-400/20 dark:text-slate-100 dark:ring-slate-300/30';
+  };
+
+  const diffLabel = recipe.difficulty || 'Trung bình';
 
   return (
     <div className="group overflow-hidden border-b border-gray-200/80 bg-white/95 pb-6 transition-all duration-300 sm:rounded-lg sm:border sm:pb-0 sm:shadow-sm hover:-translate-y-1 hover:border-gray-300 hover:shadow-md dark:border-slate-700/80 dark:bg-slate-900/85 dark:hover:border-slate-600 dark:hover:shadow-none flex flex-col h-full">
       <div className="relative overflow-hidden">
-        {hasImage ? (
-          <img
-            src={recipe.image_url}
-            alt={recipe.title}
-            className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-110"
-            loading="lazy"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <div className="flex h-64 w-full flex-col items-center justify-center gap-3 bg-gray-100 text-gray-400 dark:bg-slate-800 dark:text-slate-500">
-            <ChefHat className="h-16 w-16" />
-            <span className="text-xs font-bold uppercase tracking-widest">Ảnh món ăn</span>
-          </div>
-        )}
+        <ImageWithFallback
+          src={recipe.image_url || '/assets/images/vietnam1.jpg'}
+          alt={recipe.title}
+          className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
+        />
 
-        <div className="absolute left-4 top-4 flex max-w-[calc(100%-5rem)] flex-wrap gap-2">
+        <div className="absolute left-4 top-4 flex max-w-[calc(100%-5rem)] flex-wrap items-center gap-2">
           {recipe.is_featured && (
-            <span className="rounded-full bg-rose-500 px-3 py-1 text-sm font-bold text-white shadow-lg">
-              <Star className="mr-1 inline h-3 w-3 fill-current" />
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500 px-3 h-7 text-xs font-bold text-white shadow-lg">
+              <Star className="h-3 w-3 fill-current" />
               Nổi bật
             </span>
           )}
-          <span className="rounded-full bg-black/75 px-3 py-1 text-sm font-semibold text-white backdrop-blur dark:bg-white/15">
+          <span className="inline-flex items-center rounded-full bg-black/75 px-3 h-7 text-xs font-semibold text-white backdrop-blur dark:bg-white/15">
             {recipe.category_name || 'Món chính'}
           </span>
         </div>
 
         <div className="absolute right-4 top-4">
-          <span className="bg-white/95 px-3 py-1 text-xs font-bold uppercase tracking-wider text-black shadow-sm dark:bg-slate-950/90 dark:text-white">
-            {recipe.difficulty || 'Trung bình'}
+          <span className={`${getDiffBadge(diffLabel)} inline-flex items-center h-7 px-3 text-xs font-bold uppercase tracking-wider backdrop-blur-sm rounded-full badge-grain`}>
+            {diffLabel}
           </span>
         </div>
       </div>

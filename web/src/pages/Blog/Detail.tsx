@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Tag, Heart, MessageCircle, Share2, FileText, Send, Copy, Check } from 'lucide-react';
@@ -7,6 +7,7 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { apiJson } from '../../lib/api';
 import { Reveal } from '../../components/motion/ScrollReveal';
 import DOMPurify from 'dompurify';
+import ImageWithFallback from '../../lib/ImageWithFallback';
 
 interface BlogPost {
   id: number;
@@ -104,7 +105,7 @@ export default function BlogDetail() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Like toggle — Optimistic UI
+  // Like toggle â€” Optimistic UI
   const handleLike = async () => {
     if (!isAuthenticated) { setIsAuthOpen(true); return; }
     // Optimistic
@@ -139,7 +140,7 @@ export default function BlogDetail() {
         id: Date.now(),
         content: commentText,
         created_at: new Date().toISOString(),
-        full_name: 'Bạn',
+        full_name: 'Báº¡n',
         avatar_url: null,
       };
       setComments(prev => [newComment, ...prev]);
@@ -175,7 +176,7 @@ export default function BlogDetail() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen pt-16 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors">
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Skeleton className="h-10 w-32 mb-8 rounded-lg" />
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8">
@@ -195,7 +196,7 @@ export default function BlogDetail() {
 
   if (!post) {
     return (
-      <main className="min-h-screen pt-32 pb-20 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center text-center">
+      <main className="min-h-screen pt-16 pb-20 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center text-center">
         <FileText className="h-24 w-24 text-gray-300 dark:text-slate-600 mb-6 drop-shadow-md" />
         <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Không tìm thấy bài viết</h2>
         <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">Bài viết này có thể đã bị xóa hoặc đường dẫn không chính xác.</p>
@@ -213,9 +214,9 @@ export default function BlogDetail() {
   const html = DOMPurify.sanitize(String(post.content ?? ''), { USE_PROFILES: { html: true } });
 
   return (
-    <main className="min-h-screen pt-16 bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors duration-300">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors duration-300">
 
-      {/* ── Sticky Action Bar (Portaled to body to escape transform context) ── */}
+      {/* â”€â”€ Sticky Action Bar (Portaled to body to escape transform context) â”€â”€ */}
       {createPortal(
         <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${showSticky ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}>
           <div className="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200/50 dark:border-slate-700/50 px-5 py-3">
@@ -253,9 +254,9 @@ export default function BlogDetail() {
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-slate-700">
 
-          {/* ── Hero Image ── */}
+          {/* â”€â”€ Hero Image â”€â”€ */}
           <Reveal y={16}>
-            <div className="relative">
+            <div className="relative overflow-hidden">
               {/* Back Button overlay */}
               <div className="absolute top-4 left-4 z-10">
                 <Link to="/blog" className="bg-white/15 backdrop-blur-md text-white px-4 py-2 rounded-full hover:bg-white/25 transition-colors flex items-center text-sm">
@@ -263,16 +264,9 @@ export default function BlogDetail() {
                 </Link>
               </div>
               
-              {post.image_url ? (
-                <img src={post.image_url} alt={post.title} className="w-full h-72 md:h-[28rem] object-cover scale-105 hover:scale-100 transition-transform duration-[3000ms]" />
-              ) : (
-                <div className="w-full h-72 md:h-[28rem] bg-gradient-to-br from-amber-100 to-orange-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
-                  <FileText className="h-20 w-20 text-white/60" />
-                </div>
-              )}
+              <ImageWithFallback src={post.image_url || '/assets/images/vietnam1.jpg'} alt={post.title} className="block w-full h-72 md:h-[28rem] object-cover scale-105 hover:scale-100 transition-transform duration-[3000ms]" />
               <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/80 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               </div>
               <div className="absolute bottom-6 left-6 right-6 z-10">
                 <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -293,12 +287,12 @@ export default function BlogDetail() {
             </div>
           </Reveal>
 
-          {/* ── Author bar ── */}
+          {/* â”€â”€ Author bar â”€â”€ */}
           <Reveal y={14} delay={0.04}>
             <div className="flex items-center justify-between px-6 md:px-8 py-4 border-b border-gray-100 dark:border-slate-700">
               <div className="flex items-center gap-3">
                 {post.author_avatar ? (
-                  <img src={post.author_avatar} alt={post.author_name ?? ''} className="w-10 h-10 rounded-full object-cover ring-2 ring-amber-400/50" />
+                  <ImageWithFallback src={post.author_avatar} alt={post.author_name ?? ''} className="w-10 h-10 rounded-full object-cover ring-2 ring-amber-400/50" />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
                     <User className="h-5 w-5 text-white" />
@@ -327,7 +321,7 @@ export default function BlogDetail() {
             </div>
           </Reveal>
 
-          {/* ── Content ── */}
+          {/* â”€â”€ Content â”€â”€ */}
           <Reveal y={16} delay={0.08}>
             <div className="px-6 md:px-8 py-8 prose prose-lg dark:prose-invert max-w-none
                           prose-headings:font-serif prose-headings:text-black dark:prose-headings:text-white
@@ -336,7 +330,7 @@ export default function BlogDetail() {
                  dangerouslySetInnerHTML={{ __html: html }} />
           </Reveal>
 
-          {/* ── Tags / metadata ── */}
+          {/* â”€â”€ Tags / metadata â”€â”€ */}
           <Reveal y={14}>
             <div className="px-6 md:px-8 py-4 border-t border-gray-100 dark:border-slate-700 flex flex-wrap items-center gap-2">
               <Tag className="h-4 w-4 text-gray-400" />
@@ -346,7 +340,7 @@ export default function BlogDetail() {
             </div>
           </Reveal>
 
-          {/* ── Comments section ── */}
+          {/* â”€â”€ Comments section â”€â”€ */}
           <Reveal y={18}>
             <div id="comments-section" className="px-6 md:px-8 py-8 border-t border-gray-100 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50">
               <h3 className="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2">
@@ -405,7 +399,7 @@ export default function BlogDetail() {
                   <div key={c.id} className="flex gap-3 group">
                     <div className="flex-shrink-0 pt-0.5">
                       {c.avatar_url ? (
-                        <img src={c.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                        <ImageWithFallback src={c.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-600 flex items-center justify-center">
                           <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
@@ -441,3 +435,4 @@ export default function BlogDetail() {
     </main>
   );
 }
+

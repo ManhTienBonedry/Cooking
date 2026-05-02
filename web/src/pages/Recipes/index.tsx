@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, X, ChefHat } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import AuthModal from '../../components/AuthModal';
 import { apiJson } from '../../lib/api';
 import { Reveal } from '../../components/motion/ScrollReveal';
@@ -29,7 +29,18 @@ const LEGACY_RECIPE_CATEGORIES = [
 
 const PAGE_SIZE = 24;
 
+const normalizeCategory = (value: string) =>
+  value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+
 export default function Recipes() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryParam = searchParams.get('category');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,6 +53,39 @@ export default function Recipes() {
   const [recipes, setRecipes] = useState<RecipeListRow[]>([]);
   const [totalRecipes, setTotalRecipes] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!categoryParam) return;
+    const normalizedParam = normalizeCategory(categoryParam);
+    if (!normalizedParam) return;
+
+    const normalizedAll = normalizeCategory('Tất cả');
+    if (normalizedParam === normalizedAll) {
+      setSelectedCategory((prev) => (prev !== 'Tất cả' ? 'Tất cả' : prev));
+      return;
+    }
+
+    const match = categories.find((cat) => normalizeCategory(cat) === normalizedParam);
+    if (match) {
+      setSelectedCategory((prev) => (prev !== match ? match : prev));
+    }
+  }, [categoryParam, categories]);
+
+  const handleCategoryChange = (value: string) => {
+    const isAll = value === 'Tất cả';
+    const isSame = value === selectedCategory;
+    const isUrlSynced = isAll ? !categoryParam : categoryParam === value;
+    if (isSame && isUrlSynced) return;
+
+    setSelectedCategory(value);
+    const next = new URLSearchParams(searchParams);
+    if (value && !isAll) {
+      next.set('category', value);
+    } else {
+      next.delete('category');
+    }
+    setSearchParams(next, { replace: true });
+  };
 
   // Load Categories
   useEffect(() => {
@@ -143,7 +187,7 @@ export default function Recipes() {
       <RecipeFilterBar 
         categories={categories}
         selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
+        setSelectedCategory={handleCategoryChange}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -180,7 +224,7 @@ export default function Recipes() {
           recipes={recipes} 
           onClearFilters={() => {
             setSearchQuery('');
-            setSelectedCategory('Tất cả');
+            handleCategoryChange('Tất cả');
           }} 
         />
         {!isLoading && (

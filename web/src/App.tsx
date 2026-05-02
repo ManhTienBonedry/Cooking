@@ -42,10 +42,10 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const reduceMotion = useReducedMotion();
 
-  /* location.key đổi mỗi lần navigate → luôn cuộn về đầu (kể cả bấm lại cùng mục nav) */
+  /* Chỉ cuộn về đầu khi đổi pathname, tránh nháy khi đổi query (filter) */
   useLayoutEffect(() => {
     scrollWindowToTop();
-  }, [location.key, location.pathname]);
+  }, [location.pathname]);
 
   if (isAdminRoute) {
     return (

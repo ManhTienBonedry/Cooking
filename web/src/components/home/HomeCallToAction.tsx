@@ -15,15 +15,15 @@ export default function HomeCallToAction() {
   }, []);
 
   return (
-    <section className="py-24 cta-container">
+    <section className="py-16 sm:py-24 cta-container">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal y={24}>
           <div
-            className="bg-gray-900 rounded-sm p-12 md:p-16 shadow-xl flex flex-col md:flex-row items-center justify-between"
+            className="bg-gray-900 rounded-sm p-8 sm:p-12 md:p-16 shadow-xl flex flex-col md:flex-row items-center justify-between"
           >
             <div className="md:w-1/2 text-left mb-8 md:mb-0">
-              <h2 className="text-5xl font-serif text-white mb-6 uppercase tracking-widest leading-tight">Bắt Đầu Hành Trình Của Bạn</h2>
-              <p className="text-xl text-gray-400 max-w-2xl mx-auto font-medium mb-8">
+              <h2 className="text-3xl sm:text-5xl font-serif text-white mb-5 sm:mb-6 uppercase tracking-widest leading-tight">Bắt Đầu Hành Trình Của Bạn</h2>
+              <p className="text-base sm:text-xl text-gray-400 max-w-2xl mx-auto font-medium mb-6 sm:mb-8">
                 Tất cả công thức được yêu thích nhất của chúng tôi, được chỉnh sửa và thiết kế đẹp mắt. Chỉ cần đăng ký một tài khoản ngay cho bạn!
               </p>
               <Link
@@ -36,10 +36,10 @@ export default function HomeCallToAction() {
             </div>
             <div className="md:w-2/5 flex justify-center">
               {/* Decorative image box or something */}
-              <div className="w-64 h-64 border-8 border-gray-800 bg-gray-800 flex items-center justify-center relative overflow-hidden transform rotate-3">
+              <div className="w-48 h-48 sm:w-64 sm:h-64 border-4 sm:border-8 border-gray-800 bg-gray-800 flex items-center justify-center relative overflow-hidden transform rotate-3">
                 <img src="/assets/images/vietnam1.jpg" alt="Cookbook Placeholder" className="w-full h-full object-cover opacity-80" />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center p-4">
-                  <h3 className="text-white font-serif font-black text-2xl text-center uppercase tracking-widest">Tuyển Tập<br />Nấu Ăn</h3>
+                  <h3 className="text-white font-serif font-black text-lg sm:text-2xl text-center uppercase tracking-widest">Tuyển Tập<br />Nấu Ăn</h3>
                 </div>
               </div>
             </div>

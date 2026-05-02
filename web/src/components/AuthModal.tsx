@@ -380,99 +380,123 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialSignUp = 
         <div
           className="blackwhite-form-container blackwhite-forgot-password"
           style={{
-            display: view === 'forgot' ? 'flex' : 'none',
+            display: view === 'forgot' ? 'block' : 'none',
             left: 0,
-            width: '50%',
+            width: '100%',
             height: '100%',
             zIndex: 10,
-
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
           }}
         >
-          <form className="h-full flex flex-col items-center justify-center p-8 bg-white dark:bg-slate-900 w-full" onSubmit={handleForgotSendOtp}>
-            <h1 className="text-2xl font-bold mb-2 text-black dark:text-white">Quên Mật Khẩu</h1>
-            <span className="text-gray-500 dark:text-gray-400 text-xs mb-4 text-center">Chỉ email đã đăng ký mới nhận được mã</span>
-            {authError && view === 'forgot' && (
-              <p className="text-red-600 text-xs mb-2 w-full text-center">{authError}</p>
-            )}
-            <input
-              name="email"
-              type="email"
-              placeholder="Email đã đăng ký"
-              required
-              className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white dark:focus:bg-slate-900 transition-all text-sm font-medium text-black dark:text-white"
-            />
-            <button
-              type="submit"
-              disabled={authLoading}
-              className="bg-black text-white rounded-lg py-3 px-8 text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors mt-2 disabled:opacity-60"
+          <div className="grid h-full w-full grid-cols-1 md:grid-cols-[1.1fr_0.9fr]">
+            <div className="flex items-center justify-center bg-white dark:bg-slate-900 p-8">
+              <form className="w-full max-w-sm flex flex-col items-center justify-center" onSubmit={handleForgotSendOtp}>
+                <h1 className="text-2xl font-bold mb-2 text-black dark:text-white">Quên Mật Khẩu</h1>
+                <span className="text-gray-500 dark:text-gray-400 text-xs mb-4 text-center">Chỉ email đã đăng ký mới nhận được mã</span>
+                {authError && view === 'forgot' && (
+                  <p className="text-red-600 text-xs mb-2 w-full text-center">{authError}</p>
+                )}
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Email đã đăng ký"
+                  required
+                  className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white dark:focus:bg-slate-900 transition-all text-sm font-medium text-black dark:text-white"
+                />
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="bg-black text-white rounded-lg py-3 px-8 text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors mt-2 disabled:opacity-60"
+                >
+                  {authLoading ? '…' : 'Gửi mã OTP'}
+                </button>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                  <a href="#" onClick={handleBackToLogin} className="font-semibold text-black dark:text-white underline">
+                    Quay lại Đăng nhập
+                  </a>
+                </p>
+              </form>
+            </div>
+            <div
+              className="hidden md:flex relative items-center justify-center text-white"
+              style={{ backgroundImage: "url('/assets/images/avatar3.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}
             >
-              {authLoading ? '…' : 'Gửi mã OTP'}
-            </button>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-              <a href="#" onClick={handleBackToLogin} className="font-semibold text-black dark:text-white underline">
-                Quay lại Đăng nhập
-              </a>
-            </p>
-          </form>
+              <div className="absolute inset-0 bg-black/55" />
+              <div className="relative z-10 px-8 text-center">
+                <h2 className="text-2xl font-bold mb-2">Khôi phục tài khoản</h2>
+                <p className="text-sm text-white/80">
+                  Nhập email để nhận mã OTP và đặt lại mật khẩu an toàn.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Reset Password */}
         <div
           className="blackwhite-form-container blackwhite-reset-password"
           style={{
-            display: view === 'reset' ? 'flex' : 'none',
+            display: view === 'reset' ? 'block' : 'none',
             left: 0,
-            width: '50%',
+            width: '100%',
             height: '100%',
             zIndex: 10,
-
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
           }}
         >
-          <form className="h-full flex flex-col items-center justify-center p-8 bg-white dark:bg-slate-900 w-full" onSubmit={handleResetPassword}>
-            <h1 className="text-2xl font-bold mb-2 text-black dark:text-white">Đặt Lại Mật Khẩu</h1>
-            <span className="text-gray-500 dark:text-gray-400 text-xs mb-2 text-center">
-              Mã đã gửi tới <strong className="text-black dark:text-white">{forgotEmail}</strong>
-            </span>
-            {authError && view === 'reset' && (
-              <p className="text-red-600 text-xs mb-2 w-full text-center">{authError}</p>
-            )}
-            <input
-              name="otp"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]{6}"
-              maxLength={6}
-              placeholder="Mã OTP (6 số)"
-              required
-              className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white dark:focus:bg-slate-900 transition-all text-sm font-medium text-black dark:text-white"
-            />
-            <input
-              name="new_password"
-              type="password"
-              placeholder="Mật khẩu mới (≥8 ký tự)"
-              required
-              minLength={8}
-              className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg w-full p-3 mb-6 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white dark:focus:bg-slate-900 transition-all text-sm font-medium text-black dark:text-white"
-            />
-            <button
-              type="submit"
-              disabled={authLoading}
-              className="bg-black text-white rounded-lg py-3 px-8 text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors mt-2 disabled:opacity-60"
+          <div className="grid h-full w-full grid-cols-1 md:grid-cols-[1.1fr_0.9fr]">
+            <div className="flex items-center justify-center bg-white dark:bg-slate-900 p-8">
+              <form className="w-full max-w-sm flex flex-col items-center justify-center" onSubmit={handleResetPassword}>
+                <h1 className="text-2xl font-bold mb-2 text-black dark:text-white">Đặt Lại Mật Khẩu</h1>
+                <span className="text-gray-500 dark:text-gray-400 text-xs mb-2 text-center">
+                  Mã đã gửi tới <strong className="text-black dark:text-white">{forgotEmail}</strong>
+                </span>
+                {authError && view === 'reset' && (
+                  <p className="text-red-600 text-xs mb-2 w-full text-center">{authError}</p>
+                )}
+                <input
+                  name="otp"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  placeholder="Mã OTP (6 số)"
+                  required
+                  className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg w-full p-3 mb-3 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white dark:focus:bg-slate-900 transition-all text-sm font-medium text-black dark:text-white"
+                />
+                <input
+                  name="new_password"
+                  type="password"
+                  placeholder="Mật khẩu mới (≥8 ký tự)"
+                  required
+                  minLength={8}
+                  className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg w-full p-3 mb-6 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 focus:bg-white dark:focus:bg-slate-900 transition-all text-sm font-medium text-black dark:text-white"
+                />
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="bg-black text-white rounded-lg py-3 px-8 text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors mt-2 disabled:opacity-60"
+                >
+                  {authLoading ? '…' : 'Đổi mật khẩu'}
+                </button>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                  <a href="#" onClick={handleBackToLogin} className="font-semibold text-black dark:text-white underline">
+                    Quay lại Đăng nhập
+                  </a>
+                </p>
+              </form>
+            </div>
+            <div
+              className="hidden md:flex relative items-center justify-center text-white"
+              style={{ backgroundImage: "url('/assets/images/avatar2.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}
             >
-              {authLoading ? '…' : 'Đổi mật khẩu'}
-            </button>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-              <a href="#" onClick={handleBackToLogin} className="font-semibold text-black dark:text-white underline">
-                Quay lại Đăng nhập
-              </a>
-            </p>
-          </form>
+              <div className="absolute inset-0 bg-black/55" />
+              <div className="relative z-10 px-8 text-center">
+                <h2 className="text-2xl font-bold mb-2">Bảo mật tài khoản</h2>
+                <p className="text-sm text-white/80">
+                  Tạo mật khẩu mới mạnh hơn để bảo vệ tài khoản của bạn.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Toggle Overlays */}
