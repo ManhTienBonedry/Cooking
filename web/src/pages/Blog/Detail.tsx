@@ -270,7 +270,10 @@ export default function BlogDetail() {
                   <FileText className="h-20 w-20 text-white/60" />
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/80 to-transparent" />
+              </div>
               <div className="absolute bottom-6 left-6 right-6 z-10">
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   {post.category_name && (

@@ -8,7 +8,7 @@ export default function RecipeHomeCard({ recipe }: { recipe: FeaturedRecipe }) {
   const hasImage = Boolean(recipe.image_url && !imageFailed);
 
   return (
-    <div className="group overflow-hidden border-b border-gray-200/80 bg-white/95 pb-6 transition-all duration-300 sm:rounded-lg sm:border sm:pb-0 sm:shadow-sm hover:-translate-y-1 hover:border-gray-300 hover:shadow-md dark:border-slate-700/80 dark:bg-slate-900/85 dark:hover:border-slate-600 dark:hover:shadow-none">
+    <div className="group overflow-hidden border-b border-gray-200/80 bg-white/95 pb-6 transition-all duration-300 sm:rounded-lg sm:border sm:pb-0 sm:shadow-sm hover:-translate-y-1 hover:border-gray-300 hover:shadow-md dark:border-slate-700/80 dark:bg-slate-900/85 dark:hover:border-slate-600 dark:hover:shadow-none flex flex-col h-full">
       <div className="relative overflow-hidden">
         {hasImage ? (
           <img
@@ -44,8 +44,8 @@ export default function RecipeHomeCard({ recipe }: { recipe: FeaturedRecipe }) {
         </div>
       </div>
 
-      <div className="pt-6 sm:p-5">
-        <h3 className="mb-3 line-clamp-2 text-xl font-bold font-serif text-black transition-colors duration-300 group-hover:text-gray-600 dark:text-white dark:group-hover:text-slate-200">
+      <div className="pt-6 sm:p-5 flex-1 flex flex-col">
+        <h3 className="mb-3 line-clamp-2 text-xl font-bold font-serif text-black transition-colors duration-300 group-hover:text-gray-600 dark:text-white dark:group-hover:text-slate-200 min-h-[3.5rem]">
           {recipe.title}
         </h3>
         <div className="mb-4 flex items-center justify-between text-sm text-gray-600 dark:text-slate-400">
@@ -56,7 +56,7 @@ export default function RecipeHomeCard({ recipe }: { recipe: FeaturedRecipe }) {
         </div>
         <Link
           to={`/recipes/detail/${recipe.id}`}
-          className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-black transition-colors duration-300 hover:text-gray-500 group/link dark:text-white dark:hover:text-slate-300"
+          className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-black transition-colors duration-300 hover:text-gray-500 group/link dark:text-white dark:hover:text-slate-300 mt-auto"
         >
           <span>ĐỌC TIẾP</span>
           <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/link:translate-x-1" />

@@ -158,7 +158,10 @@ export default function RecipeDetail() {
             <ChefHat className="h-24 w-24 text-white/40" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/80 to-transparent" />
+        </div>
 
         <HeroEnter className="absolute bottom-8 left-6 md:left-10 right-6 text-white z-10">
           <div className="flex flex-wrap items-center gap-2 mb-3">

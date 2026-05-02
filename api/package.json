@@ -10,7 +10,8 @@
     "start": "node dist/index.js",
     "migrate:admin-passwords": "tsx src/scripts/migrate-admin-passwords.ts",
     "admin:create": "tsx src/scripts/create-admin.ts",
-    "seed:default-content": "tsx src/scripts/seed-default-content.ts"
+    "seed:default-content": "tsx src/scripts/seed-default-content.ts",
+    "list:missing-images": "tsx src/scripts/list-missing-images.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
