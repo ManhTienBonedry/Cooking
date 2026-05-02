@@ -8,9 +8,9 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
-    "migrate:admin-passwords": "tsx src/scripts/migrate-admin-passwords.ts",
-    "admin:create": "tsx src/scripts/create-admin.ts",
-    "seed:default-content": "tsx src/scripts/seed-default-content.ts",
+    "migrate:admin-passwords": "echo \"migrate:admin-passwords is moved to scripts/_dev (dev-only)\" && exit 1",
+    "admin:create": "echo \"admin:create is moved to scripts/_dev (dev-only)\" && exit 1",
+    "seed:default-content": "echo \"seed:default-content is moved to scripts/_dev (dev-only)\" && exit 1",
     "list:missing-images": "tsx src/scripts/list-missing-images.ts"
   },
   "dependencies": {

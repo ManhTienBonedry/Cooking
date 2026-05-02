@@ -101,3 +101,6 @@ frontend/uploads/
 
 # Ignore local public uploads
 web/public/uploads/
+
+# Dev-only unsafe scripts folder
+/api/src/scripts/_dev/
