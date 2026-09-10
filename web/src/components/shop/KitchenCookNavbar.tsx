@@ -60,9 +60,9 @@ export default function KitchenCookNavbar() {
     e.preventDefault();
     const trimmed = searchVal.trim();
     if (trimmed) {
-      navigate(`/shop?search=${encodeURIComponent(trimmed)}`);
+      navigate(`/shop/products?q=${encodeURIComponent(trimmed)}`);
     } else {
-      navigate('/shop');
+      navigate('/shop/products');
     }
   };
 
@@ -78,7 +78,8 @@ export default function KitchenCookNavbar() {
     }
   };
 
-  const isShopActive = location.pathname === '/shop' || location.pathname.startsWith('/shop/');
+  const isHomeActive = location.pathname === '/shop';
+  const isProductsActive = location.pathname.startsWith('/shop/products') || (location.pathname.startsWith('/shop/') && location.pathname !== '/shop');
   const isOrdersActive = location.pathname.startsWith('/orders');
   const isAccountActive = location.pathname.startsWith('/account');
 
@@ -92,33 +93,33 @@ export default function KitchenCookNavbar() {
               <div className="w-10 h-10 rounded-xl bg-[#D96B27] text-white flex items-center justify-center shadow-md shadow-orange-600/20 group-hover:scale-105 transition-transform">
                 <ChefHat className="w-6 h-6" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-vietnam font-black text-xl tracking-tight text-slate-900 dark:text-white leading-tight">
-                  Kitchen<span className="text-[#D96B27]">Cook</span>
-                </span>
-                <span className="text-[10px] font-semibold text-amber-900/70 dark:text-amber-400/80 tracking-wider uppercase -mt-0.5">
-                  European Cookware
-                </span>
-              </div>
+              <span className="font-vietnam font-black text-xl tracking-tight text-slate-900 dark:text-white leading-tight">
+                Kitchen<span className="text-[#D96B27]">Cook</span>
+              </span>
             </Link>
 
             {/* Cụm Điều hướng Dạng Viên Thuốc (Pill Navigation) */}
             <div className="flex items-center gap-1.5 bg-white dark:bg-slate-800 p-1 rounded-full border border-amber-900/10 dark:border-slate-700 shadow-sm shrink-0">
               <Link
-                to="/"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-                title="Quay lại Cổng Công thức ẩm thực CookingBoy"
-              >
-                <Home className="w-3.5 h-3.5 text-[#D96B27]" />
-                <span className="hidden xs:inline">🍳 Cổng Công thức</span>
-              </Link>
-              <Link
                 to="/shop"
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${
-                  isShopActive
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                  isHomeActive
                     ? 'bg-[#D96B27] text-white'
                     : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
+                title="Trang chủ KitchenCook"
+              >
+                <Home className="w-3.5 h-3.5" />
+                <span>Trang chủ</span>
+              </Link>
+              <Link
+                to="/shop/products"
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                  isProductsActive
+                    ? 'bg-[#D96B27] text-white'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Xem tất cả sản phẩm KitchenCook"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
                 <span>Sản phẩm</span>

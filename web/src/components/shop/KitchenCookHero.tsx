@@ -1,16 +1,15 @@
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface KitchenCookHeroProps {
   onExploreClick: () => void;
   onCookwareClick: () => void;
-  totalProducts: number;
+  totalProducts?: number;
 }
 
 export default function KitchenCookHero({
   onExploreClick,
   onCookwareClick,
-  totalProducts,
 }: KitchenCookHeroProps) {
   return (
     <div className="w-full bg-[#FAF7F2] dark:bg-slate-900 border-b border-amber-900/10 dark:border-slate-800 transition-colors duration-300 font-vietnam">
@@ -19,11 +18,6 @@ export default function KitchenCookHero({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Cột trái: Typography nghệ thuật Châu Âu & CTA */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 text-[#A74311] dark:text-amber-300 text-xs font-bold tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-[#D96B27]" />
-              Bộ sưu tập đồ gia dụng chuẩn Châu Âu
-            </div>
-
             <h1 className="font-vietnam font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-slate-900 dark:text-white leading-[1.12]">
               Nâng tầm căn bếp, <br />
               <span className="text-[#D96B27]">tạo nên nghệ thuật</span>
@@ -33,7 +27,7 @@ export default function KitchenCookHero({
               Khám phá bộ sưu tập nồi niêu xoong chảo, dao kéo và phụ kiện làm bếp chuyên nghiệp từ các thương hiệu hàng đầu thế giới. Bền bỉ, tinh xảo và an toàn tuyệt đối cho sức khỏe gia đình bạn.
             </p>
 
-            {/* Cặp nút hành động chuẩn theo ảnh mẫu */}
+            {/* Cặp nút hành động */}
             <div className="flex items-center gap-3.5 pt-2 flex-wrap">
               <button
                 type="button"
@@ -51,24 +45,6 @@ export default function KitchenCookHero({
               >
                 Bộ sưu tập Nồi & Chảo
               </button>
-            </div>
-
-            {/* Badge chỉ số */}
-            <div className="pt-4 flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400 border-t border-amber-900/10 dark:border-slate-800">
-              <div>
-                <strong className="block text-slate-900 dark:text-white text-base font-bold">{totalProducts}+</strong>
-                <span>Dụng cụ nhà bếp</span>
-              </div>
-              <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
-              <div>
-                <strong className="block text-slate-900 dark:text-white text-base font-bold">100%</strong>
-                <span>Chính hãng an toàn</span>
-              </div>
-              <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
-              <div>
-                <strong className="block text-slate-900 dark:text-white text-base font-bold">GHN Express</strong>
-                <span>Giao hàng toàn quốc</span>
-              </div>
             </div>
           </div>
 

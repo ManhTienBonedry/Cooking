@@ -61,7 +61,7 @@ export function RecipeToKitchenBanner() {
               Nấu ăn ngon cần dụng cụ chuẩn! Bạn muốn mua đồ bếp xịn?
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Ghé thăm ngay <strong>KitchenCook</strong> để trang bị những bộ nồi niêu xoong chảo chống dính, dao kéo rèn chuẩn Châu Âu, giúp từng thao tác chế biến của bạn mượt mà và chuẩn vị như bếp trưởng.
+              Ghé thăm ngay <strong>KitchenCook</strong> để trang bị những bộ nồi niêu xoong chảo chống dính, dao kéo rèn sắc bén cao cấp, giúp từng thao tác chế biến của bạn mượt mà và chuẩn vị như bếp trưởng.
             </p>
           </div>
         </div>

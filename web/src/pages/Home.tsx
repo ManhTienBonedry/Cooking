@@ -1,7 +1,7 @@
 import HomeEditorialHeader from '../components/home/HomeEditorialHeader';
 import FeaturedRecipes from '../components/home/FeaturedRecipes';
 import HomeCategories from '../components/home/HomeCategories';
-import HomeMarketplace from '../components/home/HomeMarketplace';
+import { RecipeToKitchenBanner } from '../components/common/CrossPromotionBanners';
 import HomeCallToAction from '../components/home/HomeCallToAction';
 
 declare global {
@@ -16,7 +16,9 @@ export default function Home() {
       <HomeEditorialHeader />
       <FeaturedRecipes />
       <HomeCategories />
-      <HomeMarketplace />
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <RecipeToKitchenBanner />
+      </section>
       <HomeCallToAction />
     </div>
   );

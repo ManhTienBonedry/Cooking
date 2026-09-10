@@ -34,6 +34,7 @@ const MarketOrdersTab = lazy(() => import('./pages/Admin/tabs/MarketOrdersTab'))
 
 /* Marketplace / KitchenCook */
 const Shop = lazy(() => import('./pages/Shop'));
+const ShopProducts = lazy(() => import('./pages/Shop/Products'));
 const ProductDetail = lazy(() => import('./pages/Shop/Detail'));
 const CartPage = lazy(() => import('./pages/Shop/Cart'));
 const Checkout = lazy(() => import('./pages/Shop/Checkout'));
@@ -154,6 +155,7 @@ export default function App() {
                 <Suspense fallback={<PageFallback />}>
                   <Routes location={location}>
                     <Route path="/shop" element={<Shop />} />
+                    <Route path="/shop/products" element={<ShopProducts />} />
                     <Route path="/shop/:slug" element={<ProductDetail />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<Checkout />} />

@@ -14,7 +14,7 @@ export default function KitchenCookFooter() {
               </div>
               <div>
                 <h4 className="text-white text-sm font-bold">100% Chính Hãng</h4>
-                <p className="text-xs text-slate-400">Đạt chuẩn an toàn Châu Âu</p>
+                <p className="text-xs text-slate-400">Đạt chuẩn chất lượng an toàn</p>
               </div>
             </div>
 
@@ -65,13 +65,13 @@ export default function KitchenCookFooter() {
                   Kitchen<span className="text-[#D96B27]">Cook</span>
                 </span>
                 <p className="text-[10px] font-semibold text-slate-400 tracking-wider uppercase">
-                  European Cookware Store
+                  Dụng Cụ Nhà Bếp Cao Cấp
                 </p>
               </div>
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              KitchenCook là cửa hàng chuyên cung cấp dụng cụ nhà bếp, nồi niêu xoong chảo cao cấp tiêu chuẩn Châu Âu. Nơi biến việc nấu nướng thành trải nghiệm nghệ thuật mỗi ngày.
+              KitchenCook là cửa hàng chuyên cung cấp dụng cụ nhà bếp, nồi niêu xoong chảo cao cấp. Nơi biến việc nấu nướng thành trải nghiệm nghệ thuật mỗi ngày.
             </p>
 
             {/* Box kết nối Cổng Công Thức CookingBoy */}
@@ -99,22 +99,22 @@ export default function KitchenCookFooter() {
             <h4 className="text-white text-xs font-bold uppercase tracking-wider">Danh Mục Nổi Bật</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <Link to="/shop?category=noi-chao" className="hover:text-white transition-colors">
-                  Nồi & Chảo gang Châu Âu
+                <Link to="/shop/products?category=noi-chao" className="hover:text-white transition-colors">
+                  Nồi & Chảo gang cao cấp
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=dao-keo" className="hover:text-white transition-colors">
+                <Link to="/shop/products?category=dao-keo" className="hover:text-white transition-colors">
                   Bộ dao thép rèn thủ công
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=phu-kien" className="hover:text-white transition-colors">
+                <Link to="/shop/products?category=phu-kien" className="hover:text-white transition-colors">
                   Dụng cụ & Phụ kiện làm bếp
                 </Link>
               </li>
               <li>
-                <Link to="/shop?sort=popular" className="hover:text-white transition-colors">
+                <Link to="/shop/products?sort=popular" className="hover:text-white transition-colors">
                   Sản phẩm bán chạy nhất
                 </Link>
               </li>
@@ -168,7 +168,7 @@ export default function KitchenCookFooter() {
 
         {/* 3. Dòng Bản Quyền Cuối Trang */}
         <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>© 2026 KitchenCook · Thương hiệu đồ bếp gia dụng Châu Âu cao cấp.</p>
+          <p>© 2026 KitchenCook · Thương hiệu đồ bếp gia dụng cao cấp.</p>
           <div className="flex items-center gap-4">
             <Link to="/" className="hover:text-slate-400 transition-colors">CookingBoy</Link>
             <span>•</span>
