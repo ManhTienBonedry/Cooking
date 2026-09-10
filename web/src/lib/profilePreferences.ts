@@ -3,6 +3,10 @@ export interface SavedAddress {
   name: string;
   phone: string;
   address: string;
+  label?: 'home' | 'office' | 'other' | string;
+  city?: string;
+  district?: string;
+  ward?: string;
   isDefault: boolean;
 }
 

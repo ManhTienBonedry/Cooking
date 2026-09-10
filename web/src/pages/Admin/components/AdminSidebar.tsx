@@ -32,74 +32,104 @@ export default function AdminSidebar({ pendingCount, pendingProducts }: { pendin
         </div>
       </div>
 
-      <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 p-5 space-y-1.5 overflow-y-auto custom-scrollbar">
+        {/* KHỐI 1: TỔNG QUAN & HỆ THỐNG */}
+        <div className="pt-2 pb-2 px-3 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+          Tổng quan & Hệ thống
+        </div>
         <Link to="/admin/dashboard" className={navClass(path === '/admin/dashboard')}>
-          <LayoutDashboard className="w-6 h-6" /> Dashboard
+          <LayoutDashboard className="w-5 h-5" /> Dashboard
         </Link>
+        <Link to="/admin/users" className={navClass(path === '/admin/users')}>
+          <Users className="w-5 h-5" /> Người dùng
+        </Link>
+        <Link to="/admin/feedback" className={navClass(path === '/admin/feedback')}>
+          <MessageSquare className="w-5 h-5" /> Phản hồi
+        </Link>
+
+        {/* KHỐI 2: CỔNG COOKINGBOY */}
+        <div className="pt-5 pb-2 px-3 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center justify-between">
+          <span>Cổng CookingBoy</span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black">Ẩm thực</span>
+        </div>
         <Link to="/admin/approvals" className={navClass(path === '/admin/approvals')}>
-          <CheckCircle className="w-6 h-6" /> Duyệt bài
+          <CheckCircle className="w-5 h-5" /> Duyệt bài công thức
           {pendingCount > 0 && (
-            <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm border border-red-400">
+            <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm border border-red-400">
               {pendingCount}
             </span>
           )}
         </Link>
-
-        <div className="pt-6 pb-3 px-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-          Quản lý
-        </div>
-        
-        <Link to="/admin/users" className={navClass(path === '/admin/users')}>
-          <Users className="w-6 h-6" /> Người dùng
-        </Link>
         <Link to="/admin/recipes" className={navClass(path === '/admin/recipes')}>
-          <Utensils className="w-6 h-6" /> Công thức
+          <Utensils className="w-5 h-5" /> Quản lý công thức
         </Link>
         <Link to="/admin/blogs" className={navClass(path === '/admin/blogs')}>
-          <FileText className="w-6 h-6" /> Blog
+          <FileText className="w-5 h-5" /> Blog ẩm thực
         </Link>
         <Link to="/admin/comments" className={navClass(path === '/admin/comments')}>
-          <MessageCircle className="w-6 h-6" /> Bình luận
-        </Link>
-        <Link to="/admin/categories" className={navClass(path === '/admin/categories')}>
-          <FolderTree className="w-6 h-6" /> Danh mục
-        </Link>
-        <Link to="/admin/feedback" className={navClass(path === '/admin/feedback')}>
-          <MessageSquare className="w-6 h-6" /> Phản hồi
+          <MessageCircle className="w-5 h-5" /> Bình luận
         </Link>
 
-        <div className="pt-6 pb-3 px-4 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest">
-          KitchenCook Store
+        {/* KHỐI 3: CỬA HÀNG KITCHENCOOK */}
+        <div className="pt-5 pb-2 px-3 text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center justify-between">
+          <span>Cửa hàng KitchenCook</span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-black">Đồ bếp</span>
         </div>
-
         <Link to="/admin/market-products" className={navClass(path === '/admin/market-products')}>
-          <ShoppingBag className="w-6 h-6" /> Đồ gia dụng & Kho
+          <ShoppingBag className="w-5 h-5" /> Đồ bếp & Quản lý kho
           {pendingProducts > 0 && (
-            <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm border border-red-400 animate-pulse">
+            <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm border border-red-400 animate-pulse">
               {pendingProducts}
             </span>
           )}
         </Link>
         <Link to="/admin/market-orders" className={navClass(path === '/admin/market-orders')}>
-          <ClipboardList className="w-6 h-6" /> Đơn hàng & Giao GHN
+          <ClipboardList className="w-5 h-5" /> Đơn hàng & 1-Click GHN
+        </Link>
+        <Link to="/admin/categories" className={navClass(path === '/admin/categories')}>
+          <FolderTree className="w-5 h-5" /> Danh mục sản phẩm
         </Link>
       </nav>
 
-      <div className="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-        <div className="flex items-center gap-4 mb-4 px-2">
-          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg shadow-sm">
+      {/* FOOTER & PORTAL JUMP LINKS */}
+      <div className="p-5 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
+        {/* Direct portal links */}
+        <div className="grid grid-cols-2 gap-2 text-xs font-bold">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-500 hover:text-emerald-600 transition-colors shadow-2xs text-center"
+            title="Mở cổng CookingBoy trong tab mới"
+          >
+            ↗ CookingBoy
+          </a>
+          <a
+            href="/shop"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-amber-500 hover:text-amber-600 transition-colors shadow-2xs text-center"
+            title="Mở cửa hàng KitchenCook trong tab mới"
+          >
+            ↗ KitchenCook
+          </a>
+        </div>
+
+        <div className="flex items-center gap-3 px-1 pt-1">
+          <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm shadow-xs">
             A
           </div>
-          <div className="overflow-hidden">
-            <p className="text-base font-bold truncate text-slate-800 dark:text-slate-200">Admin</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Administrator</p>
+          <div className="overflow-hidden flex-1">
+            <p className="text-sm font-bold truncate text-slate-800 dark:text-slate-200">Admin</p>
+            <p className="text-[11px] text-slate-400 font-medium">Tổng quản trị hệ thống</p>
           </div>
         </div>
+
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center gap-2 w-full py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-100 dark:hover:border-red-800 text-slate-700 dark:text-slate-200 hover:text-red-600 dark:hover:text-red-400 rounded-xl font-semibold transition-all shadow-sm hover:shadow text-sm"
+          className="flex items-center justify-center gap-2 w-full py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-100 text-slate-700 dark:text-slate-200 hover:text-red-600 dark:hover:text-red-400 rounded-xl font-bold transition-all shadow-xs text-xs cursor-pointer"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-3.5 w-3.5" />
           <span>Đăng xuất</span>
         </button>
       </div>

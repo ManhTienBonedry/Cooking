@@ -407,7 +407,10 @@ export default function Checkout() {
                 <div className="space-y-4">
                   {savedAddresses.length > 0 && (
                     <div className="space-y-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">Địa chỉ đã lưu</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">Địa chỉ đã lưu</p>
+                        <Link to="/account" className="text-xs font-bold text-[#D96B27] hover:underline">+ Sổ địa chỉ</Link>
+                      </div>
                       {savedAddresses.map((address) => (
                         <button
                           key={address.id}

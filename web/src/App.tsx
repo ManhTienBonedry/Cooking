@@ -40,6 +40,7 @@ const Checkout = lazy(() => import('./pages/Shop/Checkout'));
 const OrderSuccess = lazy(() => import('./pages/Shop/OrderSuccess'));
 const OrdersPage = lazy(() => import('./pages/Shop/Orders'));
 const OrderDetailPage = lazy(() => import('./pages/Shop/OrderDetail'));
+const AccountPage = lazy(() => import('./pages/Shop/Account'));
 const CookPayWallet = lazy(() => import('./pages/Seller/EWallet'));
 const Messages = lazy(() => import('./pages/Messages'));
 const PublicProfile = lazy(() => import('./pages/Creator/PublicProfile'));
@@ -66,7 +67,9 @@ export default function App() {
     location.pathname === '/checkout' ||
     location.pathname === '/order-success' ||
     location.pathname === '/orders' ||
-    location.pathname.startsWith('/orders/');
+    location.pathname.startsWith('/orders/') ||
+    location.pathname === '/account' ||
+    location.pathname.startsWith('/account/');
 
   const reduceMotion = useReducedMotion();
   useTheme(); // Initialize theme globally
@@ -157,6 +160,7 @@ export default function App() {
                     <Route path="/order-success" element={<OrderSuccess />} />
                     <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/orders/:id" element={<OrderDetailPage />} />
+                    <Route path="/account" element={<AccountPage />} />
                     <Route path="*" element={<Navigate to="/shop" replace />} />
                   </Routes>
                 </Suspense>

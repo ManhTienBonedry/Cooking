@@ -78,7 +78,9 @@ export default function KitchenCookNavbar() {
     }
   };
 
-  const isShopActive = location.pathname === '/shop';
+  const isShopActive = location.pathname === '/shop' || location.pathname.startsWith('/shop/');
+  const isOrdersActive = location.pathname.startsWith('/orders');
+  const isAccountActive = location.pathname.startsWith('/account');
 
   return (
     <>
@@ -108,7 +110,7 @@ export default function KitchenCookNavbar() {
                 title="Quay lại Cổng Công thức ẩm thực CookingBoy"
               >
                 <Home className="w-3.5 h-3.5 text-[#D96B27]" />
-                <span className="hidden xs:inline">Công thức</span>
+                <span className="hidden xs:inline">🍳 Cổng Công thức</span>
               </Link>
               <Link
                 to="/shop"
@@ -163,10 +165,14 @@ export default function KitchenCookNavbar() {
                 )}
               </Link>
 
-              {/* Nút Đơn Hàng (Đồng bộ GHN) */}
+              {/* Nút Đơn Hàng */}
               <Link
                 to="/orders"
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20 transition-transform hover:scale-105 active:scale-95"
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all shadow-sm ${
+                  isOrdersActive
+                    ? 'bg-[#D96B27] text-white shadow-md shadow-orange-600/20'
+                    : 'bg-white dark:bg-slate-800 border border-amber-900/10 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-[#D96B27]'
+                }`}
                 title="Quản lý & tra cứu đơn mua hàng"
               >
                 <Package className="w-3.5 h-3.5" />
@@ -179,7 +185,11 @@ export default function KitchenCookNavbar() {
                   <button
                     type="button"
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 p-1 pl-2 pr-2.5 rounded-full bg-white dark:bg-slate-800 border border-amber-900/10 dark:border-slate-700 hover:border-[#D96B27]/30 transition-colors shadow-sm"
+                    className={`flex items-center gap-2 p-1 pl-2 pr-2.5 rounded-full border transition-colors shadow-sm cursor-pointer ${
+                      isAccountActive
+                        ? 'border-[#D96B27] bg-orange-50/40 dark:bg-slate-800'
+                        : 'border-amber-900/10 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-[#D96B27]/30'
+                    }`}
                   >
                     {me.user.avatar_url ? (
                       <img
@@ -199,31 +209,39 @@ export default function KitchenCookNavbar() {
 
                   {/* Dropdown Menu */}
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-amber-900/10 dark:border-slate-700 py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
-                      <div className="px-3.5 py-2 border-b border-slate-100 dark:border-slate-700/60">
+                    <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-amber-900/10 dark:border-slate-700 py-1.5 z-50 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-3.5 py-2.5 border-b border-slate-100 dark:border-slate-700/60">
                         <p className="font-bold text-slate-900 dark:text-white truncate">{me.user.full_name}</p>
                         <p className="text-slate-500 dark:text-slate-400 text-[11px] truncate">{me.user.email}</p>
                       </div>
                       <Link
-                        to="/orders"
+                        to="/account"
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2 px-3.5 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50/60 dark:hover:bg-slate-700/50"
+                        className="flex items-center gap-2.5 px-3.5 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50/60 dark:hover:bg-slate-700/50"
                       >
-                        <Package className="w-3.5 h-3.5 text-[#D96B27]" />
-                        Đơn hàng của tôi
+                        <User className="w-3.5 h-3.5 text-[#D96B27]" />
+                        Tài khoản & Sổ địa chỉ
                       </Link>
                       <Link
-                        to="/profile"
+                        to="/orders"
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2 px-3.5 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50/60 dark:hover:bg-slate-700/50"
+                        className="flex items-center gap-2.5 px-3.5 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50/60 dark:hover:bg-slate-700/50"
                       >
-                        <User className="w-3.5 h-3.5 text-slate-500" />
-                        Trang cá nhân
+                        <Package className="w-3.5 h-3.5 text-[#D96B27]" />
+                        Lịch sử đơn hàng
+                      </Link>
+                      <Link
+                        to="/"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50/60 dark:hover:bg-slate-700/50 border-t border-slate-100 dark:border-slate-700/60"
+                      >
+                        <ChefHat className="w-3.5 h-3.5 text-amber-600" />
+                        Cổng Công thức (CookingBoy)
                       </Link>
                       <button
                         type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-3.5 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 text-left border-t border-slate-100 dark:border-slate-700/60"
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 text-left border-t border-slate-100 dark:border-slate-700/60 cursor-pointer"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         Đăng xuất
@@ -235,7 +253,7 @@ export default function KitchenCookNavbar() {
                 <button
                   type="button"
                   onClick={() => setIsAuthOpen(true)}
-                  className="px-4 py-2 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold transition-all shadow-sm cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold transition-all shadow-md shadow-orange-600/20 cursor-pointer"
                 >
                   Đăng nhập
                 </button>

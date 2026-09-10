@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChefHat, Menu, LogOut, ShoppingCart, Store, MessageCircle, ClipboardList } from 'lucide-react';
+import { ChefHat, Menu, LogOut, MessageCircle } from 'lucide-react';
 import AuthModal from './AuthModal';
 import { apiFetch, apiJson, resetCsrfCache } from '../lib/api';
 import { AUTH_CHANGE_EVENT, getAuthChangeDetail, notifyAuthChanged } from '../lib/authEvents';
 import { scrollWindowToTop } from '../lib/scroll';
-import { useCart } from '../contexts/CartContext';
 
 type MeState =
   | { authenticated: false; user?: never }
@@ -27,7 +26,6 @@ type MessageConversationSummary = {
 
 const NAV_ITEMS = [
   { path: '/', label: 'Trang chủ' },
-  { path: '/shop', label: 'Cửa hàng' },
   { path: '/recipes', label: 'Công thức' },
   { path: '/blog', label: 'Diễn đàn' },
   { path: '/health', label: 'Sức khỏe' },
@@ -40,9 +38,6 @@ export default function Navbar() {
   const [authInitialSignUp, setAuthInitialSignUp] = useState(false);
   const [me, setMe] = useState<MeState | null>(null);
   const [messageUnreadCount, setMessageUnreadCount] = useState(0);
-  const [buyerPendingCount, setBuyerPendingCount] = useState(0);
-  const [sellerPendingCount, setSellerPendingCount] = useState(0);
-  const { count: cartCount } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -74,22 +69,6 @@ export default function Navbar() {
     }
   }, [me?.authenticated]);
 
-  const loadPendingOrdersCount = useCallback(async () => {
-    if (!me?.authenticated) {
-      setBuyerPendingCount(0);
-      setSellerPendingCount(0);
-      return;
-    }
-    try {
-      const data = await apiJson<{ pendingCount: number; buyerPending?: number; sellerPending?: number }>('/api/marketplace/orders/pending-count');
-      setBuyerPendingCount(data.buyerPending ?? 0);
-      setSellerPendingCount(data.sellerPending ?? 0);
-    } catch {
-      setBuyerPendingCount(0);
-      setSellerPendingCount(0);
-    }
-  }, [me?.authenticated]);
-
   useEffect(() => {
     void refreshMe();
   }, [refreshMe]);
@@ -97,21 +76,10 @@ export default function Navbar() {
   useEffect(() => {
     if (me?.authenticated) {
       void loadMessageUnread();
-      void loadPendingOrdersCount();
       return;
     }
     setMessageUnreadCount(0);
-    setBuyerPendingCount(0);
-    setSellerPendingCount(0);
-  }, [me, loadMessageUnread, loadPendingOrdersCount]);
-
-  useEffect(() => {
-    if (!me?.authenticated) return;
-    const interval = setInterval(() => {
-      void loadPendingOrdersCount();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [me?.authenticated, loadPendingOrdersCount]);
+  }, [me, loadMessageUnread]);
 
   useEffect(() => {
     const onAuth = (event: Event) => {
@@ -119,8 +87,6 @@ export default function Navbar() {
       if (detail.authenticated === false) {
         setMe({ authenticated: false });
         setMessageUnreadCount(0);
-        setBuyerPendingCount(0);
-        setSellerPendingCount(0);
         return;
       }
       void refreshMe();
@@ -135,12 +101,10 @@ export default function Navbar() {
     const es = new EventSource('/api/messages/stream', { withCredentials: true });
     const refresh = () => {
       void loadMessageUnread();
-      void loadPendingOrdersCount();
     };
 
     const onRead = () => {
       void loadMessageUnread();
-      void loadPendingOrdersCount();
     };
     window.addEventListener('messages:read', onRead);
 
@@ -153,7 +117,7 @@ export default function Navbar() {
       es.removeEventListener('ready', refresh);
       es.close();
     };
-  }, [me?.authenticated, loadMessageUnread, loadPendingOrdersCount]);
+  }, [me?.authenticated, loadMessageUnread]);
 
   const openLogin = () => {
     setAuthInitialSignUp(false);
@@ -169,8 +133,6 @@ export default function Navbar() {
     resetCsrfCache();
     setMe({ authenticated: false });
     setMessageUnreadCount(0);
-    setBuyerPendingCount(0);
-    setSellerPendingCount(0);
     notifyAuthChanged({ authenticated: false });
     setIsMenuOpen(false);
     if (location.pathname !== '/') {
@@ -222,20 +184,20 @@ export default function Navbar() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              {/* Seller link (Kênh bán hàng) */}
+              {/* Messages link */}
               {me?.authenticated && (
                 <Link
-                  to="/seller"
+                  to="/messages"
                   onClick={() => scrollWindowToTop()}
                   className={`relative p-2 rounded-full transition-colors duration-300 ${
-                    currentPage.startsWith('/seller') 
+                    currentPage.startsWith('/messages') 
                       ? 'text-white dark:text-black' 
                       : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800'
                   }`}
-                  aria-label="Kênh bán hàng"
-                  title="Kênh bán hàng"
+                  aria-label="Tin nhắn"
+                  title="Tin nhắn"
                 >
-                  {currentPage.startsWith('/seller') && (
+                  {currentPage.startsWith('/messages') && (
                     <motion.div
                       layoutId="nav-pill-desktop"
                       className="absolute inset-0 rounded-full bg-black dark:bg-white shadow-md"
@@ -243,99 +205,13 @@ export default function Navbar() {
                       style={{ zIndex: -1 }}
                     />
                   )}
-                  <Store className="w-5 h-5 relative z-10" />
-                  {sellerPendingCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-1 shadow-sm z-20 animate-pulse">
-                      {sellerPendingCount}
+                  <MessageCircle className="w-5 h-5 relative z-10" />
+                  {messageUnreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-1 shadow-sm z-20">
+                      {messageUnreadCount > 99 ? '99+' : messageUnreadCount}
                     </span>
                   )}
                 </Link>
-              )}
-
-              {/* Cart link */}
-              <Link
-                to="/cart"
-                onClick={() => scrollWindowToTop()}
-                className={`relative p-2 rounded-full transition-colors duration-300 ${
-                  currentPage.startsWith('/cart') || currentPage.startsWith('/checkout')
-                    ? 'text-white dark:text-black' 
-                    : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800'
-                }`}
-                aria-label="Giỏ hàng"
-                title="Giỏ hàng"
-              >
-                {(currentPage.startsWith('/cart') || currentPage.startsWith('/checkout')) && (
-                  <motion.div
-                    layoutId="nav-pill-desktop"
-                    className="absolute inset-0 rounded-full bg-black dark:bg-white shadow-md"
-                    transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                    style={{ zIndex: -1 }}
-                  />
-                )}
-                <ShoppingCart className="w-5 h-5 relative z-10" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-1 shadow-sm z-20">
-                    {cartCount > 99 ? '99+' : cartCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* Other authenticated links */}
-              {me?.authenticated && (
-                <>
-                  <Link
-                    to="/messages"
-                    onClick={() => scrollWindowToTop()}
-                    className={`relative p-2 rounded-full transition-colors duration-300 ${
-                      currentPage.startsWith('/messages') 
-                        ? 'text-white dark:text-black' 
-                        : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800'
-                    }`}
-                    aria-label="Tin nhắn"
-                    title="Tin nhắn"
-                  >
-                    {currentPage.startsWith('/messages') && (
-                      <motion.div
-                        layoutId="nav-pill-desktop"
-                        className="absolute inset-0 rounded-full bg-black dark:bg-white shadow-md"
-                        transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                        style={{ zIndex: -1 }}
-                      />
-                    )}
-                    <MessageCircle className="w-5 h-5 relative z-10" />
-                    {messageUnreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-1 shadow-sm z-20">
-                        {messageUnreadCount > 99 ? '99+' : messageUnreadCount}
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    to="/orders"
-                    onClick={() => scrollWindowToTop()}
-                    className={`relative p-2 rounded-full transition-colors duration-300 ${
-                      currentPage.startsWith('/orders') 
-                        ? 'text-white dark:text-black' 
-                        : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800'
-                    }`}
-                    aria-label="Đơn mua của tôi"
-                    title="Đơn mua của tôi"
-                  >
-                    {currentPage.startsWith('/orders') && (
-                      <motion.div
-                        layoutId="nav-pill-desktop"
-                        className="absolute inset-0 rounded-full bg-black dark:bg-white shadow-md"
-                        transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                        style={{ zIndex: -1 }}
-                      />
-                    )}
-                    <ClipboardList className="w-5 h-5 relative z-10" />
-                    {buyerPendingCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-1 shadow-sm z-20">
-                        {buyerPendingCount}
-                      </span>
-                    )}
-                  </Link>
-                </>
               )}
 
               
@@ -429,13 +305,6 @@ export default function Navbar() {
                         </span>
                       )}
                       {me.user.full_name}
-                    </Link>
-                    <Link
-                      to="/seller"
-                      onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }}
-                      className={`mobile-menu-item ${isMenuOpen ? 'show' : ''} flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20`}
-                    >
-                      <Store className="w-5 h-5" /> Kênh bán hàng
                     </Link>
                     <Link
                       to="/messages"

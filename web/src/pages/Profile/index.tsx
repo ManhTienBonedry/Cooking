@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Activity, BookOpen, Bookmark, CheckCircle, PenTool, Settings, X, Edit, Trash2, Store, Package, Heart, Star, Wallet, ArrowUpRight } from 'lucide-react';
+import { Activity, BookOpen, Bookmark, CheckCircle, PenTool, Settings, X, Edit, Trash2, Package, Heart, Star } from 'lucide-react';
 import { apiFetch, apiJson, resetCsrfCache } from '../../lib/api';
 import { AUTH_CHANGE_EVENT, getAuthChangeDetail, notifyAuthChanged } from '../../lib/authEvents';
 import toast from 'react-hot-toast';
@@ -30,7 +30,7 @@ function formatPrice(n: number) {
 export default function Profile() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'shop');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'recipes');
   const [showSuccessMenu, setShowSuccessMenu] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -60,13 +60,8 @@ export default function Profile() {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
-  // Seller state
-  const [sellerProfile, setSellerProfile] = useState<{ store_name: string; store_description: string | null } | null>(null);
-  const [sellerProducts, setSellerProducts] = useState<{ id: number; name: string; price: number; status: string; stock: number; total_sold: number; image_url: string | null }[]>([]);
-  const [sellerNotRegistered, setSellerNotRegistered] = useState(false);
-
-  const [pageByTab, setPageByTab] = useState<Record<PagedTab | 'shop', number>>({ recipes: 1, posts: 1, saved: 1, wishlist: 1, shop: 1 });
-  const [totalByTab, setTotalByTab] = useState<Record<PagedTab | 'shop', number>>({ recipes: 0, posts: 0, saved: 0, wishlist: 0, shop: 0 });
+  const [pageByTab, setPageByTab] = useState<Record<PagedTab, number>>({ recipes: 1, posts: 1, saved: 1, wishlist: 1 });
+  const [totalByTab, setTotalByTab] = useState<Record<PagedTab, number>>({ recipes: 0, posts: 0, saved: 0, wishlist: 0 });
 
   // Edit post modal
   const [editingPostId, setEditingPostId] = useState<number | null>(null);
@@ -76,13 +71,12 @@ export default function Profile() {
   const [editingRecipeId, setEditingRecipeId] = useState<number | null>(null);
   const [recipeCategories, setRecipeCategories] = useState<RecipeCategory[]>([]);
 
-  // Tải dữ liệu tương ứng với tab đang chọn (Công thức, Bài viết, Đã lưu, Wishlist, Kế hoạch, Cửa hàng)
+  // Tải dữ liệu tương ứng với tab đang chọn (Công thức, Bài viết, Đã lưu, Wishlist, Kế hoạch)
   const loadTabData = useCallback(async (tab: string) => {
-    const getPageQuery = (pagedTab: string) => {
+    const getPageQuery = (pagedTab: PagedTab) => {
       const q = new URLSearchParams();
       q.set('limit', String(PROFILE_PAGE_SIZE));
-      const key = pagedTab as PagedTab | 'shop';
-      q.set('offset', String(((pageByTab[key] || 1) - 1) * PROFILE_PAGE_SIZE));
+      q.set('offset', String(((pageByTab[pagedTab] || 1) - 1) * PROFILE_PAGE_SIZE));
       return q.toString();
     };
 
@@ -109,18 +103,6 @@ export default function Profile() {
       } else if (tab === 'health') {
         const d = await apiJson<{ plans: ProfilePlan[] }>('/api/health/plans');
         setMyPlans(d.plans ?? []);
-      } else if (tab === 'shop') {
-        try {
-          const p = await apiJson<{ profile: { store_name: string; store_description: string | null } | null }>('/api/marketplace/seller/profile');
-          if (!p.profile) { setSellerNotRegistered(true); setSellerProfile(null); setSellerProducts([]); }
-          else {
-            setSellerProfile(p.profile);
-            setSellerNotRegistered(false);
-            const prods = await apiJson<{ products: typeof sellerProducts, total: number }>(`/api/marketplace/seller/products?${getPageQuery('shop')}`);
-            setSellerProducts(prods.products ?? []);
-            setTotalByTab((prev) => ({ ...prev, shop: prods.total ?? 0 }));
-          }
-        } catch { setSellerNotRegistered(true); }
       }
     } catch {
       if (tab === 'recipes') {
@@ -135,9 +117,6 @@ export default function Profile() {
       } else if (tab === 'wishlist') {
         setWishlistItems([]);
         setTotalByTab((prev) => ({ ...prev, wishlist: 0 }));
-      } else if (tab === 'shop') {
-        setSellerProducts([]);
-        setTotalByTab((prev) => ({ ...prev, shop: 0 }));
       }
     } finally {
       setIsDataLoading(false);
@@ -145,7 +124,7 @@ export default function Profile() {
   }, [pageByTab]);
 
   useEffect(() => {
-    if (user && activeTab !== 'settings' && activeTab !== 'wallet') {
+    if (user && activeTab !== 'settings') {
       void loadTabData(activeTab);
     }
   }, [activeTab, user, loadTabData]);
@@ -293,12 +272,10 @@ export default function Profile() {
   };
 
   const tabs = [
-    { id: 'shop', label: 'Cửa hàng', icon: Store },
-    { id: 'wallet', label: 'Ví Cook', icon: Wallet },
-    { id: 'wishlist', label: 'Món yêu thích', icon: Heart },
     { id: 'recipes', label: 'Công thức của tôi', icon: BookOpen },
     { id: 'posts', label: 'Bài viết của tôi', icon: PenTool },
     { id: 'saved', label: 'Đã lưu', icon: Bookmark },
+    { id: 'wishlist', label: 'Món yêu thích', icon: Heart },
     { id: 'health', label: 'Kế hoạch', icon: Activity },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
@@ -596,138 +573,7 @@ export default function Profile() {
                   </div>
                 )}
 
-                {activeTab === 'shop' && (
-                  <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold font-serif text-gray-950 dark:text-white">Cửa hàng của tôi</h2>
-                      <Link to="/seller" className="inline-flex items-center gap-2 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full text-sm font-semibold hover:opacity-80 transition-all">
-                        <Store className="w-4 h-4" /> Quản lý cửa hàng
-                      </Link>
-                    </div>
 
-                    {isDataLoading ? (
-                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">Đang tải...</div>
-                    ) : sellerNotRegistered ? (
-                      <div className="py-12 text-center">
-                        <Store className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-slate-600" />
-                        <p className="text-gray-500 dark:text-gray-400 mb-4">Bạn chưa đăng ký bán hàng.</p>
-                        <Link to="/seller" className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-full font-bold hover:bg-amber-600 transition-all shadow-md">
-                          <Store className="w-5 h-5" /> Đăng ký ngay
-                        </Link>
-                      </div>
-                    ) : (
-                      <>
-                        {/* Store info card */}
-                        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-100 dark:border-amber-800/30">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
-                              <Store className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">{sellerProfile?.store_name}</h3>
-                          </div>
-                          {sellerProfile?.store_description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 ml-12">{sellerProfile.store_description}</p>
-                          )}
-                          <div className="flex gap-6 mt-4 ml-12">
-                            <div className="text-center">
-                              <p className="text-xl font-bold text-gray-900 dark:text-white">{sellerProducts.length}</p>
-                              <p className="text-xs text-gray-500">Sản phẩm</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-xl font-bold text-green-600">{sellerProducts.filter(p => p.status === 'approved').length}</p>
-                              <p className="text-xs text-gray-500">Đang bán</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-xl font-bold text-amber-600">{sellerProducts.filter(p => p.status === 'pending').length}</p>
-                              <p className="text-xs text-gray-500">Chờ duyệt</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-xl font-bold text-purple-600">{sellerProducts.reduce((s, p) => s + p.total_sold, 0)}</p>
-                              <p className="text-xs text-gray-500">Đã bán</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Products */}
-                        {sellerProducts.length === 0 ? (
-                          <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-                            <Package className="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-slate-600" />
-                            <p>Chưa có sản phẩm nào. <Link to="/seller" className="text-amber-600 font-semibold hover:underline">Thêm sản phẩm mới &rarr;</Link></p>
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            {sellerProducts.map(p => (
-                              <div key={p.id} className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
-                                <div className="w-14 h-14 rounded-xl bg-gray-100 dark:bg-slate-700 overflow-hidden flex-shrink-0">
-                                  {p.image_url ? <img src={p.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl">📦</div>}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-gray-900 dark:text-white truncate">{p.name}</h4>
-                                  <p className="text-sm text-gray-500">{p.price.toLocaleString('vi-VN')}đ · Kho: {p.stock}</p>
-                                </div>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p.status === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                                  p.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                  }`}>
-                                  {p.status === 'approved' ? 'Đang bán' : p.status === 'pending' ? 'Chờ duyệt' : 'Từ chối'}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {totalByTab.shop > PROFILE_PAGE_SIZE && (
-                          <div className="mt-8 flex justify-center">
-                            <Pagination currentPage={pageByTab.shop} totalItems={totalByTab.shop} pageSize={PROFILE_PAGE_SIZE} onPageChange={(page) => handleProfilePageChange('shop', page)} />
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === 'wallet' && (
-                  <div>
-                    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">Thanh toán</p>
-                        <h2 className="mt-2 text-2xl font-bold font-serif text-gray-950 dark:text-white">Ví Cook</h2>
-                      </div>
-                      <Link
-                        to="/wallet"
-                        className="inline-flex items-center justify-center gap-2 rounded-full bg-gray-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
-                      >
-                        Mở ví <ArrowUpRight className="h-4 w-4" />
-                      </Link>
-                    </div>
-
-                    <div className="overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-6 shadow-sm dark:border-emerald-900/40 dark:from-emerald-950/30 dark:via-slate-900 dark:to-sky-950/30">
-                      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                        <div className="flex items-start gap-4">
-                          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
-                            <Wallet className="h-7 w-7" />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-extrabold text-gray-950 dark:text-white">Quản lý số dư và tài khoản nhận tiền</h3>
-                            <p className="mt-2 max-w-xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-                              Nạp tiền, rút tiền, thêm tài khoản ngân hàng và theo dõi giao dịch Ví Cook tại một nơi.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="grid min-w-[220px] grid-cols-2 gap-3 text-center">
-                          <div className="rounded-xl border border-white/70 bg-white/75 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800/70">
-                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">Nạp tiền</p>
-                            <p className="mt-1 text-lg font-black text-emerald-600">Ngân Hàng</p>
-                          </div>
-                          <div className="rounded-xl border border-white/70 bg-white/75 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800/70">
-                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">Rút tiền</p>
-                            <p className="mt-1 text-lg font-black text-sky-600">OTP</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {activeTab === 'settings' && (
                   <ProfileSettingsForm
