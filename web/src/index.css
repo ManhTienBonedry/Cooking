@@ -3,6 +3,13 @@
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-vietnam: "Be Vietnam Pro", "Inter", sans-serif;
+  --color-terracotta-50: #fef6ee;
+  --color-terracotta-100: #fde8d7;
+  --color-terracotta-500: #d96b27;
+  --color-terracotta-600: #c85a17;
+  --color-terracotta-700: #a74311;
+  --color-warm-ivory: #faf7f2;
 }
 
 @custom-variant dark (&:is(.dark *));

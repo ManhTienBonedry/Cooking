@@ -8,8 +8,11 @@ import * as marketplaceRepo from '../repos/marketplaceRepo.js';
 import * as marketplaceService from '../services/marketplaceService.js';
 import * as sellerRepo from '../repos/sellerSettingsRepo.js';
 import { sendSellerStatusEmail } from '../services/mailService.js';
-import { asyncHandler } from '../lib/asyncHandler.js';
+import { pool } from '../db/pool.js';
+import { httpError } from '../lib/httpError.js';
+import * as ghnService from '../services/ghnService.js';
 import * as adminWalletService from '../services/adminWalletService.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
 
 export const adminRouter = Router();
 
@@ -235,6 +238,77 @@ adminRouter.put('/marketplace/orders/:id/status', requireAdmin, requireCsrf, asy
     true // isAdmin = true
   );
   res.json(result);
+}));
+
+// POST /api/admin/marketplace/orders/:id/ghn-create — Admin (Chủ cửa hàng) 1-Click tạo vận đơn GHN Express
+adminRouter.post('/marketplace/orders/:id/ghn-create', requireAdmin, requireCsrf, asyncHandler(async (req, res) => {
+  const orderId = Number(req.params.id);
+  const { rows: orderRows } = await pool.query('SELECT * FROM orders WHERE id = $1', [orderId]);
+  const order = orderRows[0];
+  if (!order) {
+    throw httpError(404, 'Đơn hàng không tồn tại.');
+  }
+
+  if (order.ghn_order_code) {
+    return res.json({
+      success: true,
+      message: 'Đơn hàng đã có mã vận đơn GHN.',
+      order_code: order.ghn_order_code,
+    });
+  }
+
+  const { rows: itemRows } = await pool.query('SELECT * FROM order_items WHERE order_id = $1', [orderId]);
+  const toDistrictId = order.to_district_id || req.body.to_district_id || 1442;
+  const toWardCode = order.to_ward_code || req.body.to_ward_code || '20101';
+  const isPaidOnline = order.payment_status === 'paid' || order.payment_method !== 'cod';
+
+  const ghnResult = await ghnService.createShippingOrder({
+    orderId: order.id,
+    toName: order.shipping_name,
+    toPhone: order.shipping_phone,
+    toAddress: order.shipping_address,
+    toDistrictId: Number(toDistrictId),
+    toWardCode: String(toWardCode),
+    codAmount: order.payment_method === 'cod' ? Number(order.total_amount) : 0,
+    isPaidOnline,
+    paymentMethod: order.payment_method,
+    items: itemRows.map((item: any) => ({
+      name: item.product_name,
+      quantity: item.quantity,
+      price: Number(item.unit_price),
+    })),
+  });
+
+  const estimatedDelivery = ghnResult.expected_delivery_time
+    ? new Date(ghnResult.expected_delivery_time)
+    : new Date(Date.now() + 3 * 86400000);
+
+  await pool.query(
+    `UPDATE orders
+     SET status = 'shipping',
+         carrier_name = 'Giao Hàng Nhanh (GHN)',
+         tracking_number = $1,
+         tracking_code = $1,
+         ghn_order_code = $1,
+         shipping_partner = 'GHN Express',
+         estimated_delivery_at = $2,
+         updated_at = NOW()
+     WHERE id = $3`,
+    [ghnResult.order_code, estimatedDelivery, order.id]
+  );
+
+  await pool.query(
+    `INSERT INTO order_transit_logs (order_id, status, current_location, description)
+     VALUES ($1, 'picked_up', 'Bưu cục GHN Tiếp nhận', $2)`,
+    [order.id, `Đơn hàng đã được tạo thành công trên hệ thống GHN Express. Mã vận đơn: ${ghnResult.order_code}.`]
+  );
+
+  res.json({
+    success: true,
+    message: 'Tạo vận đơn GHN thành công!',
+    order_code: ghnResult.order_code,
+    expected_delivery_time: ghnResult.expected_delivery_time,
+  });
 }));
 
 adminRouter.get('/withdrawals', requireAdmin, asyncHandler(async (req, res) => {

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ChefHat, LayoutDashboard, CheckCircle, Users, Utensils, FileText, MessageSquare, LogOut, MessageCircle, FolderTree, ShoppingBag, ClipboardList, Store, Wallet } from 'lucide-react';
+import { ChefHat, LayoutDashboard, CheckCircle, Users, Utensils, FileText, MessageSquare, LogOut, MessageCircle, FolderTree, ShoppingBag, ClipboardList } from 'lucide-react';
 import { apiJson } from '../../../lib/api';
 
 export default function AdminSidebar({ pendingCount, pendingProducts }: { pendingCount: number; pendingProducts: number }) {
@@ -68,16 +68,12 @@ export default function AdminSidebar({ pendingCount, pendingProducts }: { pendin
           <MessageSquare className="w-6 h-6" /> Phản hồi
         </Link>
 
-        <div className="pt-6 pb-3 px-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-          Marketplace
+        <div className="pt-6 pb-3 px-4 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest">
+          KitchenCook Store
         </div>
 
-        <Link to="/admin/market-sellers" className={navClass(path === '/admin/market-sellers')}>
-          <Store className="w-6 h-6" /> Người bán
-        </Link>
-
         <Link to="/admin/market-products" className={navClass(path === '/admin/market-products')}>
-          <ShoppingBag className="w-6 h-6" /> Sản phẩm shop
+          <ShoppingBag className="w-6 h-6" /> Đồ gia dụng & Kho
           {pendingProducts > 0 && (
             <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm border border-red-400 animate-pulse">
               {pendingProducts}
@@ -85,13 +81,7 @@ export default function AdminSidebar({ pendingCount, pendingProducts }: { pendin
           )}
         </Link>
         <Link to="/admin/market-orders" className={navClass(path === '/admin/market-orders')}>
-          <ClipboardList className="w-6 h-6" /> Đơn hàng
-        </Link>
-        <Link to="/admin/withdrawals" className={navClass(path === '/admin/withdrawals')}>
-          <Wallet className="w-6 h-6" /> Duyệt rút tiền (Ví)
-        </Link>
-        <Link to="/admin/commission-wallet" className={navClass(path === '/admin/commission-wallet')}>
-          <Wallet className="w-6 h-6 text-blue-500" /> Ví Admin & Rút hoa hồng
+          <ClipboardList className="w-6 h-6" /> Đơn hàng & Giao GHN
         </Link>
       </nav>
 

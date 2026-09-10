@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, X, SlidersHorizontal, Store, ChevronDown } from 'lucide-react';
+import { Search, X, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
@@ -9,8 +9,9 @@ import ProductCard from '../../components/shop/ProductCard';
 import FlashSaleSection from '../../components/shop/FlashSaleSection';
 import AiRecommendations from '../../components/shop/AiRecommendations';
 import FeaturedBundles from '../../components/shop/FeaturedBundles';
+import KitchenCookHero from '../../components/shop/KitchenCookHero';
+import { KitchenToRecipeBanner } from '../../components/common/CrossPromotionBanners';
 import Pagination from '../../components/ui/Pagination';
-import { Reveal } from '../../components/motion/ScrollReveal';
 import { apiJson } from '../../lib/api';
 import { useCart } from '../../contexts/CartContext';
 import type { Product, ProductCategory } from '../../types/marketplace';
@@ -148,24 +149,23 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
-      {/* Hero Header */}
-      <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-white/20 dark:border-slate-800/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Reveal y={16}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
-                <Store className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-              </div>
-              <h1 className="text-4xl font-serif italic font-bold text-black dark:text-white">
-                Smart Shop
-              </h1>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Khám phá <strong className="text-black dark:text-white">{total}</strong> sản phẩm từ đồ ăn tươi ngon đến thiết bị nhà bếp cao cấp
-            </p>
-          </Reveal>
-        </div>
-      </div>
+      {/* KitchenCook European Hero & Header from reference design */}
+      <KitchenCookHero
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        onExploreClick={() => {
+          filterRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }}
+        onCookwareClick={() => {
+          handleProductType('equipment');
+          filterRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }}
+        cartCount={useCart().count}
+        totalProducts={total}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" ref={filterRef}>
         {/* Flash Sale Section */}
@@ -346,6 +346,11 @@ export default function Shop() {
             onPageChange={setPage}
           />
         )}
+
+        {/* Cross-Promotion: Gợi ý khám phá Công Thức Nấu Ăn */}
+        <div className="my-12">
+          <KitchenToRecipeBanner />
+        </div>
 
         {/* AI Recommendations — only on first page without active search */}
         {page === 1 && !search && (

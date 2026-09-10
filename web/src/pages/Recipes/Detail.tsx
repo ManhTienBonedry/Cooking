@@ -13,6 +13,7 @@ import RecipeInstructions from '../../components/recipes/RecipeInstructions';
 import IngredientList from '../../components/recipes/IngredientList';
 import NutritionBox from '../../components/recipes/NutritionBox';
 import RecipeTaggedProductsSection from '../../components/recipes/RecipeTaggedProductsSection';
+import { RecipeToKitchenBanner } from '../../components/common/CrossPromotionBanners';
 
 interface RecipeRow {
   id: number;
@@ -347,6 +348,11 @@ export default function RecipeDetail() {
             context="recipe"
             limit={4}
           />
+        </div>
+
+        {/* Cross-Promotion: Đề xuất sắm đồ bếp xịn tại KitchenCook */}
+        <div className="mt-12">
+          <RecipeToKitchenBanner />
         </div>
       </div>
     </main>

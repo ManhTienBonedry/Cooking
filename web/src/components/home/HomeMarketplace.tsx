@@ -30,34 +30,34 @@ function fmt(n: number) {
 const SHOP_CATEGORIES = [
   {
     icon: Flame,
-    title: 'Đồ ăn sẵn',
-    desc: 'Món ngon giao tận nơi, sẵn sàng thưởng thức',
-    color: 'from-orange-500 to-red-500',
+    title: 'Nồi & Xoong chảo',
+    desc: 'Nồi gang tráng men, nồi inox 304, chảo chống dính sâu lòng chuẩn Âu',
+    color: 'from-orange-500 to-amber-600',
     bg: 'bg-orange-50 dark:bg-orange-950/20',
-    link: '/shop?type=food',
-  },
-  {
-    icon: Package,
-    title: 'Nguyên liệu',
-    desc: 'Tươi ngon, đóng gói cẩn thận từ nhà cung cấp uy tín',
-    color: 'from-emerald-500 to-green-600',
-    bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-    link: '/shop?type=ingredient',
+    link: '/shop?type=equipment',
   },
   {
     icon: UtensilsCrossed,
-    title: 'Đồ dùng bếp',
-    desc: 'Dụng cụ chất lượng cao cho đầu bếp tại gia',
-    color: 'from-blue-500 to-indigo-600',
+    title: 'Dao kéo & Thớt',
+    desc: 'Thép tôi cao cấp sắc bén, thớt gỗ kháng khuẩn bền bỉ theo năm tháng',
+    color: 'from-amber-600 to-red-600',
+    bg: 'bg-amber-50 dark:bg-amber-950/20',
+    link: '/shop?type=equipment',
+  },
+  {
+    icon: Package,
+    title: 'Dụng cụ & Phụ kiện',
+    desc: 'Bộ xẻng vá chịu nhiệt, cân điện tử, phụ kiện bàn ăn tinh tế',
+    color: 'from-blue-600 to-indigo-600',
     bg: 'bg-blue-50 dark:bg-blue-950/20',
     link: '/shop?type=equipment',
   },
 ];
 
 const PERKS = [
-  { icon: ShieldCheck, text: 'Chất lượng đảm bảo' },
-  { icon: Truck, text: 'Giao hàng nhanh chóng' },
-  { icon: ChefHat, text: 'Từ người bán uy tín' },
+  { icon: ShieldCheck, text: 'Chất lượng tiêu chuẩn Châu Âu' },
+  { icon: Truck, text: 'Giao nhanh GHN Express' },
+  { icon: ChefHat, text: 'KitchenCook độc quyền chính hãng' },
 ];
 
 /* ── component ───────────────────────────────── */
@@ -73,31 +73,31 @@ export default function HomeMarketplace() {
   }, []);
 
   return (
-    <section className="py-16 sm:py-24 relative overflow-hidden">
+    <section className="py-16 sm:py-24 relative overflow-hidden font-vietnam">
       {/* Decorative BG */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(251,191,36,0.12),transparent)] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(251,191,36,0.06),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,107,39,0.12),transparent)] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,107,39,0.06),transparent)]" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ─── Header ─── */}
         <Reveal className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
-            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-2 text-xs font-bold uppercase tracking-widest text-amber-700 shadow-sm dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-400">
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#D96B27] shadow-sm dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-400">
               <ShoppingBag className="h-4 w-4" />
-              Cửa hàng ẩm thực
+              KitchenCook · Cửa Hàng Đồ Gia Dụng
             </span>
-            <h2 className="text-4xl font-serif font-bold text-black dark:text-white md:text-5xl">
-              Mua sắm cho bếp của bạn
+            <h2 className="text-4xl font-black text-black dark:text-white md:text-5xl tracking-tight">
+              Trang bị đồ bếp <span className="text-[#D96B27]">chuẩn Châu Âu</span>
             </h2>
             <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-gray-600 dark:text-slate-300 md:text-lg">
-              Từ nguyên liệu tươi ngon đến dụng cụ nhà bếp chuyên nghiệp — tất cả trong một nơi, giao hàng tận nhà.
+              Bộ sưu tập nồi niêu xoong chảo, dao kéo cao cấp chính hãng từ KitchenCook — Bền bỉ, an toàn, nâng niu từng bữa cơm gia đình.
             </p>
           </div>
           <Link
             to="/shop"
-            className="inline-flex w-fit items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-black shadow-sm transition hover:-translate-y-0.5 hover:border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:border-slate-600"
+            className="inline-flex w-fit items-center gap-2 rounded-full bg-[#D96B27] hover:bg-[#C85A17] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-600/20 transition hover:-translate-y-0.5"
           >
-            Ghé cửa hàng
+            Ghé KitchenCook Store
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Reveal>

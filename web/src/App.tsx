@@ -30,9 +30,6 @@ const CommentsTab = lazy(() => import('./pages/Admin/tabs/CommentsTab'));
 const CategoriesTab = lazy(() => import('./pages/Admin/tabs/CategoriesTab'));
 const MarketProductsTab = lazy(() => import('./pages/Admin/tabs/MarketProductsTab'));
 const MarketOrdersTab = lazy(() => import('./pages/Admin/tabs/MarketOrdersTab'));
-const SellersTab = lazy(() => import('./pages/Admin/tabs/SellersTab'));
-const AdminWithdrawalsTab = lazy(() => import('./pages/Admin/tabs/AdminWithdrawals'));
-const AdminCommissionWalletTab = lazy(() => import('./pages/Admin/tabs/AdminCommissionWallet'));
 
 /* Marketplace */
 const Shop = lazy(() => import('./pages/Shop'));
@@ -42,8 +39,6 @@ const Checkout = lazy(() => import('./pages/Shop/Checkout'));
 const OrderSuccess = lazy(() => import('./pages/Shop/OrderSuccess'));
 const OrdersPage = lazy(() => import('./pages/Shop/Orders'));
 const OrderDetailPage = lazy(() => import('./pages/Shop/OrderDetail'));
-const SellerDashboard = lazy(() => import('./pages/Seller'));
-const SellerSettings = lazy(() => import('./pages/Seller/Settings'));
 const CookPayWallet = lazy(() => import('./pages/Seller/EWallet'));
 const Messages = lazy(() => import('./pages/Messages'));
 const PublicProfile = lazy(() => import('./pages/Creator/PublicProfile'));
@@ -90,9 +85,9 @@ export default function App() {
               <Route path="feedback" element={<FeedbackTab />} />
               <Route path="market-products" element={<MarketProductsTab />} />
               <Route path="market-orders" element={<MarketOrdersTab />} />
-              <Route path="market-sellers" element={<SellersTab />} />
-              <Route path="withdrawals" element={<AdminWithdrawalsTab />} />
-              <Route path="commission-wallet" element={<AdminCommissionWalletTab />} />
+              <Route path="market-sellers" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="withdrawals" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="commission-wallet" element={<Navigate to="/admin/dashboard" replace />} />
             </Route>
           </Routes>
         </Suspense>
@@ -164,10 +159,10 @@ export default function App() {
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/orders/:id" element={<OrderDetailPage />} />
-                <Route path="/seller" element={<SellerDashboard />} />
-                <Route path="/seller/settings" element={<SellerSettings />} />
+                <Route path="/seller" element={<Navigate to="/admin" replace />} />
+                <Route path="/seller/settings" element={<Navigate to="/admin" replace />} />
                 <Route path="/wallet" element={<CookPayWallet />} />
-                <Route path="/seller/wallet" element={<CookPayWallet />} />
+                <Route path="/seller/wallet" element={<Navigate to="/wallet" replace />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/creator/:id" element={<PublicProfile />} />
               </Routes>

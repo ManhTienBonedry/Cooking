@@ -1,25 +1,34 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, Truck, ExternalLink, RefreshCw, Package } from 'lucide-react';
 import { apiJson } from '../../../lib/api';
 import toast from 'react-hot-toast';
 
 interface AdminOrder {
   id: number;
+  order_code?: string;
   total_amount: number;
   status: string;
   shipping_name: string;
+  shipping_phone?: string;
+  shipping_address?: string;
   buyer_email: string;
   created_at: string;
+  payment_method?: string;
+  payment_status?: string;
+  tracking_code?: string;
+  tracking_number?: string;
+  ghn_order_code?: string;
+  shipping_partner?: string;
 }
 
 const ORDER_STATUSES = [
-  { value: 'pending', label: 'Chờ xác nhận', color: 'text-amber-600 bg-amber-50' },
-  { value: 'confirmed', label: 'Đã xác nhận', color: 'text-blue-600 bg-blue-50' },
-  { value: 'preparing', label: 'Đang chuẩn bị', color: 'text-purple-600 bg-purple-50' },
-  { value: 'shipping', label: 'Đang giao', color: 'text-orange-600 bg-orange-50' },
-  { value: 'delivered', label: 'Đã giao', color: 'text-emerald-600 bg-emerald-50' },
-  { value: 'completed', label: 'Hoàn thành', color: 'text-green-600 bg-green-50' },
-  { value: 'cancelled', label: 'Đã hủy', color: 'text-red-600 bg-red-50' },
+  { value: 'pending', label: 'Chờ xử lý', color: 'text-amber-700 bg-amber-50 border-amber-200' },
+  { value: 'confirmed', label: 'Đã xác nhận', color: 'text-blue-700 bg-blue-50 border-blue-200' },
+  { value: 'preparing', label: 'Đang đóng gói', color: 'text-purple-700 bg-purple-50 border-purple-200' },
+  { value: 'shipping', label: 'Đang giao (GHN)', color: 'text-orange-700 bg-orange-50 border-orange-200' },
+  { value: 'delivered', label: 'Đã giao', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
+  { value: 'completed', label: 'Hoàn tất', color: 'text-green-700 bg-green-50 border-green-200' },
+  { value: 'cancelled', label: 'Đã hủy (Hoàn kho)', color: 'text-red-700 bg-red-50 border-red-200' },
 ];
 
 function formatPrice(n: number) {
@@ -32,6 +41,7 @@ export default function MarketOrdersTab() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [dispatchingId, setDispatchingId] = useState<number | null>(null);
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -65,43 +75,105 @@ export default function MarketOrdersTab() {
     }
   }, [loadOrders]);
 
+  /* 🚚 1-Click Dispatch to GHN Express */
+  const handle1ClickGhn = async (order: AdminOrder) => {
+    if (order.ghn_order_code || order.tracking_code) {
+      toast.error('Đơn hàng này đã có mã vận đơn GHN!');
+      return;
+    }
+    setDispatchingId(order.id);
+    try {
+      const res = await apiJson<{ success: boolean; order_code: string; message: string }>(
+        `/api/admin/marketplace/orders/${order.id}/ghn-create`,
+        { method: 'POST' }
+      );
+      toast.success(`Tạo vận đơn GHN thành công: ${res.order_code}!`);
+      void loadOrders();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Lỗi tạo vận đơn GHN');
+    } finally {
+      setDispatchingId(null);
+    }
+  };
+
   const filteredOrders = useMemo(() => {
     if (!search.trim()) return orders;
     const q = search.toLowerCase();
     return orders.filter(o => 
       o.id.toString().includes(q) || 
+      (o.order_code && o.order_code.toLowerCase().includes(q)) ||
       o.shipping_name.toLowerCase().includes(q) || 
-      (o.buyer_email && o.buyer_email.toLowerCase().includes(q))
+      (o.buyer_email && o.buyer_email.toLowerCase().includes(q)) ||
+      (o.tracking_code && o.tracking_code.toLowerCase().includes(q))
     );
   }, [orders, search]);
 
   const getStatusLabel = (s: string) => ORDER_STATUSES.find(st => st.value === s)?.label ?? s;
-  const getStatusColor = (s: string) => ORDER_STATUSES.find(st => st.value === s)?.color ?? 'bg-slate-50 text-slate-600';
+  const getStatusColor = (s: string) => ORDER_STATUSES.find(st => st.value === s)?.color ?? 'bg-slate-50 text-slate-600 border-slate-200';
+
+  const renderPaymentBadge = (method?: string, status?: string) => {
+    const isPaid = status === 'paid';
+    if (method === 'momo') {
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${
+          isPaid ? 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300' : 'bg-pink-50 text-pink-600 border border-pink-200'
+        }`}>
+          MoMo {isPaid ? '✓ Đã TT' : 'Chờ TT'}
+        </span>
+      );
+    }
+    if (method === 'vietqr' || method === 'bank_transfer') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200">
+          VietQR
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border border-slate-200">
+        COD (Tiền mặt)
+      </span>
+    );
+  };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Quản lý đơn hàng</h2>
-        <p className="text-slate-500 dark:text-slate-400">Xem và cập nhật trạng thái đơn hàng toàn sàn.</p>
+    <div className="font-vietnam space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
+            <Package className="w-6 h-6 text-[#D96B27]" />
+            Quản lý Đơn Hàng KitchenCook
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Đóng gói, quản lý thanh toán MoMo/COD và 1-Click gửi vận đơn GHN Express cho khách hàng.
+          </p>
+        </div>
+        <button
+          onClick={() => void loadOrders()}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 shadow-sm"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          Làm mới
+        </button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+        <div className="relative flex-1 min-w-[220px] max-w-sm">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input 
             value={search} 
             onChange={e => setSearch(e.target.value)}
-            placeholder="Tìm mã đơn, tên khách, email..."
-            className="w-full pl-9 pr-8 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-sm focus:ring-2 focus:ring-blue-400/20 outline-none" 
+            placeholder="Tìm mã đơn CAM-, tên khách, vận đơn..."
+            className="w-full pl-10 pr-8 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50/50 dark:bg-slate-700/50 text-xs sm:text-sm focus:ring-2 focus:ring-[#D96B27]/20 focus:border-[#D96B27] outline-none" 
           />
-          {search && <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>}
+          {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>}
         </div>
 
         <select 
           value={statusFilter} 
           onChange={e => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-sm font-medium outline-none"
+          className="px-3.5 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-xs sm:text-sm font-medium outline-none focus:border-[#D96B27]"
         >
           <option value="">Tất cả trạng thái</option>
           {ORDER_STATUSES.map(s => (
@@ -109,56 +181,122 @@ export default function MarketOrdersTab() {
           ))}
         </select>
 
-        <span className="ml-auto text-sm text-slate-500 dark:text-slate-400">{total} đơn hàng</span>
+        <span className="ml-auto text-xs sm:text-sm font-bold text-[#D96B27]">
+          {total} đơn hàng KitchenCook
+        </span>
       </div>
 
-      {/* Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden transition-colors duration-300">
+      {/* Orders Table */}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Đang tải...</div>
+          <div className="p-16 text-center text-slate-500">Đang tải danh sách đơn hàng...</div>
         ) : filteredOrders.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">Không có đơn hàng nào.</div>
+          <div className="p-16 text-center text-slate-500">Không tìm thấy đơn hàng nào.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400">
+            <table className="w-full text-xs sm:text-sm text-left">
+              <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 font-bold">
                 <tr>
-                  <th className="px-6 py-4 font-semibold">Mã đơn</th>
-                  <th className="px-6 py-4 font-semibold">Khách hàng</th>
-                  <th className="px-6 py-4 font-semibold">Tổng tiền</th>
-                  <th className="px-6 py-4 font-semibold">Trạng thái</th>
-                  <th className="px-6 py-4 font-semibold text-right">Thao tác</th>
+                  <th className="px-5 py-3.5">Mã đơn hàng</th>
+                  <th className="px-5 py-3.5">Khách hàng & Địa chỉ</th>
+                  <th className="px-5 py-3.5">Thanh toán</th>
+                  <th className="px-5 py-3.5">Tổng tiền</th>
+                  <th className="px-5 py-3.5">Vận chuyển (GHN)</th>
+                  <th className="px-5 py-3.5">Trạng thái</th>
+                  <th className="px-5 py-3.5 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {filteredOrders.map(o => (
-                  <tr key={o.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">#{o.id}</td>
-                    <td className="px-6 py-4">
-                      <p className="font-semibold text-slate-800 dark:text-white">{o.shipping_name}</p>
-                      <p className="text-xs text-slate-400">{o.buyer_email}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-bold text-red-600 dark:text-red-400">{formatPrice(o.total_amount)}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(o.status)}`}>
-                        {getStatusLabel(o.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <select 
-                        value={o.status} 
-                        onChange={e => void onUpdateStatus(o.id, e.target.value)}
-                        className="text-xs border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-900 px-2 py-1 outline-none"
-                      >
-                        {ORDER_STATUSES.map(s => (
-                          <option key={s.value} value={s.value}>{s.label}</option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
+                {filteredOrders.map(o => {
+                  const trackingCode = o.tracking_code || o.ghn_order_code || o.tracking_number;
+                  const canDispatchGhn = (o.status === 'pending' || o.status === 'confirmed' || o.status === 'preparing') && !trackingCode;
+
+                  return (
+                    <tr key={o.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-700/30 transition-colors">
+                      {/* Mã đơn */}
+                      <td className="px-5 py-4">
+                        <span className="font-mono font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
+                          {o.order_code || `CAM-${String(o.id).padStart(6, '0')}`}
+                        </span>
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          {new Date(o.created_at).toLocaleString('vi-VN')}
+                        </p>
+                      </td>
+
+                      {/* Khách hàng */}
+                      <td className="px-5 py-4 max-w-xs">
+                        <p className="font-bold text-slate-800 dark:text-white">{o.shipping_name || 'Khách hàng'}</p>
+                        {o.shipping_phone && <p className="text-xs text-slate-500 font-mono">{o.shipping_phone}</p>}
+                        {o.shipping_address && <p className="text-[11px] text-slate-400 truncate mt-0.5" title={o.shipping_address}>{o.shipping_address}</p>}
+                      </td>
+
+                      {/* Thanh toán */}
+                      <td className="px-5 py-4">
+                        {renderPaymentBadge(o.payment_method, o.payment_status)}
+                      </td>
+
+                      {/* Tổng tiền */}
+                      <td className="px-5 py-4">
+                        <span className="font-bold text-red-600 dark:text-red-400 text-sm">
+                          {formatPrice(o.total_amount)}
+                        </span>
+                      </td>
+
+                      {/* Vận đơn GHN */}
+                      <td className="px-5 py-4">
+                        {trackingCode ? (
+                          <div className="space-y-1">
+                            <span className="font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded text-xs">
+                              {trackingCode}
+                            </span>
+                            <a
+                              href={`https://donhang.ghn.vn/?order_code=${trackingCode}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-1 text-[11px] text-amber-600 hover:text-amber-700 font-semibold underline"
+                            >
+                              Tra cứu GHN
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        ) : canDispatchGhn ? (
+                          <button
+                            type="button"
+                            disabled={dispatchingId === o.id}
+                            onClick={() => void handle1ClickGhn(o)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                            title="Tạo vận đơn bưu cục GHN Express ngay lập tức"
+                          >
+                            <Truck className="w-3.5 h-3.5" />
+                            {dispatchingId === o.id ? 'Đang đẩy GHN...' : '🚚 1-Click GHN'}
+                          </button>
+                        ) : (
+                          <span className="text-slate-400 text-xs italic">Chưa tạo vận đơn</span>
+                        )}
+                      </td>
+
+                      {/* Trạng thái */}
+                      <td className="px-5 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(o.status)}`}>
+                          {getStatusLabel(o.status)}
+                        </span>
+                      </td>
+
+                      {/* Thao tác */}
+                      <td className="px-5 py-4 text-right">
+                        <select 
+                          value={o.status} 
+                          onChange={e => void onUpdateStatus(o.id, e.target.value)}
+                          className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 px-2.5 py-1.5 outline-none focus:border-[#D96B27]"
+                        >
+                          {ORDER_STATUSES.map(s => (
+                            <option key={s.value} value={s.value}>{s.label}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
