@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 
 import Layout from './components/Layout';
+import KitchenCookLayout from './components/shop/KitchenCookLayout';
 import { CartProvider } from './contexts/CartContext';
 import { scrollWindowToTop } from './lib/scroll';
 import { useTheme } from './hooks/useTheme';
@@ -31,7 +32,7 @@ const CategoriesTab = lazy(() => import('./pages/Admin/tabs/CategoriesTab'));
 const MarketProductsTab = lazy(() => import('./pages/Admin/tabs/MarketProductsTab'));
 const MarketOrdersTab = lazy(() => import('./pages/Admin/tabs/MarketOrdersTab'));
 
-/* Marketplace */
+/* Marketplace / KitchenCook */
 const Shop = lazy(() => import('./pages/Shop'));
 const ProductDetail = lazy(() => import('./pages/Shop/Detail'));
 const CartPage = lazy(() => import('./pages/Shop/Cart'));
@@ -50,7 +51,7 @@ const TOASTER_CONTAINER_STYLE: React.CSSProperties = { zIndex: 99999 };
 function PageFallback() {
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-yellow-500 animate-spin" />
+      <div className="w-10 h-10 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-[#D96B27] animate-spin" />
     </div>
   );
 }
@@ -58,6 +59,15 @@ function PageFallback() {
 export default function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isKitchenCookRoute =
+    location.pathname === '/shop' ||
+    location.pathname.startsWith('/shop/') ||
+    location.pathname === '/cart' ||
+    location.pathname === '/checkout' ||
+    location.pathname === '/order-success' ||
+    location.pathname === '/orders' ||
+    location.pathname.startsWith('/orders/');
+
   const reduceMotion = useReducedMotion();
   useTheme(); // Initialize theme globally
 
@@ -66,6 +76,7 @@ export default function App() {
     scrollWindowToTop();
   }, [location.pathname]);
 
+  // 1. Không gian Quản Trị Hệ Thống (Admin Portal)
   if (isAdminRoute) {
     return (
       <>
@@ -98,79 +109,127 @@ export default function App() {
   const enterDur = reduceMotion ? 0.12 : 0.56;
   const exitDur = reduceMotion ? 0.1 : 0.44;
 
+  // 2. Không gian Cửa Hàng Độc Lập KitchenCook (European Cookware Store)
+  if (isKitchenCookRoute) {
+    return (
+      <CartProvider>
+        <Toaster position="top-right" toastOptions={TOAST_OPTIONS} containerStyle={TOASTER_CONTAINER_STYLE} />
+        <KitchenCookLayout>
+          <div className="grid [&>*]:col-start-1 [&>*]:row-start-1 [&>*]:col-end-2 [&>*]:w-full isolate">
+            <AnimatePresence mode="sync" initial={false}>
+              <motion.div
+                key={location.pathname}
+                role="presentation"
+                className="motion-page-root"
+                initial={
+                  reduceMotion ? { opacity: 0 } : { opacity: 0, y: 22, scale: 0.992 }
+                }
+                animate={
+                  reduceMotion
+                    ? { opacity: 1 }
+                    : {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        transition: { duration: enterDur, ease: EASE_PAGE },
+                      }
+                }
+                exit={
+                  reduceMotion
+                    ? { opacity: 0 }
+                    : {
+                        opacity: 0,
+                        y: -14,
+                        scale: 0.99,
+                        transition: { duration: exitDur, ease: EASE_PAGE },
+                      }
+                }
+                style={{
+                  willChange: reduceMotion ? 'opacity' : 'opacity, transform',
+                }}
+              >
+                <Suspense fallback={<PageFallback />}>
+                  <Routes location={location}>
+                    <Route path="/shop" element={<Shop />} />
+                    <Route path="/shop/:slug" element={<ProductDetail />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/order-success" element={<OrderSuccess />} />
+                    <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/orders/:id" element={<OrderDetailPage />} />
+                    <Route path="*" element={<Navigate to="/shop" replace />} />
+                  </Routes>
+                </Suspense>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </KitchenCookLayout>
+      </CartProvider>
+    );
+  }
+
+  // 3. Không gian Cổng Công Thức & Cộng Đồng CookingBoy
   return (
     <CartProvider>
-    <Layout>
-      <Toaster position="top-right" toastOptions={TOAST_OPTIONS} containerStyle={TOASTER_CONTAINER_STYLE} />
-      {/*
-        Grid: mọi trang con cùng ô → chồng lên nhau khi sync.
-        Trang mới fade in đè trang cũ → không còn khoảng trống như mode="wait".
-      */}
-      <div className="grid [&>*]:col-start-1 [&>*]:row-start-1 [&>*]:col-end-2 [&>*]:w-full isolate">
-        <AnimatePresence mode="sync" initial={false}>
-          <motion.div
-            key={location.pathname}
-            role="presentation"
-            className="motion-page-root"
-            initial={
-              reduceMotion ? { opacity: 0 } : { opacity: 0, y: 22, scale: 0.992 }
-            }
-            animate={
-              reduceMotion
-                ? { opacity: 1 }
-                : {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    transition: { duration: enterDur, ease: EASE_PAGE },
-                  }
-            }
-            exit={
-              reduceMotion
-                ? { opacity: 0 }
-                : {
-                    opacity: 0,
-                    y: -14,
-                    scale: 0.99,
-                    transition: { duration: exitDur, ease: EASE_PAGE },
-                  }
-            }
-            style={{
-              willChange: reduceMotion ? 'opacity' : 'opacity, transform',
-            }}
-          >
-            <Suspense fallback={<PageFallback />}>
-              <Routes location={location}>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/recipes" element={<Recipes />} />
-                <Route path="/recipes/fridge" element={<FridgeSearch />} />
-                <Route path="/recipes/detail/:id" element={<RecipeDetail />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/detail/:id" element={<BlogDetail />} />
-                <Route path="/health" element={<Health />} />
-                <Route path="/health/detail/:id" element={<HealthDetail />} />
-                <Route path="/profile" element={<Profile />} />
-                {/* Marketplace */}
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/shop/:slug" element={<ProductDetail />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order-success" element={<OrderSuccess />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/orders/:id" element={<OrderDetailPage />} />
-                <Route path="/seller" element={<Navigate to="/admin" replace />} />
-                <Route path="/seller/settings" element={<Navigate to="/admin" replace />} />
-                <Route path="/wallet" element={<CookPayWallet />} />
-                <Route path="/seller/wallet" element={<Navigate to="/wallet" replace />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/creator/:id" element={<PublicProfile />} />
-              </Routes>
-            </Suspense>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </Layout>
+      <Layout>
+        <Toaster position="top-right" toastOptions={TOAST_OPTIONS} containerStyle={TOASTER_CONTAINER_STYLE} />
+        <div className="grid [&>*]:col-start-1 [&>*]:row-start-1 [&>*]:col-end-2 [&>*]:w-full isolate">
+          <AnimatePresence mode="sync" initial={false}>
+            <motion.div
+              key={location.pathname}
+              role="presentation"
+              className="motion-page-root"
+              initial={
+                reduceMotion ? { opacity: 0 } : { opacity: 0, y: 22, scale: 0.992 }
+              }
+              animate={
+                reduceMotion
+                  ? { opacity: 1 }
+                  : {
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                      transition: { duration: enterDur, ease: EASE_PAGE },
+                    }
+              }
+              exit={
+                reduceMotion
+                  ? { opacity: 0 }
+                  : {
+                      opacity: 0,
+                      y: -14,
+                      scale: 0.99,
+                      transition: { duration: exitDur, ease: EASE_PAGE },
+                    }
+              }
+              style={{
+                willChange: reduceMotion ? 'opacity' : 'opacity, transform',
+              }}
+            >
+              <Suspense fallback={<PageFallback />}>
+                <Routes location={location}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/recipes" element={<Recipes />} />
+                  <Route path="/recipes/fridge" element={<FridgeSearch />} />
+                  <Route path="/recipes/detail/:id" element={<RecipeDetail />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/detail/:id" element={<BlogDetail />} />
+                  <Route path="/health" element={<Health />} />
+                  <Route path="/health/detail/:id" element={<HealthDetail />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/seller" element={<Navigate to="/admin" replace />} />
+                  <Route path="/seller/settings" element={<Navigate to="/admin" replace />} />
+                  <Route path="/wallet" element={<CookPayWallet />} />
+                  <Route path="/seller/wallet" element={<Navigate to="/wallet" replace />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/creator/:id" element={<PublicProfile />} />
+                </Routes>
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </Layout>
     </CartProvider>
   );
 }

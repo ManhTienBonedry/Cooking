@@ -149,13 +149,8 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
-      {/* KitchenCook European Hero & Header from reference design */}
+      {/* KitchenCook European Hero from reference design */}
       <KitchenCookHero
-        search={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
-        }}
         onExploreClick={() => {
           filterRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }}
@@ -163,7 +158,6 @@ export default function Shop() {
           handleProductType('equipment');
           filterRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }}
-        cartCount={useCart().count}
         totalProducts={total}
       />
 
