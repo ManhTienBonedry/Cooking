@@ -21,7 +21,7 @@ export default function OrderSuccess() {
   const isSuccess = !resultCode || resultCode === '0';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 flex items-center justify-center p-4 font-vietnam">
       <Reveal y={20}>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

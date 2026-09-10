@@ -303,18 +303,18 @@ export default function Checkout() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 flex items-center justify-center font-vietnam">
         <div className="text-center">
           <div className="text-6xl mb-4">🛒</div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Giỏ hàng trống</h2>
-          <Link to="/shop" onClick={scrollWindowToTop} className="text-amber-600 dark:text-amber-400 hover:underline font-medium">← Về cửa hàng</Link>
+          <Link to="/shop" onClick={scrollWindowToTop} className="text-slate-900 dark:text-white hover:underline font-bold">← Về cửa hàng</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 transition-colors">
+    <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 transition-colors font-vietnam">
       <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-white/20 dark:border-slate-800/20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Reveal y={16}>
@@ -409,7 +409,7 @@ export default function Checkout() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">Địa chỉ đã lưu</p>
-                        <Link to="/account" className="text-xs font-bold text-[#D96B27] hover:underline">+ Sổ địa chỉ</Link>
+                        <Link to="/account" className="text-xs font-bold text-slate-900 dark:text-white hover:underline">+ Sổ địa chỉ</Link>
                       </div>
                       {savedAddresses.map((address) => (
                         <button
@@ -418,7 +418,7 @@ export default function Checkout() {
                           onClick={() => selectAddress(address)}
                           className={`w-full rounded-xl border p-4 text-left transition-all ${
                             selectedAddressId === address.id
-                              ? 'border-amber-400 bg-amber-50 dark:border-amber-500 dark:bg-amber-900/10'
+                              ? 'border-slate-900 bg-stone-50/80 dark:border-white dark:bg-slate-700/50 shadow-sm'
                               : 'border-gray-200 hover:border-gray-300 dark:border-slate-700'
                           }`}
                         >

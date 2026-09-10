@@ -125,7 +125,10 @@ export async function baselineExistingSchema(client: PoolClient): Promise<string
 
 export async function runSqlFile(client: PoolClient, fileName: string): Promise<void> {
   const path = join(databaseDir(), fileName);
-  const sql = readFileSync(path, 'utf8');
+  let sql = readFileSync(path, 'utf8');
+  if (sql.charCodeAt(0) === 0xfeff) {
+    sql = sql.slice(1);
+  }
   await client.query(sql);
 }
 

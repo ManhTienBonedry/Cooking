@@ -1,4 +1,4 @@
-﻿-- Migration: VÃ­ Cook â€” payment tracking cho orders
+-- Migration: VÃ­ Cook â€” payment tracking cho orders
 -- ThÃªm tráº¡ng thÃ¡i thanh toÃ¡n Ä‘á»ƒ há»— trá»£ CookPay balance payment + refund
 
 ALTER TABLE orders

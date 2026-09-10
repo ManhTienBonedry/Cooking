@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Activity, BookOpen, Bookmark, CheckCircle, PenTool, Settings, X, Edit, Trash2, Package, Heart, Star } from 'lucide-react';
+import { Activity, BookOpen, Bookmark, CheckCircle, PenTool, Settings, X, Edit, Trash2 } from 'lucide-react';
 import { apiFetch, apiJson, resetCsrfCache } from '../../lib/api';
 import { AUTH_CHANGE_EVENT, getAuthChangeDetail, notifyAuthChanged } from '../../lib/authEvents';
 import toast from 'react-hot-toast';
@@ -10,7 +10,6 @@ import Pagination from '../../components/ui/Pagination';
 import type { ProfileUser, ProfileStats, ProfileRecipe, ProfilePost, ProfilePlan } from '../../components/profile/types';
 import type { BlogCategory } from '../../components/blog/types';
 import type { RecipeCategory } from '../../components/recipes/types';
-import type { WishlistItem } from '../../types/marketplace';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileSidebar from '../../components/profile/ProfileSidebar';
 import ProfileSettingsForm from '../../components/profile/ProfileSettingsForm';
@@ -19,12 +18,7 @@ import EditRecipeModal from '../../components/recipes/EditRecipeModal';
 import ConfirmModal from '../../components/ui/ConfirmModal';
 
 const PROFILE_PAGE_SIZE = 6;
-type PagedTab = 'recipes' | 'posts' | 'saved' | 'wishlist';
-
-// Định dạng giá tiền sản phẩm (VND)
-function formatPrice(n: number) {
-  return n.toLocaleString('vi-VN') + 'đ';
-}
+type PagedTab = 'recipes' | 'posts' | 'saved';
 
 // Component trang cá nhân chính của người dùng
 export default function Profile() {
@@ -57,11 +51,10 @@ export default function Profile() {
   const [myPosts, setMyPosts] = useState<ProfilePost[]>([]);
   const [savedRecipes, setSavedRecipes] = useState<ProfileRecipe[]>([]);
   const [myPlans, setMyPlans] = useState<ProfilePlan[]>([]);
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
-  const [pageByTab, setPageByTab] = useState<Record<PagedTab, number>>({ recipes: 1, posts: 1, saved: 1, wishlist: 1 });
-  const [totalByTab, setTotalByTab] = useState<Record<PagedTab, number>>({ recipes: 0, posts: 0, saved: 0, wishlist: 0 });
+  const [pageByTab, setPageByTab] = useState<Record<PagedTab, number>>({ recipes: 1, posts: 1, saved: 1 });
+  const [totalByTab, setTotalByTab] = useState<Record<PagedTab, number>>({ recipes: 0, posts: 0, saved: 0 });
 
   // Edit post modal
   const [editingPostId, setEditingPostId] = useState<number | null>(null);
@@ -71,7 +64,7 @@ export default function Profile() {
   const [editingRecipeId, setEditingRecipeId] = useState<number | null>(null);
   const [recipeCategories, setRecipeCategories] = useState<RecipeCategory[]>([]);
 
-  // Tải dữ liệu tương ứng với tab đang chọn (Công thức, Bài viết, Đã lưu, Wishlist, Kế hoạch)
+  // Tải dữ liệu tương ứng với tab đang chọn (Công thức, Bài viết, Đã lưu, Kế hoạch)
   const loadTabData = useCallback(async (tab: string) => {
     const getPageQuery = (pagedTab: PagedTab) => {
       const q = new URLSearchParams();
@@ -94,12 +87,6 @@ export default function Profile() {
         const d = await apiJson<{ recipes: ProfileRecipe[]; total?: number }>(`/api/recipes/saved?${getPageQuery('saved')}`);
         setSavedRecipes(d.recipes ?? []);
         setTotalByTab((prev) => ({ ...prev, saved: d.total ?? 0 }));
-      } else if (tab === 'wishlist') {
-        const d = await apiJson<{ items: WishlistItem[] }>('/api/marketplace/wishlist');
-        const items = d.items ?? [];
-        const start = (pageByTab.wishlist - 1) * PROFILE_PAGE_SIZE;
-        setWishlistItems(items.slice(start, start + PROFILE_PAGE_SIZE));
-        setTotalByTab((prev) => ({ ...prev, wishlist: items.length }));
       } else if (tab === 'health') {
         const d = await apiJson<{ plans: ProfilePlan[] }>('/api/health/plans');
         setMyPlans(d.plans ?? []);
@@ -114,9 +101,6 @@ export default function Profile() {
       } else if (tab === 'saved') {
         setSavedRecipes([]);
         setTotalByTab((prev) => ({ ...prev, saved: 0 }));
-      } else if (tab === 'wishlist') {
-        setWishlistItems([]);
-        setTotalByTab((prev) => ({ ...prev, wishlist: 0 }));
       }
     } finally {
       setIsDataLoading(false);
@@ -256,26 +240,15 @@ export default function Profile() {
   };
 
   // Cập nhật trang hiện tại của tab đang được hiển thị phân trang
-  const handleProfilePageChange = (tab: PagedTab | 'shop', page: number) => {
+  const handleProfilePageChange = (tab: PagedTab, page: number) => {
     setPageByTab((prev) => ({ ...prev, [tab]: page }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Xử lý xóa sản phẩm ra khỏi danh sách yêu thích
-  const handleRemoveWishlist = async (productId: number) => {
-    try {
-      await apiFetch(`/api/marketplace/wishlist/${productId}`, { method: 'POST' });
-      void loadTabData('wishlist');
-    } catch {
-      alert('Không thể bỏ yêu thích');
-    }
   };
 
   const tabs = [
     { id: 'recipes', label: 'Công thức của tôi', icon: BookOpen },
     { id: 'posts', label: 'Bài viết của tôi', icon: PenTool },
     { id: 'saved', label: 'Đã lưu', icon: Bookmark },
-    { id: 'wishlist', label: 'Món yêu thích', icon: Heart },
     { id: 'health', label: 'Kế hoạch', icon: Activity },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
@@ -469,75 +442,6 @@ export default function Profile() {
                           ))}
                         </div>
                         <Pagination currentPage={pageByTab.saved} totalItems={totalByTab.saved} pageSize={PROFILE_PAGE_SIZE} onPageChange={(page) => handleProfilePageChange('saved', page)} />
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {activeTab === 'wishlist' && (
-                  <div>
-                    <h2 className="mb-6 text-2xl font-bold font-serif text-gray-950 dark:text-white">Món yêu thích</h2>
-                    {isDataLoading ? (
-                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">Đang tải...</div>
-                    ) : wishlistItems.length === 0 ? (
-                      <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-                        <Heart className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-slate-600" />
-                        Bạn chưa yêu thích món nào.
-                      </div>
-                    ) : (
-                      <>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                          {wishlistItems.map((item) => {
-                            const price = item.product_sale_price ?? item.product_price;
-                            const isUnavailable = item.product_status !== 'approved' || !item.product_is_available || item.product_stock <= 0;
-                            return (
-                              <div key={item.id} className={`overflow-hidden rounded-xl border border-gray-200 transition-shadow dark:border-slate-700 ${isUnavailable ? 'bg-gray-50/50 dark:bg-slate-800/50 opacity-60 grayscale' : 'bg-white hover:shadow-md dark:bg-slate-800'}`}>
-                                <Link to={`/shop/${item.product_slug}`} className={`block relative ${isUnavailable ? 'pointer-events-none' : ''}`}>
-                                  {item.product_image ? (
-                                    <img src={item.product_image} alt={item.product_name} className="h-40 w-full object-cover" />
-                                  ) : (
-                                    <div className="flex h-40 w-full items-center justify-center bg-gray-100 dark:bg-slate-700">
-                                      <Package className="h-8 w-8 text-gray-300 dark:text-slate-500" />
-                                    </div>
-                                  )}
-                                  {isUnavailable && (
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                      <span className="bg-black/70 text-white font-bold py-1.5 px-4 rounded-full text-sm">
-                                        {item.product_status !== 'approved' || !item.product_is_available ? 'Hàng không còn' : 'Hàng đã hết'}
-                                      </span>
-                                    </div>
-                                  )}
-                                </Link>
-                                <div className="space-y-3 p-4">
-                                  <div>
-                                    <Link to={`/shop/${item.product_slug}`} className={`line-clamp-1 font-bold text-gray-900 dark:text-white ${isUnavailable ? 'pointer-events-none' : 'hover:text-amber-600 dark:hover:text-amber-400'}`}>
-                                      {item.product_name}
-                                    </Link>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{item.store_name || 'Cửa hàng'}</p>
-                                  </div>
-                                  <div className="flex items-center justify-between gap-3">
-                                    <div>
-                                      <p className="font-extrabold text-red-600 dark:text-red-400">{formatPrice(price)}</p>
-                                      <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-                                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                                        {Number(item.product_rating).toFixed(1)} ({item.product_total_reviews})
-                                      </div>
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => void handleRemoveWishlist(item.product_id)}
-                                      className="inline-flex items-center gap-1 rounded-full border border-red-100 px-3 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 dark:border-red-900/40 dark:hover:bg-red-900/20"
-                                    >
-                                      <Heart className="h-4 w-4 fill-current" />
-                                      Bỏ thích
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <Pagination currentPage={pageByTab.wishlist} totalItems={totalByTab.wishlist} pageSize={PROFILE_PAGE_SIZE} onPageChange={(page) => handleProfilePageChange('wishlist', page)} />
                       </>
                     )}
                   </div>

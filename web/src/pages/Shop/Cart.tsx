@@ -89,13 +89,13 @@ export default function Cart() {
   }, [selectedItems]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 transition-colors">
+    <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 transition-colors font-vietnam">
       <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-white/20 dark:border-slate-800/20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Reveal y={16}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
-                <ShoppingBag className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              <div className="p-2.5 bg-stone-100 dark:bg-slate-800 rounded-xl border border-stone-200 dark:border-slate-700">
+                <ShoppingBag className="w-6 h-6 text-slate-900 dark:text-white" />
               </div>
               <h1 className="text-3xl font-serif italic font-bold text-black dark:text-white">Giỏ hàng</h1>
             </div>

@@ -1,4 +1,4 @@
-﻿-- Migration: Payment Transactions & Order Code & GHN fields
+-- Migration: Payment Transactions & Order Code & GHN fields
 -- Adds order_code, tracking_code, shipping_partner, discount_amount to orders table
 -- Creates payment_transactions table for MoMo V2 and other gateways
 

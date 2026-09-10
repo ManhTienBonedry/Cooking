@@ -1,4 +1,4 @@
-﻿-- PostgreSQL schema for cookingboy
+-- PostgreSQL schema for cookingboy
 -- Create database manually if needed:
 --   CREATE DATABASE cookingboy;
 

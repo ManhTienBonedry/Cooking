@@ -141,7 +141,7 @@ export default function MarketOrdersTab() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <Package className="w-6 h-6 text-[#D96B27]" />
+            <Package className="w-6 h-6 text-slate-900 dark:text-white" />
             Quản lý Đơn Hàng KitchenCook
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -165,7 +165,7 @@ export default function MarketOrdersTab() {
             value={search} 
             onChange={e => setSearch(e.target.value)}
             placeholder="Tìm mã đơn CAM-, tên khách, vận đơn..."
-            className="w-full pl-10 pr-8 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50/50 dark:bg-slate-700/50 text-xs sm:text-sm focus:ring-2 focus:ring-[#D96B27]/20 focus:border-[#D96B27] outline-none" 
+            className="w-full pl-10 pr-8 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50/50 dark:bg-slate-700/50 text-xs sm:text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 dark:focus:border-white outline-none" 
           />
           {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>}
         </div>
@@ -173,7 +173,7 @@ export default function MarketOrdersTab() {
         <select 
           value={statusFilter} 
           onChange={e => setStatusFilter(e.target.value)}
-          className="px-3.5 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-xs sm:text-sm font-medium outline-none focus:border-[#D96B27]"
+          className="px-3.5 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-xs sm:text-sm font-medium outline-none focus:border-slate-900 dark:focus:border-white"
         >
           <option value="">Tất cả trạng thái</option>
           {ORDER_STATUSES.map(s => (
@@ -181,7 +181,7 @@ export default function MarketOrdersTab() {
           ))}
         </select>
 
-        <span className="ml-auto text-xs sm:text-sm font-bold text-[#D96B27]">
+        <span className="ml-auto text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
           {total} đơn hàng KitchenCook
         </span>
       </div>
@@ -287,7 +287,7 @@ export default function MarketOrdersTab() {
                         <select 
                           value={o.status} 
                           onChange={e => void onUpdateStatus(o.id, e.target.value)}
-                          className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 px-2.5 py-1.5 outline-none focus:border-[#D96B27]"
+                          className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 px-2.5 py-1.5 outline-none focus:border-slate-900 dark:focus:border-white"
                         >
                           {ORDER_STATUSES.map(s => (
                             <option key={s.value} value={s.value}>{s.label}</option>

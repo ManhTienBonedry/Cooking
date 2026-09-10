@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChefHat, Menu, LogOut, MessageCircle } from 'lucide-react';
+import { ChefHat, Menu, LogOut } from 'lucide-react';
 import AuthModal from './AuthModal';
 import { apiFetch, apiJson, resetCsrfCache } from '../lib/api';
 import { AUTH_CHANGE_EVENT, getAuthChangeDetail, notifyAuthChanged } from '../lib/authEvents';
@@ -20,10 +20,6 @@ type MeState =
       };
     };
 
-type MessageConversationSummary = {
-  unread_count?: number;
-};
-
 const NAV_ITEMS = [
   { path: '/', label: 'Trang chủ' },
   { path: '/recipes', label: 'Công thức' },
@@ -37,7 +33,6 @@ export default function Navbar() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authInitialSignUp, setAuthInitialSignUp] = useState(false);
   const [me, setMe] = useState<MeState | null>(null);
-  const [messageUnreadCount, setMessageUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -52,41 +47,15 @@ export default function Navbar() {
     }
   }, []);
 
-  const loadMessageUnread = useCallback(async () => {
-    if (!me?.authenticated) {
-      setMessageUnreadCount(0);
-      return;
-    }
-    try {
-      const data = await apiJson<{ conversations: MessageConversationSummary[] }>('/api/messages/conversations');
-      const total = (data.conversations ?? []).reduce(
-        (sum, c) => sum + Number(c.unread_count ?? 0),
-        0
-      );
-      setMessageUnreadCount(total);
-    } catch {
-      setMessageUnreadCount(0);
-    }
-  }, [me?.authenticated]);
-
   useEffect(() => {
     void refreshMe();
   }, [refreshMe]);
-
-  useEffect(() => {
-    if (me?.authenticated) {
-      void loadMessageUnread();
-      return;
-    }
-    setMessageUnreadCount(0);
-  }, [me, loadMessageUnread]);
 
   useEffect(() => {
     const onAuth = (event: Event) => {
       const detail = getAuthChangeDetail(event);
       if (detail.authenticated === false) {
         setMe({ authenticated: false });
-        setMessageUnreadCount(0);
         return;
       }
       void refreshMe();
@@ -94,30 +63,6 @@ export default function Navbar() {
     window.addEventListener(AUTH_CHANGE_EVENT, onAuth);
     return () => window.removeEventListener(AUTH_CHANGE_EVENT, onAuth);
   }, [refreshMe]);
-
-  useEffect(() => {
-    if (!me?.authenticated) return;
-
-    const es = new EventSource('/api/messages/stream', { withCredentials: true });
-    const refresh = () => {
-      void loadMessageUnread();
-    };
-
-    const onRead = () => {
-      void loadMessageUnread();
-    };
-    window.addEventListener('messages:read', onRead);
-
-    es.addEventListener('message', refresh);
-    es.addEventListener('ready', refresh);
-
-    return () => {
-      window.removeEventListener('messages:read', onRead);
-      es.removeEventListener('message', refresh);
-      es.removeEventListener('ready', refresh);
-      es.close();
-    };
-  }, [me?.authenticated, loadMessageUnread]);
 
   const openLogin = () => {
     setAuthInitialSignUp(false);
@@ -132,7 +77,6 @@ export default function Navbar() {
     }
     resetCsrfCache();
     setMe({ authenticated: false });
-    setMessageUnreadCount(0);
     notifyAuthChanged({ authenticated: false });
     setIsMenuOpen(false);
     if (location.pathname !== '/') {
@@ -184,37 +128,6 @@ export default function Navbar() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              {/* Messages link */}
-              {me?.authenticated && (
-                <Link
-                  to="/messages"
-                  onClick={() => scrollWindowToTop()}
-                  className={`relative p-2 rounded-full transition-colors duration-300 ${
-                    currentPage.startsWith('/messages') 
-                      ? 'text-white dark:text-black' 
-                      : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800'
-                  }`}
-                  aria-label="Tin nhắn"
-                  title="Tin nhắn"
-                >
-                  {currentPage.startsWith('/messages') && (
-                    <motion.div
-                      layoutId="nav-pill-desktop"
-                      className="absolute inset-0 rounded-full bg-black dark:bg-white shadow-md"
-                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                      style={{ zIndex: -1 }}
-                    />
-                  )}
-                  <MessageCircle className="w-5 h-5 relative z-10" />
-                  {messageUnreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none px-1 shadow-sm z-20">
-                      {messageUnreadCount > 99 ? '99+' : messageUnreadCount}
-                    </span>
-                  )}
-                </Link>
-              )}
-
-              
               <div className="hidden md:flex items-center space-x-2">
                 {me === null ? (
                   <span className="inline-block w-40 h-9 rounded-full bg-gray-200 dark:bg-slate-800 animate-pulse" aria-hidden />
@@ -305,18 +218,6 @@ export default function Navbar() {
                         </span>
                       )}
                       {me.user.full_name}
-                    </Link>
-                    <Link
-                      to="/messages"
-                      onClick={() => { scrollWindowToTop(); setIsMenuOpen(false); }}
-                      className={`mobile-menu-item ${isMenuOpen ? 'show' : ''} flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-slate-800`}
-                    >
-                      <MessageCircle className="w-5 h-5" /> Tin nhắn
-                      {messageUnreadCount > 0 && (
-                        <span className="ml-auto inline-flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                          {messageUnreadCount > 99 ? '99+' : messageUnreadCount}
-                        </span>
-                      )}
                     </Link>
                     <button
                       type="button"

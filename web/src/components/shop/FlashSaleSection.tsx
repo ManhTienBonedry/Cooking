@@ -82,19 +82,19 @@ export default function FlashSaleSection({ products }: Props) {
   if (dealProducts.length === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/5 to-amber-500/10 dark:from-amber-950/20 dark:via-slate-900/60 dark:to-orange-950/20 p-5 md:p-7 border border-amber-200/80 dark:border-amber-500/20 shadow-xl shadow-amber-500/5 mb-10 backdrop-blur-md">
+    <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-800/90 p-5 md:p-7 border border-stone-200 dark:border-slate-700 shadow-xs mb-10 backdrop-blur-md font-vietnam">
       {/* Header Giờ Vàng Ẩm Thực */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-amber-200/60 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-stone-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold border border-amber-300/40 dark:border-amber-500/30 shadow-inner">
-            <Sparkles className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+          <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-bold shadow-md">
+            <Sparkles className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-2xl md:text-3xl font-serif italic font-bold text-slate-900 dark:text-white">
                 Giờ Vàng Ẩm Thực
               </h2>
-              <span className="flex items-center gap-1 text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-300/40 dark:border-amber-500/30">
+              <span className="flex items-center gap-1 text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-slate-700 text-stone-800 dark:text-stone-300 border border-stone-200 dark:border-slate-600">
                 <Timer className="w-3.5 h-3.5" /> Phiên Độc Quyền
               </span>
             </div>
@@ -105,19 +105,19 @@ export default function FlashSaleSection({ products }: Props) {
         </div>
 
         {/* Countdown Timer */}
-        <div className="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 border border-amber-200/80 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-2xl shadow-sm self-start sm:self-auto">
-          <Clock className="w-4 h-4 text-amber-500 animate-spin" style={{ animationDuration: '8s' }} />
+        <div className="flex items-center gap-2 bg-stone-50/80 dark:bg-slate-800/90 border border-stone-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-2xl shadow-xs self-start sm:self-auto">
+          <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300 animate-spin" style={{ animationDuration: '8s' }} />
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Kết thúc trong:</span>
-          <div className="flex items-center gap-1 font-mono font-black text-sm text-amber-600 dark:text-amber-400">
-            <span className="bg-amber-50 dark:bg-slate-700 border border-amber-200/60 dark:border-slate-600 px-2 py-0.5 rounded-lg shadow-inner">
+          <div className="flex items-center gap-1 font-mono font-black text-sm text-slate-900 dark:text-white">
+            <span className="bg-white dark:bg-slate-700 border border-stone-200 dark:border-slate-600 px-2 py-0.5 rounded-lg shadow-xs">
               {String(timeLeft.hours).padStart(2, '0')}
             </span>
             <span>:</span>
-            <span className="bg-amber-50 dark:bg-slate-700 border border-amber-200/60 dark:border-slate-600 px-2 py-0.5 rounded-lg shadow-inner">
+            <span className="bg-white dark:bg-slate-700 border border-stone-200 dark:border-slate-600 px-2 py-0.5 rounded-lg shadow-xs">
               {String(timeLeft.minutes).padStart(2, '0')}
             </span>
             <span>:</span>
-            <span className="bg-amber-50 dark:bg-slate-700 border border-amber-200/60 dark:border-slate-600 px-2 py-0.5 rounded-lg shadow-inner">
+            <span className="bg-white dark:bg-slate-700 border border-stone-200 dark:border-slate-600 px-2 py-0.5 rounded-lg shadow-xs">
               {String(timeLeft.seconds).padStart(2, '0')}
             </span>
           </div>

@@ -72,7 +72,7 @@ export default function ProductCard({ product, index = 0, onAddToCart, onToggleW
         {/* Stock badge */}
         {product.stock <= 5 && product.stock > 0 && (
           <div className="absolute bottom-3 left-3">
-            <span className="px-2 py-1 text-[10px] font-semibold bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 rounded-full">
+            <span className="px-2 py-1 text-[10px] font-semibold bg-stone-100 text-stone-700 dark:bg-slate-700 dark:text-stone-300 rounded-full border border-stone-200 dark:border-slate-600">
               Còn {product.stock} {product.unit}
             </span>
           </div>
@@ -96,7 +96,7 @@ export default function ProductCard({ product, index = 0, onAddToCart, onToggleW
         <Link
           to={`/shop/${product.slug}`}
           onClick={scrollWindowToTop}
-          className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+          className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2 hover:text-slate-600 dark:hover:text-stone-300 transition-colors"
         >
           {product.name}
         </Link>

@@ -248,7 +248,7 @@ export default function OrderDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 font-vietnam">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-32 bg-white dark:bg-slate-800/80 rounded-2xl animate-pulse" />
@@ -260,11 +260,11 @@ export default function OrderDetail() {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 flex items-center justify-center font-vietnam">
         <div className="text-center">
           <div className="text-6xl mb-4">😕</div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Không tìm thấy đơn hàng</h2>
-          <Link to="/orders" onClick={scrollWindowToTop} className="text-amber-600 dark:text-amber-400 hover:underline font-medium">← Danh sách đơn hàng</Link>
+          <Link to="/orders" onClick={scrollWindowToTop} className="text-slate-900 dark:text-white hover:underline font-bold">← Danh sách đơn hàng</Link>
         </div>
       </div>
     );
@@ -321,7 +321,7 @@ export default function OrderDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 transition-colors">
+    <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 transition-colors font-vietnam">
       <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-white/20 dark:border-slate-800/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="mb-4">
@@ -339,7 +339,7 @@ export default function OrderDetail() {
             )}
           </h1>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium">
-            <span className="inline-flex items-center gap-1 font-mono font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800/50">
+            <span className="inline-flex items-center gap-1 font-mono font-bold bg-stone-100 text-stone-800 dark:bg-slate-800 dark:text-stone-300 px-2.5 py-1 rounded-md border border-stone-200 dark:border-slate-700">
               Mã đơn: {order.order_code || `CAM-${String(order.id).padStart(6, '0')}`}
             </span>
             <span>·</span>
@@ -358,9 +358,9 @@ export default function OrderDetail() {
         {/* Instant 1-2H Delivery Alert */}
         {order.delivery_type === 'instant_1h' && (
           <Reveal y={12}>
-            <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 p-4 md:p-5 dark:border-amber-700/50 shadow-sm">
+            <div className="rounded-2xl border border-stone-200 bg-white dark:bg-slate-800/80 p-4 md:p-5 dark:border-slate-700 shadow-sm">
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/30 shrink-0">
+                <div className="w-11 h-11 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-black text-xl shadow-md shrink-0">
                   ⚡
                 </div>
                 <div>
@@ -483,19 +483,19 @@ export default function OrderDetail() {
               </div>
 
               {transitData.is_delayed && (
-                <div className="p-4 bg-orange-50 dark:bg-amber-950/20 border border-orange-200 dark:border-orange-900/50 rounded-2xl flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
+                <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-bold text-orange-800 dark:text-orange-300">Đơn hàng bị trễ hẹn giao hàng</h4>
-                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                      Chúng tôi vô cùng xin lỗi vì sự chậm trễ này do quá trình vận chuyển. Đơn hàng đang được thúc đẩy giao hàng sớm nhất có thể. CookingWeb đã tự động gửi voucher đền bù đến tài khoản của bạn để xin lỗi.
+                    <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300">Đơn hàng bị trễ hẹn giao hàng</h4>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                      Chúng tôi vô cùng xin lỗi vì sự chậm trễ này do quá trình vận chuyển. Đơn hàng đang được thúc đẩy giao hàng sớm nhất có thể. KitchenCook đã tự động gửi voucher đền bù đến tài khoản của bạn để xin lỗi.
                     </p>
                   </div>
                 </div>
               )}
 
               {transitData.logs && transitData.logs.length > 0 ? (
-                <div className="relative pl-6 border-l-2 border-amber-100 dark:border-slate-700 space-y-8 ml-2">
+                <div className="relative pl-6 border-l-2 border-stone-200 dark:border-slate-700 space-y-8 ml-2">
                   {transitData.logs.map((log, idx) => {
                     const isLatest = idx === 0;
                     return (
@@ -503,12 +503,12 @@ export default function OrderDetail() {
                         {/* Milestone dot */}
                         <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 ${
                           isLatest 
-                            ? 'bg-amber-500 border-white dark:border-slate-800 ring-4 ring-amber-100 dark:ring-amber-950 animate-pulse' 
-                            : 'bg-gray-300 dark:bg-slate-600 border-white dark:border-slate-800'
+                            ? 'bg-slate-900 dark:bg-white border-white dark:border-slate-800 ring-4 ring-stone-200 dark:ring-slate-700 animate-pulse' 
+                            : 'bg-stone-300 dark:bg-slate-600 border-white dark:border-slate-800'
                         }`} />
                         <div>
                           <div className="flex items-center justify-between gap-4">
-                            <h4 className={`text-sm font-bold ${isLatest ? 'text-amber-600 dark:text-amber-400' : 'text-gray-800 dark:text-gray-300'}`}>
+                            <h4 className={`text-sm font-bold ${isLatest ? 'text-slate-900 dark:text-white' : 'text-gray-800 dark:text-gray-300'}`}>
                               {log.current_location}
                             </h4>
                             <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">

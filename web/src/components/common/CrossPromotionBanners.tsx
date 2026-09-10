@@ -6,14 +6,14 @@ import { ChefHat, BookOpen, ArrowRight, Sparkles } from 'lucide-react';
  */
 export function KitchenToRecipeBanner() {
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-600/5 border border-amber-300/60 dark:border-amber-700/40 p-6 sm:p-8 shadow-sm font-vietnam">
+    <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-800/90 border border-stone-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs font-vietnam">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
         <div className="flex items-start gap-4 sm:gap-5">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#D96B27] to-[#C85A17] text-white flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-orange-600/25">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center text-2xl shrink-0 shadow-md">
             <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-[#A74311] dark:text-amber-300 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-slate-700 text-stone-800 dark:text-stone-300 border border-stone-200 dark:border-slate-600 text-[11px] font-extrabold uppercase tracking-wider mb-1">
               <Sparkles className="w-3 h-3" />
               Nguồn Cảm Hứng Bếp Việt & Âu
             </div>
@@ -28,15 +28,12 @@ export function KitchenToRecipeBanner() {
 
         <Link
           to="/recipes"
-          className="shrink-0 px-6 py-3.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white font-bold text-xs sm:text-sm shadow-xl shadow-orange-600/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+          className="shrink-0 px-6 py-3.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
         >
           Khám phá Công Thức Nấu Ăn
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
-
-      {/* Subtle background decoration */}
-      <div className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-amber-400/10 dark:bg-amber-400/5 blur-2xl pointer-events-none" />
     </div>
   );
 }
@@ -46,14 +43,14 @@ export function KitchenToRecipeBanner() {
  */
 export function RecipeToKitchenBanner() {
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-600/5 border border-amber-300/60 dark:border-amber-700/40 p-6 sm:p-8 shadow-sm font-vietnam">
+    <div className="relative overflow-hidden rounded-3xl bg-[#FAF7F2] dark:bg-slate-800/90 border border-stone-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs font-vietnam">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
         <div className="flex items-start gap-4 sm:gap-5">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#D96B27] to-[#C85A17] text-white flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-orange-600/25">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center text-2xl shrink-0 shadow-md">
             <ChefHat className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-[#A74311] dark:text-amber-300 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-slate-700 text-stone-800 dark:text-stone-300 border border-stone-200 dark:border-slate-600 text-[11px] font-extrabold uppercase tracking-wider mb-1">
               <Sparkles className="w-3 h-3" />
               KitchenCook Store · Đồ Gia Dụng Cao Cấp
             </div>
@@ -68,14 +65,12 @@ export function RecipeToKitchenBanner() {
 
         <Link
           to="/shop"
-          className="shrink-0 px-6 py-3.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white font-bold text-xs sm:text-sm shadow-xl shadow-orange-600/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+          className="shrink-0 px-6 py-3.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
         >
           Ghé thăm KitchenCook Store
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
-
-      <div className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-orange-400/10 dark:bg-orange-400/5 blur-2xl pointer-events-none" />
     </div>
   );
 }

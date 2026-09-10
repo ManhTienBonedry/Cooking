@@ -7,12 +7,9 @@ import ImageWithFallback from '../../lib/ImageWithFallback';
 import AuthModal from '../../components/AuthModal';
 import { HeroEnter, Reveal } from '../../components/motion/ScrollReveal';
 import { AUTH_CHANGE_EVENT } from '../../lib/authEvents';
-import BuyIngredientsPanel from '../../components/shop/BuyIngredientsPanel';
-import AiRecommendations from '../../components/shop/AiRecommendations';
 import RecipeInstructions from '../../components/recipes/RecipeInstructions';
 import IngredientList from '../../components/recipes/IngredientList';
 import NutritionBox from '../../components/recipes/NutritionBox';
-import RecipeTaggedProductsSection from '../../components/recipes/RecipeTaggedProductsSection';
 import { RecipeToKitchenBanner } from '../../components/common/CrossPromotionBanners';
 
 interface RecipeRow {
@@ -49,7 +46,6 @@ export default function RecipeDetail() {
   const [recipe, setRecipe] = useState<RecipeRow | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   // Ingredient checklist
@@ -66,9 +62,6 @@ export default function RecipeDetail() {
     try {
       const me = await apiJson<{ authenticated: boolean; user?: { id: number } }>('/api/auth/me');
       setIsAuthenticated(Boolean(me.authenticated));
-      if (me.authenticated && me.user) {
-        setCurrentUserId(me.user.id);
-      }
       if (!me.authenticated) { setIsLoading(false); return; }
     } catch {
       setIsAuthenticated(false);
@@ -262,17 +255,9 @@ export default function RecipeDetail() {
               formatTimer={formatTimer}
               extractMinutes={extractMinutes}
             />
-
-            {/* Tagged Products — Dụng cụ & Nguyên liệu gắn vào công thức */}
-            <div className="mt-8">
-              <RecipeTaggedProductsSection
-                recipeId={recipe.id}
-                isAuthor={Boolean(currentUserId && recipe.author_id && currentUserId === recipe.author_id)}
-              />
-            </div>
           </div>
 
-          {/* â”€â”€ Sidebar â”€â”€ */}
+          {/* ── Sidebar ── */}
           <div className="space-y-6">
 
             <NutritionBox nutrition={nutrition} />
@@ -282,15 +267,6 @@ export default function RecipeDetail() {
               checkedIngredients={checkedIngredients}
               onToggleIngredient={toggleIngredient}
             />
-
-            {/* Buy Ingredients — Smart Feature */}
-            {ingredientLines.length > 0 && (
-              <Reveal y={18} delay={0.07}>
-                <BuyIngredientsPanel
-                  ingredients={recipe.ingredients ?? ''}
-                />
-              </Reveal>
-            )}
 
             {/* Author */}
             <Reveal y={18} delay={0.08}>
@@ -338,16 +314,6 @@ export default function RecipeDetail() {
               </div>
             </Reveal>
           </div>
-        </div>
-
-        {/* AI Recommendations — Smart Feature */}
-        <div className="mt-12">
-          <AiRecommendations
-            recipeTitle={recipe.title}
-            ingredients={recipe.ingredients ?? ''}
-            context="recipe"
-            limit={4}
-          />
         </div>
 
         {/* Cross-Promotion: Đề xuất sắm đồ bếp xịn tại KitchenCook */}

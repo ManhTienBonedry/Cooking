@@ -274,11 +274,11 @@ export default function Orders() {
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-vietnam pb-24 transition-colors duration-300">
       {/* Top Banner */}
-      <div className="bg-white dark:bg-slate-800 border-b border-amber-900/10 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 border-b border-stone-200/80 dark:border-slate-700">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium">
-            <Link to="/shop" className="hover:text-[#D96B27] transition-colors">KitchenCook</Link>
+            <Link to="/shop" className="hover:text-slate-900 dark:hover:text-white transition-colors">KitchenCook</Link>
             <span>/</span>
             <span className="text-slate-800 dark:text-slate-200">Lịch sử đơn hàng</span>
           </div>
@@ -286,7 +286,7 @@ export default function Orders() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-950/40 text-[#D96B27] flex items-center justify-center shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-stone-100 dark:bg-slate-700 text-slate-900 dark:text-white flex items-center justify-center shadow-xs border border-stone-200 dark:border-slate-600">
                   <ClipboardList className="w-5 h-5" />
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -309,7 +309,7 @@ export default function Orders() {
                   setPage(1);
                 }}
                 placeholder="Tìm mã đơn, tên đồ bếp..."
-                className="w-full pl-10 pr-9 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 shadow-inner"
+                className="w-full pl-10 pr-9 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white shadow-inner"
               />
               {searchQuery && (
                 <button
@@ -338,15 +338,15 @@ export default function Orders() {
                   }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#D96B27] text-white shadow-md shadow-orange-600/20'
-                      : 'bg-slate-100 dark:bg-slate-700/70 text-slate-600 dark:text-slate-300 hover:bg-amber-100/50'
+                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
+                      : 'bg-stone-100 dark:bg-slate-700/70 text-slate-600 dark:text-slate-300 hover:bg-stone-200/60'
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
                       isActive
-                        ? 'bg-white/20 text-white'
+                        ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900'
                         : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
@@ -368,7 +368,7 @@ export default function Orders() {
             ))}
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="text-center py-20 px-4 rounded-3xl bg-white dark:bg-slate-800 border border-amber-900/10 dark:border-slate-700 shadow-sm">
+          <div className="text-center py-20 px-4 rounded-3xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 shadow-sm">
             <Package className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Không tìm thấy đơn hàng nào</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">
@@ -376,7 +376,7 @@ export default function Orders() {
             </p>
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md"
             >
               <Package className="w-4 h-4" />
               Khám phá đồ bếp KitchenCook
@@ -475,9 +475,9 @@ export default function Orders() {
 
                     {/* GHN Shipping Live Tracker Link */}
                     {order.tracking_code && (
-                      <div className="px-6 py-2.5 bg-orange-50/60 dark:bg-slate-700/40 border-b border-amber-900/10 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                      <div className="px-6 py-2.5 bg-stone-100/70 dark:bg-slate-700/40 border-b border-stone-200 dark:border-slate-700/60 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                          <Truck className="w-4 h-4 text-[#D96B27]" />
+                          <Truck className="w-4 h-4 text-slate-900 dark:text-white" />
                           <span>Vận chuyển qua Giao Hàng Nhanh (GHN Express):</span>
                           <span className="font-mono font-bold text-slate-900 dark:text-white">
                             {order.tracking_code}
@@ -487,7 +487,7 @@ export default function Orders() {
                           href={`https://donhang.ghn.vn/?order_code=${encodeURIComponent(order.tracking_code)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 font-bold text-[#D96B27] hover:underline"
+                          className="inline-flex items-center gap-1 font-bold text-stone-800 dark:text-stone-200 hover:text-slate-900 dark:hover:text-white underline"
                         >
                           Tra cứu vận đơn thực <ExternalLink className="w-3.5 h-3.5" />
                         </a>
@@ -534,9 +534,9 @@ export default function Orders() {
                               <button
                                 type="button"
                                 onClick={() => openReviewModal(order, item)}
-                                className="px-3 py-1 rounded-full border border-amber-400 text-amber-600 dark:text-amber-400 text-[11px] font-bold hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-3 py-1 rounded-full border border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-300 text-[11px] font-bold hover:bg-stone-100 dark:hover:bg-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
                               >
-                                <Star className="w-3 h-3 fill-amber-400" />
+                                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                                 Đánh giá
                               </button>
                             )}
@@ -557,7 +557,7 @@ export default function Orders() {
                     <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
                         <span className="text-xs text-slate-500 dark:text-slate-400">Tổng thanh toán: </span>
-                        <span className="text-lg font-black text-[#D96B27]">
+                        <span className="text-lg font-black text-slate-900 dark:text-white">
                           {formatPrice(order.total_amount)}
                         </span>
                       </div>
@@ -602,7 +602,7 @@ export default function Orders() {
                             type="button"
                             onClick={() => handleRepurchase(order)}
                             disabled={isRepurchasing}
-                            className="px-4 py-2 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20 transition-all cursor-pointer flex items-center gap-1.5"
+                            className="px-4 py-2 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md transition-all cursor-pointer flex items-center gap-1.5"
                           >
                             <RefreshCw className="w-3.5 h-3.5" />
                             Mua lại
@@ -656,7 +656,7 @@ export default function Orders() {
                   key={reason}
                   className={`flex items-center gap-3 p-3 rounded-xl border text-xs cursor-pointer transition-all ${
                     selectedReason === reason
-                      ? 'border-[#D96B27] bg-orange-50/40 dark:bg-slate-700/50 font-bold text-slate-900 dark:text-white'
+                      ? 'border-slate-900 bg-stone-50/60 dark:border-white dark:bg-slate-700/50 font-bold text-slate-900 dark:text-white'
                       : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -665,7 +665,7 @@ export default function Orders() {
                     name="cancel_reason"
                     checked={selectedReason === reason}
                     onChange={() => setSelectedReason(reason)}
-                    className="w-4 h-4 text-[#D96B27] focus:ring-[#D96B27]"
+                    className="w-4 h-4 text-slate-900 focus:ring-slate-900"
                   />
                   <span>{reason}</span>
                 </label>
@@ -677,7 +677,7 @@ export default function Orders() {
                   value={customReason}
                   onChange={(e) => setCustomReason(e.target.value)}
                   placeholder="Ghi rõ lý do hủy của bạn..."
-                  className="w-full mt-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:border-[#D96B27]"
+                  className="w-full mt-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white"
                 />
               )}
             </div>
@@ -706,7 +706,7 @@ export default function Orders() {
       {/* MODAL ĐÁNH GIÁ SẢN PHẨM */}
       {reviewModalOpen && reviewItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full border border-amber-900/10 dark:border-slate-700 shadow-2xl">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full border border-stone-200 dark:border-slate-700 shadow-2xl">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
               Đánh giá sản phẩm
             </h3>
@@ -732,7 +732,7 @@ export default function Orders() {
                   </button>
                 ))}
               </div>
-              <p className="text-center text-xs font-bold text-amber-600 dark:text-amber-400">
+              <p className="text-center text-xs font-bold text-slate-800 dark:text-slate-200">
                 {rating === 5
                   ? 'Tuyệt vời, rất hài lòng!'
                   : rating === 4
@@ -754,7 +754,7 @@ export default function Orders() {
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Chất lượng đồ bếp, độ hoàn thiện, tốc độ giao hàng GHN..."
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-[#D96B27]"
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white"
                 />
               </div>
 
@@ -778,7 +778,7 @@ export default function Orders() {
                     onChange={handleImageUpload}
                   />
                   {reviewImage && (
-                    <div className="w-10 h-10 rounded-lg overflow-hidden border">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200">
                       <img src={reviewImage} alt="Preview" className="w-full h-full object-cover" />
                     </div>
                   )}
@@ -796,7 +796,7 @@ export default function Orders() {
                 <button
                   type="submit"
                   disabled={isSubmittingReview}
-                  className="px-6 py-2.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md disabled:opacity-50 cursor-pointer"
+                  className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
                 </button>

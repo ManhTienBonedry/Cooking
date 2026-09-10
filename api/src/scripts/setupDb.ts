@@ -19,16 +19,24 @@ function parseArgs(argv: string[]): {
 }
 
 function poolConfig(database?: string) {
+  if (env.db.connectionString) {
+    return {
+      connectionString: env.db.connectionString,
+      ssl: env.db.ssl ? { rejectUnauthorized: false } : undefined,
+    };
+  }
   return {
     host: env.db.host,
     port: env.db.port,
     user: env.db.user,
     password: env.db.password,
     database: database ?? env.db.database,
+    ssl: env.db.ssl ? { rejectUnauthorized: false } : undefined,
   };
 }
 
 async function ensureDatabaseExists(): Promise<void> {
+  if (env.db.connectionString || env.db.ssl) return;
   const dbName = env.db.database;
   const admin = new Pool({ ...poolConfig('postgres') });
 
@@ -55,6 +63,7 @@ async function ensureDatabaseExists(): Promise<void> {
 }
 
 async function tryGrantAppUser(pool: Pool): Promise<void> {
+  if (env.db.connectionString || env.db.ssl) return;
   try {
     const role = env.db.user.replace(/"/g, '""');
     await pool.query(`GRANT USAGE ON SCHEMA public TO "${role}"`);
@@ -75,9 +84,15 @@ async function tryGrantAppUser(pool: Pool): Promise<void> {
 async function main(): Promise<void> {
   const { force, skipSeed, tryCreateDb, migrationsOnly, seedOnly } = parseArgs(process.argv.slice(2));
 
-  console.log(`[db:setup] Target: ${env.db.user}@${env.db.host}:${env.db.port}/${env.db.database}`);
+  if (env.db.connectionString) {
+    console.log('[db:setup] Target: Remote Cloud Database (via DATABASE_URL)');
+  } else if (env.db.ssl) {
+    console.log(`[db:setup] Target: Remote Cloud Database (via DB_HOST=${env.db.host}, SSL)`);
+  } else {
+    console.log(`[db:setup] Target: ${env.db.user}@${env.db.host}:${env.db.port}/${env.db.database}`);
+  }
 
-  if (tryCreateDb) {
+  if (tryCreateDb && !env.db.connectionString && !env.db.ssl) {
     await ensureDatabaseExists();
   }
 

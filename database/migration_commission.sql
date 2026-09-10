@@ -1,4 +1,4 @@
-﻿-- Migration: Add commission_rate to seller_profiles
+-- Migration: Add commission_rate to seller_profiles
 -- Used by the E-Wallet system to automatically deduct platform fee
 -- when an order is marked as completed.
 

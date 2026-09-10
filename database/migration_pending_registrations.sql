@@ -1,4 +1,4 @@
-﻿-- OTP Ä‘Äƒng kÃ½: cháº¡y má»™t láº§n trÃªn CookingDB (user postgres hoáº·c tÆ°Æ¡ng Ä‘Æ°Æ¡ng)
+-- OTP Ä‘Äƒng kÃ½: cháº¡y má»™t láº§n trÃªn CookingDB (user postgres hoáº·c tÆ°Æ¡ng Ä‘Æ°Æ¡ng)
 CREATE TABLE IF NOT EXISTS pending_registrations (
   email VARCHAR(150) PRIMARY KEY,
   full_name VARCHAR(120) NOT NULL,

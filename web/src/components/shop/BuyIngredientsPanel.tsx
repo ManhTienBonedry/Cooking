@@ -90,16 +90,16 @@ export default function BuyIngredientsPanel({ ingredients }: Props) {
     .reduce((sum, p) => sum + (p.sale_price ?? p.price), 0);
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-200/60 dark:border-amber-700/30 overflow-hidden">
+    <div className="bg-[#FAF7F2] dark:bg-slate-800/80 rounded-2xl border border-stone-200 dark:border-slate-700 overflow-hidden font-vietnam">
       {/* Header — trigger */}
       <button
         onClick={handleMatch}
         disabled={loading}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 transition-colors"
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-stone-100/70 dark:hover:bg-slate-700/30 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-400 dark:bg-amber-500 flex items-center justify-center shadow-md">
-            <ShoppingBag className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center shadow-sm">
+            <ShoppingBag className="w-5 h-5" />
           </div>
           <div className="text-left">
             <p className="font-bold text-sm text-gray-900 dark:text-white">
@@ -111,9 +111,9 @@ export default function BuyIngredientsPanel({ ingredients }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-500" />
+          <Sparkles className="w-4 h-4 text-stone-700 dark:text-stone-300" />
           {loading ? (
-            <div className="w-5 h-5 border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-stone-300 border-t-slate-900 rounded-full animate-spin" />
           ) : expanded ? (
             <ChevronUp className="w-5 h-5 text-gray-400" />
           ) : (
@@ -137,7 +137,7 @@ export default function BuyIngredientsPanel({ ingredients }: Props) {
               {keywords.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {keywords.map((kw, i) => (
-                    <span key={i} className="px-2 py-0.5 text-[10px] bg-amber-200/60 dark:bg-amber-800/30 text-amber-700 dark:text-amber-300 rounded-full font-medium">
+                    <span key={i} className="px-2 py-0.5 text-[10px] bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-stone-300 rounded-full font-medium">
                       {kw}
                     </span>
                   ))}
@@ -176,14 +176,14 @@ export default function BuyIngredientsPanel({ ingredients }: Props) {
                         <Link
                           to={`/shop/${p.slug}`}
                           onClick={scrollWindowToTop}
-                          className="text-xs font-medium text-gray-900 dark:text-white line-clamp-1 hover:text-amber-600 transition-colors inline-flex items-center gap-1"
+                          className="text-xs font-medium text-gray-900 dark:text-white line-clamp-1 hover:text-stone-600 dark:hover:text-stone-300 transition-colors inline-flex items-center gap-1"
                         >
                           {p.name} <ExternalLink className="w-2.5 h-2.5" />
                         </Link>
                         <p className="text-xs text-gray-400">{p.unit} · {p.category_name}</p>
                       </div>
 
-                      <span className="text-sm font-bold text-red-600 dark:text-red-400 whitespace-nowrap">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">
                         {formatPrice(price)}
                       </span>
                     </label>
@@ -192,16 +192,16 @@ export default function BuyIngredientsPanel({ ingredients }: Props) {
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-amber-200/40 dark:border-amber-800/30">
+              <div className="flex items-center justify-between pt-2 border-t border-stone-200 dark:border-slate-700">
                 <div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">{selected.size}/{products.length} đã chọn</span>
-                  <p className="text-sm font-bold text-red-600 dark:text-red-400">{formatPrice(totalPrice)}</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{formatPrice(totalPrice)}</p>
                 </div>
                 <motion.button
                   whileTap={{ scale: 0.96 }}
                   onClick={handleAddAll}
                   disabled={selected.size === 0 || adding}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-sm font-bold hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 transition-all shadow-md"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full text-sm font-bold hover:bg-black dark:hover:bg-slate-100 disabled:opacity-50 transition-all shadow-md"
                 >
                   <ShoppingCart className="w-4 h-4" />
                   {adding ? 'Đang thêm...' : 'Thêm vào giỏ'}
@@ -225,7 +225,7 @@ export default function BuyIngredientsPanel({ ingredients }: Props) {
               <Link
                 to="/shop"
                 onClick={scrollWindowToTop}
-                className="text-sm text-amber-600 dark:text-amber-400 hover:underline font-medium"
+                className="text-sm text-slate-900 dark:text-white hover:underline font-semibold"
               >
                 Khám phá cửa hàng →
               </Link>

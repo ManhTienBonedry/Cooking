@@ -77,7 +77,7 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 font-vietnam">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid md:grid-cols-2 gap-10 animate-pulse">
             <div className="aspect-square bg-gray-200 dark:bg-slate-700 rounded-3xl" />
@@ -96,11 +96,11 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 flex items-center justify-center font-vietnam">
         <div className="text-center">
           <div className="text-6xl mb-4">😕</div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Sản phẩm không tồn tại</h2>
-          <Link to="/shop" className="text-amber-600 dark:text-amber-400 hover:underline font-medium">← Về cửa hàng</Link>
+          <Link to="/shop" className="text-slate-900 dark:text-white hover:underline font-bold">← Về cửa hàng</Link>
         </div>
       </div>
     );
@@ -113,7 +113,7 @@ export default function ProductDetail() {
   const chatHref = `/messages?sellerId=${product.seller_id}&seller=${encodeURIComponent(product.store_name || product.seller_name || 'Shop')}&productId=${product.id}&product=${encodeURIComponent(product.name)}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/60 to-orange-50/40 dark:from-slate-900 dark:to-slate-800 transition-colors">
+    <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 transition-colors font-vietnam">
       {/* Breadcrumb */}
       <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-white/20 dark:border-slate-800/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">

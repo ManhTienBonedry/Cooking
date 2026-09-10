@@ -38,14 +38,29 @@ function getEnvOrDefault(name: string, fallback: string): string {
   return fallback;
 }
 
+const rawDatabaseUrl = (process.env.DATABASE_URL ?? '').trim();
+const hasDatabaseUrl = Boolean(rawDatabaseUrl);
+const dbHost = (process.env.DB_HOST ?? 'localhost').trim();
+const isRemoteHost = dbHost !== 'localhost' && dbHost !== '127.0.0.1' && !dbHost.startsWith('192.168.');
+
+const useSsl =
+  (process.env.DB_SSL ?? '').toLowerCase() === 'true' ||
+  (process.env.PGSSLMODE ?? '').toLowerCase() === 'require' ||
+  (hasDatabaseUrl && !rawDatabaseUrl.includes('localhost') && !rawDatabaseUrl.includes('127.0.0.1')) ||
+  isRemoteHost;
+
 export const env = {
   port: Number(process.env.PORT) || 3001,
   nodeEnv: process.env.NODE_ENV ?? 'development',
   db: {
+    connectionString: rawDatabaseUrl || undefined,
+    ssl: useSsl,
     host: process.env.DB_HOST ?? 'localhost',
     port: Number(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER ?? 'Cooking',
-    password: getEnvOrDefault('DB_PASSWORD', 'change-me-local-db-password'),
+    password: hasDatabaseUrl
+      ? (process.env.DB_PASSWORD ?? '')
+      : getEnvOrDefault('DB_PASSWORD', 'change-me-local-db-password'),
     database: process.env.DB_NAME ?? 'CookingDB',
   },
   sessionSecret: getEnvOrDefault('SESSION_SECRET', 'dev-only-change-me'),

@@ -12,7 +12,7 @@ export default function KitchenCookHero({
   onCookwareClick,
 }: KitchenCookHeroProps) {
   return (
-    <div className="w-full bg-[#FAF7F2] dark:bg-slate-900 border-b border-amber-900/10 dark:border-slate-800 transition-colors duration-300 font-vietnam">
+    <div className="w-full bg-[#FAF7F2] dark:bg-slate-900 border-b border-stone-200/80 dark:border-slate-800 transition-colors duration-300 font-vietnam">
       {/* Hero Section chuẩn theo form ảnh mẫu */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
@@ -20,11 +20,11 @@ export default function KitchenCookHero({
           <div className="lg:col-span-7 space-y-6">
             <h1 className="font-vietnam font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-slate-900 dark:text-white leading-[1.12]">
               Nâng tầm căn bếp, <br />
-              <span className="text-[#D96B27]">tạo nên nghệ thuật</span>
+              <span className="text-stone-600 dark:text-stone-300 font-serif italic">tạo nên nghệ thuật</span>
             </h1>
 
             <p className="font-vietnam text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed max-w-xl font-normal">
-              Khám phá bộ sưu tập nồi niêu xoong chảo, dao kéo và phụ kiện làm bếp chuyên nghiệp từ các thương hiệu hàng đầu thế giới. Bền bỉ, tinh xảo và an toàn tuyệt đối cho sức khỏe gia đình bạn.
+              Bộ sưu tập nồi niêu xoong chảo, dao kéo và phụ kiện đồ bếp cao cấp chính hãng. Bền bỉ, tinh xảo và an toàn cho sức khỏe gia đình bạn.
             </p>
 
             {/* Cặp nút hành động */}
@@ -66,7 +66,7 @@ export default function KitchenCookHero({
               
               {/* Badge góc ảnh */}
               <div className="absolute bottom-5 left-5 right-5 text-white">
-                <span className="px-2.5 py-1 rounded-full bg-[#D96B27] text-[11px] font-bold uppercase tracking-wider shadow">
+                <span className="px-2.5 py-1 rounded-full bg-slate-900/90 backdrop-blur-md text-white border border-white/20 text-[11px] font-bold uppercase tracking-wider shadow">
                   KitchenCook Selection
                 </span>
                 <p className="font-vietnam font-bold text-base sm:text-lg mt-1.5 drop-shadow">

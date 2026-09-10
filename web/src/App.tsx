@@ -53,7 +53,7 @@ const TOASTER_CONTAINER_STYLE: React.CSSProperties = { zIndex: 99999 };
 function PageFallback() {
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-[#D96B27] animate-spin" />
+      <div className="w-10 h-10 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-slate-900 dark:border-t-white animate-spin" />
     </div>
   );
 }

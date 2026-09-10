@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ShoppingBag, ArrowRight, Star, Truck, ShieldCheck,
-  ChefHat, Flame, Package, UtensilsCrossed
+  ShoppingBag, ArrowRight, Star, Flame, Package, UtensilsCrossed
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Reveal, RevealStaggerItem } from '../motion/ScrollReveal';
@@ -32,32 +31,26 @@ const SHOP_CATEGORIES = [
     icon: Flame,
     title: 'Nồi & Xoong chảo',
     desc: 'Nồi gang tráng men, nồi inox 304, chảo chống dính sâu lòng chuẩn Âu',
-    color: 'from-orange-500 to-amber-600',
-    bg: 'bg-orange-50 dark:bg-orange-950/20',
+    color: 'from-stone-700 to-slate-900',
+    bg: 'bg-white dark:bg-slate-800/80',
     link: '/shop?type=equipment',
   },
   {
     icon: UtensilsCrossed,
     title: 'Dao kéo & Thớt',
     desc: 'Thép tôi cao cấp sắc bén, thớt gỗ kháng khuẩn bền bỉ theo năm tháng',
-    color: 'from-amber-600 to-red-600',
-    bg: 'bg-amber-50 dark:bg-amber-950/20',
+    color: 'from-stone-800 to-stone-900',
+    bg: 'bg-white dark:bg-slate-800/80',
     link: '/shop?type=equipment',
   },
   {
     icon: Package,
     title: 'Dụng cụ & Phụ kiện',
     desc: 'Bộ xẻng vá chịu nhiệt, cân điện tử, phụ kiện bàn ăn tinh tế',
-    color: 'from-blue-600 to-indigo-600',
-    bg: 'bg-blue-50 dark:bg-blue-950/20',
+    color: 'from-slate-800 to-slate-950',
+    bg: 'bg-white dark:bg-slate-800/80',
     link: '/shop?type=equipment',
   },
-];
-
-const PERKS = [
-  { icon: ShieldCheck, text: 'Chất lượng tiêu chuẩn Châu Âu' },
-  { icon: Truck, text: 'Giao nhanh GHN Express' },
-  { icon: ChefHat, text: 'KitchenCook độc quyền chính hãng' },
 ];
 
 /* ── component ───────────────────────────────── */
@@ -75,19 +68,19 @@ export default function HomeMarketplace() {
   return (
     <section className="py-16 sm:py-24 relative overflow-hidden font-vietnam">
       {/* Decorative BG */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,107,39,0.12),transparent)] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,107,39,0.06),transparent)]" />
+      <div className="absolute inset-0 bg-stone-50/50 dark:bg-slate-950/30" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ─── Header ─── */}
         <Reveal className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
-            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#D96B27] shadow-sm dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-400">
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-100 px-4 py-2 text-xs font-bold uppercase tracking-widest text-stone-800 shadow-xs dark:border-slate-700 dark:bg-slate-800 dark:text-stone-300">
               <ShoppingBag className="h-4 w-4" />
               KitchenCook · Cửa Hàng Đồ Gia Dụng
             </span>
             <h2 className="text-4xl font-black text-black dark:text-white md:text-5xl tracking-tight">
-              Trang bị đồ bếp <span className="text-[#D96B27]">chuẩn Châu Âu</span>
+              Trang bị đồ bếp <span className="text-stone-600 dark:text-stone-300 font-serif italic">chuẩn Châu Âu</span>
             </h2>
             <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-gray-600 dark:text-slate-300 md:text-lg">
               Bộ sưu tập nồi niêu xoong chảo, dao kéo cao cấp chính hãng từ KitchenCook — Bền bỉ, an toàn, nâng niu từng bữa cơm gia đình.
@@ -95,7 +88,7 @@ export default function HomeMarketplace() {
           </div>
           <Link
             to="/shop"
-            className="inline-flex w-fit items-center gap-2 rounded-full bg-[#D96B27] hover:bg-[#C85A17] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-600/20 transition hover:-translate-y-0.5"
+            className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 px-6 py-3.5 text-sm font-bold text-white dark:text-slate-900 shadow-lg transition hover:-translate-y-0.5"
           >
             Ghé KitchenCook Store
             <ArrowRight className="h-4 w-4" />
@@ -217,65 +210,6 @@ export default function HomeMarketplace() {
             </div>
           </>
         ) : null}
-
-        {/* ─── Banner CTA + Perks ─── */}
-        <Reveal y={24}>
-          <div className="relative rounded-2xl overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900" />
-            <div className="absolute inset-0 opacity-[0.07]" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }} />
-
-            <div className="relative flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12 md:p-16">
-              {/* Left */}
-              <div className="md:w-3/5 text-left">
-                <h3 className="text-2xl sm:text-4xl font-serif font-bold text-white mb-4 leading-tight">
-                  Mở gian hàng của bạn<br className="hidden sm:block" /> trên CookingBoy
-                </h3>
-                <p className="text-base text-gray-300 mb-6 max-w-xl">
-                  Bạn là đầu bếp tài năng hay nhà cung cấp thực phẩm? Đăng ký bán hàng miễn phí và tiếp cận hàng ngàn người yêu ẩm thực.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Link
-                    to="/shop"
-                    className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-100 transition-colors duration-300 rounded-full shadow-lg group"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    Mua sắm ngay
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="inline-flex items-center gap-2 border-2 border-white/30 text-white px-6 py-3 font-bold text-xs uppercase tracking-[0.15em] hover:bg-white/10 transition-colors duration-300 rounded-full group"
-                  >
-                    Đăng ký bán hàng
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Right — Perks */}
-              <div className="md:w-2/5 flex flex-col gap-4">
-                {PERKS.map((perk, i) => (
-                  <motion.div
-                    key={perk.text}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}
-                    viewport={{ once: true }}
-                    className="flex items-center gap-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-5 py-4"
-                  >
-                    <div className="p-2.5 rounded-lg bg-amber-500/20">
-                      <perk.icon className="w-5 h-5 text-amber-400" />
-                    </div>
-                    <span className="text-sm font-semibold text-white">{perk.text}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Reveal>
 
       </div>
     </section>

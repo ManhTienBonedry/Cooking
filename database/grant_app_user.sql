@@ -1,4 +1,4 @@
-﻿-- Grant API role full DML on all app tables (fixes: permission denied 42501).
+-- Grant API role full DML on all app tables (fixes: permission denied 42501).
 --
 -- Why this happens: host/user/password only prove WHO you are. Tables still need
 -- GRANT (or ownership). Wrong password => authentication error. 42501 => rights.

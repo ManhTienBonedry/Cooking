@@ -1,4 +1,4 @@
-﻿-- ================================================================
+-- ================================================================
 -- Migration: Smart Cooking Hub â€” Marketplace
 -- Adds: product_categories, products, cart_items, orders,
 --        order_items, product_reviews, seller_profiles,

@@ -152,11 +152,11 @@ export default function ShopProducts() {
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 transition-colors duration-300 font-vietnam">
       {/* Header trang sản phẩm */}
-      <div className="bg-white dark:bg-slate-800/80 border-b border-amber-900/10 dark:border-slate-800 py-10">
+      <div className="bg-white dark:bg-slate-800/80 border-b border-stone-200/80 dark:border-slate-800 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-950/60 text-[#D96B27] text-xs font-bold uppercase tracking-wider mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 dark:bg-slate-800 text-stone-800 dark:text-stone-300 border border-stone-200 dark:border-slate-700 text-xs font-bold uppercase tracking-wider mb-2">
                 <ShoppingBag className="w-3.5 h-3.5" />
                 Danh Mục KitchenCook
               </span>
@@ -189,7 +189,7 @@ export default function ShopProducts() {
                 setSearchParams(params);
               }}
               placeholder="Tìm kiếm nồi chảo, dao kéo, phụ kiện làm bếp..."
-              className="w-full pl-10 pr-10 py-2.5 text-sm border border-amber-900/15 dark:border-slate-700 rounded-full focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
+              className="w-full pl-10 pr-10 py-2.5 text-sm border border-stone-300 dark:border-slate-700 rounded-full focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
             />
             {search && (
               <button
@@ -212,7 +212,7 @@ export default function ShopProducts() {
             <select
               value={sort}
               onChange={(e) => handleSort(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-2.5 border border-amber-900/15 dark:border-slate-700 rounded-full bg-white dark:bg-slate-800 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-[#D96B27] cursor-pointer shadow-xs"
+              className="appearance-none pl-4 pr-10 py-2.5 border border-stone-300 dark:border-slate-700 rounded-full bg-white dark:bg-slate-800 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-slate-900 dark:focus:border-white cursor-pointer shadow-xs"
             >
               {SORT_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -228,7 +228,7 @@ export default function ShopProducts() {
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all border cursor-pointer shadow-xs ${
               showFilters
                 ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white'
-                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-amber-900/15 dark:border-slate-700 hover:border-slate-400'
+                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-stone-300 dark:border-slate-700 hover:border-slate-400'
             }`}
           >
             <SlidersHorizontal className="w-4 h-4" />
@@ -239,7 +239,7 @@ export default function ShopProducts() {
             <button
               type="button"
               onClick={onClearFilters}
-              className="text-xs sm:text-sm text-[#D96B27] hover:underline font-bold cursor-pointer"
+              className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 hover:text-slate-900 dark:hover:text-white underline font-bold cursor-pointer"
             >
               Xóa bộ lọc
             </button>
@@ -256,7 +256,7 @@ export default function ShopProducts() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden mb-8"
             >
-              <div className="p-6 bg-white dark:bg-slate-800/90 rounded-3xl border border-amber-900/10 dark:border-slate-700/60 shadow-sm space-y-5">
+              <div className="p-6 bg-white dark:bg-slate-800/90 rounded-3xl border border-stone-200 dark:border-slate-700/60 shadow-sm space-y-5">
                 {/* Loại sản phẩm */}
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">
@@ -274,8 +274,8 @@ export default function ShopProducts() {
                         onClick={() => handleProductType(t.value)}
                         className={`px-4 py-2 rounded-full text-xs font-bold transition-all border cursor-pointer ${
                           productType === t.value
-                            ? 'bg-[#D96B27] text-white border-[#D96B27] shadow-sm'
-                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-amber-900/10 dark:border-slate-600 hover:border-slate-400'
+                            ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-sm'
+                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-stone-200 dark:border-slate-600 hover:border-slate-400'
                         }`}
                       >
                         {t.label}
@@ -295,8 +295,8 @@ export default function ShopProducts() {
                       onClick={() => handleCategory('')}
                       className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border cursor-pointer ${
                         !category
-                          ? 'bg-[#D96B27] text-white border-[#D96B27]'
-                          : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-amber-900/10 dark:border-slate-600 hover:border-slate-400'
+                          ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white'
+                          : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-stone-200 dark:border-slate-600 hover:border-slate-400'
                       }`}
                     >
                       Tất cả danh mục
@@ -308,8 +308,8 @@ export default function ShopProducts() {
                         onClick={() => handleCategory(c.slug)}
                         className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border cursor-pointer ${
                           category === c.slug
-                            ? 'bg-[#D96B27] text-white border-[#D96B27]'
-                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-amber-900/10 dark:border-slate-600 hover:border-slate-400'
+                            ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white'
+                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-stone-200 dark:border-slate-600 hover:border-slate-400'
                         }`}
                       >
                         {c.name}
@@ -326,7 +326,7 @@ export default function ShopProducts() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-3xl bg-white dark:bg-slate-800/80 overflow-hidden animate-pulse border border-amber-900/5 dark:border-slate-700">
+              <div key={i} className="rounded-3xl bg-white dark:bg-slate-800/80 overflow-hidden animate-pulse border border-stone-200/80 dark:border-slate-700">
                 <div className="aspect-[4/3] bg-slate-200 dark:bg-slate-700" />
                 <div className="p-4 space-y-3">
                   <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
@@ -338,7 +338,7 @@ export default function ShopProducts() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-slate-800/60 rounded-3xl border border-amber-900/10 dark:border-slate-700">
+          <div className="text-center py-20 bg-white dark:bg-slate-800/60 rounded-3xl border border-stone-200 dark:border-slate-700">
             <div className="text-6xl mb-4">🍳</div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
               Không tìm thấy dụng cụ bếp phù hợp
@@ -350,7 +350,7 @@ export default function ShopProducts() {
               <button
                 type="button"
                 onClick={onClearFilters}
-                className="px-6 py-2.5 bg-[#D96B27] hover:bg-[#C85A17] text-white rounded-full text-xs font-bold transition-all shadow-md shadow-orange-600/20 cursor-pointer"
+                className="px-6 py-2.5 bg-slate-900 hover:bg-black dark:bg-white dark:text-slate-900 text-white rounded-full text-xs font-bold transition-all shadow-md cursor-pointer"
               >
                 Xóa tất cả bộ lọc
               </button>

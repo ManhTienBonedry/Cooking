@@ -1,0 +1,36 @@
+# Render Blueprint Spec
+# Deploy Backend API & Managed PostgreSQL on Render
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: cookapp-api
+    runtime: node
+    rootDir: api
+    plan: free
+    region: singapore # hoặc oregon / frankfurt
+    buildCommand: npm install && npm run build && npm run db:setup -- --no-create-db
+    startCommand: npm start
+    healthCheckPath: /api/auth/csrf
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cookapp-postgres
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false # Cần điền URL domain Vercel sau khi deploy FE (vd: https://cookapp.vercel.app)
+      - key: MAIL_BRAND
+        value: KitchenCook & CookingBoy
+      - key: RECAPTCHA_MIN_SCORE
+        value: "0.5"
+
+databases:
+  - name: cookapp-postgres
+    databaseName: cookingdb
+    user: cooking
+    plan: free
+    region: singapore

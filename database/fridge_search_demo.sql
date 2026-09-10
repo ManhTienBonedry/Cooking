@@ -1,4 +1,4 @@
-﻿-- File nÃ y lÆ°u láº¡i cáº¥u trÃºc SQL máº«u dÃ¹ng cho tÃ­nh nÄƒng "TÃ¬m kiáº¿m theo nguyÃªn liá»‡u Tá»§ láº¡nh" (Fridge Clearing Search).
+-- File nÃ y lÆ°u láº¡i cáº¥u trÃºc SQL máº«u dÃ¹ng cho tÃ­nh nÄƒng "TÃ¬m kiáº¿m theo nguyÃªn liá»‡u Tá»§ láº¡nh" (Fridge Clearing Search).
 -- Há»‡ thá»‘ng sáº½ tá»± Ä‘á»™ng ghÃ©p thÃªm cÃ¡c dÃ²ng CASE WHEN tÆ°Æ¡ng á»©ng vá»›i sá»‘ lÆ°á»£ng nguyÃªn liá»‡u mÃ  ngÆ°á»i dÃ¹ng nháº­p vÃ o.
 -- Báº¡n cÃ³ thá»ƒ lÆ°u láº¡i file nÃ y Ä‘á»ƒ Ä‘áº£m báº£o Ä‘á»§ dá»¯ liá»‡u khi chia sáº» code cho báº¡n bÃ¨.
 

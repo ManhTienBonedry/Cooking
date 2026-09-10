@@ -29,10 +29,10 @@ import { AUTH_CHANGE_EVENT, getAuthChangeDetail, notifyAuthChanged } from '../..
 import {
   type SavedAddress,
   loadProfilePreferences,
-  saveProfilePreferences
+  saveProfilePreferences,
 } from '../../lib/profilePreferences';
 import type { Order } from '../../types/marketplace';
-import AuthModal from '../../components/AuthModal';
+import KitchenCookAuthModal from '../../components/shop/KitchenCookAuthModal';
 
 const VN_PHONE_REGEX = /^(0[3|5|7|8|9])[0-9]{8}$/;
 
@@ -504,8 +504,8 @@ export default function AccountPage() {
   if (!isLoadingUser && !user) {
     return (
       <div className="min-h-[75vh] flex items-center justify-center px-4 font-vietnam">
-        <div className="max-w-md w-full text-center bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border border-amber-900/10 dark:border-slate-700">
-          <div className="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-950/40 text-[#D96B27] mx-auto flex items-center justify-center mb-4">
+        <div className="max-w-md w-full text-center bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border border-stone-200 dark:border-slate-700">
+          <div className="w-16 h-16 rounded-2xl bg-stone-100 dark:bg-slate-700 text-slate-900 dark:text-white mx-auto flex items-center justify-center mb-4 border border-stone-200 dark:border-slate-600">
             <User className="w-8 h-8" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Tài khoản KitchenCook</h2>
@@ -515,11 +515,11 @@ export default function AccountPage() {
           <button
             type="button"
             onClick={() => setIsAuthModalOpen(true)}
-            className="w-full py-3 px-6 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white font-bold text-sm shadow-md shadow-orange-600/20 transition-all cursor-pointer"
+            className="w-full py-3 px-6 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-sm shadow-md transition-all cursor-pointer"
           >
             Đăng nhập ngay
           </button>
-          <AuthModal
+          <KitchenCookAuthModal
             isOpen={isAuthModalOpen}
             onClose={() => setIsAuthModalOpen(false)}
             onSuccess={() => {
@@ -535,11 +535,11 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-vietnam pb-24 transition-colors duration-300">
       {/* Header Banner */}
-      <div className="bg-white dark:bg-slate-800 border-b border-amber-900/10 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 border-b border-stone-200/80 dark:border-slate-700">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium">
-            <Link to="/shop" className="hover:text-[#D96B27] transition-colors">KitchenCook</Link>
+            <Link to="/shop" className="hover:text-slate-900 dark:hover:text-white transition-colors">KitchenCook</Link>
             <span>/</span>
             <span className="text-slate-800 dark:text-slate-200">Tài khoản khách hàng</span>
           </div>
@@ -548,18 +548,18 @@ export default function AccountPage() {
             {/* User Overview */}
             <div className="flex items-center gap-4">
               <div className="relative group">
-                <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-[#D96B27]/40 shadow-md bg-white dark:bg-slate-700">
+                <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-stone-300 dark:border-slate-600 shadow-md bg-white dark:bg-slate-700">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt={user?.full_name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-orange-50 dark:bg-slate-700 text-[#D96B27] text-2xl font-black">
+                    <div className="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-slate-700 text-slate-800 dark:text-white text-2xl font-black">
                       {user?.full_name?.charAt(0) || 'K'}
                     </div>
                   )}
                 </div>
                 <label
                   htmlFor="avatar-upload-header"
-                  className="absolute -bottom-1.5 -right-1.5 p-1.5 bg-[#D96B27] text-white rounded-xl shadow-lg cursor-pointer hover:bg-[#C85A17] transition-colors"
+                  className="absolute -bottom-1.5 -right-1.5 p-1.5 bg-slate-900 hover:bg-black dark:bg-white dark:text-slate-900 text-white rounded-xl shadow-lg cursor-pointer transition-colors"
                   title="Thay đổi ảnh đại diện"
                 >
                   <Camera className="w-3.5 h-3.5" />
@@ -578,7 +578,7 @@ export default function AccountPage() {
                   <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                     {user?.full_name || 'Khách hàng KitchenCook'}
                   </h1>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-stone-100 text-stone-800 dark:bg-slate-700 dark:text-stone-300 border border-stone-200 dark:border-slate-600">
                     {user?.role === 'admin' ? 'Quản trị viên' : 'Khách hàng thân thiết'}
                   </span>
                 </div>
@@ -597,10 +597,10 @@ export default function AccountPage() {
 
             {/* Mini Dashboard Stat Badges */}
             <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-              <div className="flex-1 md:flex-none p-3.5 rounded-2xl bg-amber-50/60 dark:bg-slate-700/50 border border-amber-900/10 dark:border-slate-700 min-w-[120px]">
+              <div className="flex-1 md:flex-none p-3.5 rounded-2xl bg-stone-100/70 dark:bg-slate-700/50 border border-stone-200 dark:border-slate-700 min-w-[120px]">
                 <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">
                   <span>Đơn hàng</span>
-                  <Package className="w-3.5 h-3.5 text-[#D96B27]" />
+                  <Package className="w-3.5 h-3.5 text-slate-900 dark:text-white" />
                 </div>
                 <div className="text-xl font-black text-slate-900 dark:text-white">
                   {isLoadingOrders ? '...' : totalOrders}
@@ -636,14 +636,14 @@ export default function AccountPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Navigation Sidebar */}
           <div className="lg:col-span-1 space-y-2">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-2 border border-amber-900/10 dark:border-slate-700 shadow-sm space-y-1">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-2 border border-stone-200 dark:border-slate-700 shadow-sm space-y-1">
               <button
                 type="button"
                 onClick={() => setActiveTab('info')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                   activeTab === 'info'
-                    ? 'bg-[#D96B27] text-white shadow-md shadow-orange-600/20'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-amber-50/60 dark:hover:bg-slate-700/50'
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-stone-100/70 dark:hover:bg-slate-700/50'
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -655,14 +655,14 @@ export default function AccountPage() {
                 onClick={() => setActiveTab('addresses')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                   activeTab === 'addresses'
-                    ? 'bg-[#D96B27] text-white shadow-md shadow-orange-600/20'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-amber-50/60 dark:hover:bg-slate-700/50'
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-stone-100/70 dark:hover:bg-slate-700/50'
                 }`}
               >
                 <MapPin className="w-4 h-4" />
                 <span className="flex-1">Sổ địa chỉ</span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                  activeTab === 'addresses' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                  activeTab === 'addresses' ? 'bg-white/20 text-white dark:bg-slate-900/20 dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                 }`}>
                   {addresses.length}
                 </span>
@@ -673,8 +673,8 @@ export default function AccountPage() {
                 onClick={() => setActiveTab('security')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                   activeTab === 'security'
-                    ? 'bg-[#D96B27] text-white shadow-md shadow-orange-600/20'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-amber-50/60 dark:hover:bg-slate-700/50'
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-stone-100/70 dark:hover:bg-slate-700/50'
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -683,26 +683,26 @@ export default function AccountPage() {
             </div>
 
             {/* Quick Links Card */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-amber-900/10 dark:border-slate-700 shadow-sm space-y-2">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-stone-200 dark:border-slate-700 shadow-sm space-y-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 Phím tắt đơn hàng
               </span>
               <Link
                 to="/orders"
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50/60 dark:hover:bg-slate-700/50 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-stone-100/70 dark:hover:bg-slate-700/50 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <Package className="w-3.5 h-3.5 text-[#D96B27]" />
+                  <Package className="w-3.5 h-3.5 text-slate-900 dark:text-white" />
                   Xem lịch sử đơn mua
                 </span>
                 <span className="font-bold text-slate-400">&rarr;</span>
               </Link>
               <Link
                 to="/cart"
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50/60 dark:hover:bg-slate-700/50 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-stone-100/70 dark:hover:bg-slate-700/50 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
               >
                 <span className="flex items-center gap-2">
-                  <ShoppingBag className="w-3.5 h-3.5 text-[#D96B27]" />
+                  <ShoppingBag className="w-3.5 h-3.5 text-slate-900 dark:text-white" />
                   Kiểm tra giỏ hàng
                 </span>
                 <span className="font-bold text-slate-400">&rarr;</span>
@@ -714,7 +714,7 @@ export default function AccountPage() {
           <div className="lg:col-span-3">
             {/* TAB 1: THÔNG TIN CÁ NHÂN */}
             {activeTab === 'info' && (
-              <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-amber-900/10 dark:border-slate-700 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-slate-700 shadow-sm">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/60 pb-5 mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Thông tin cá nhân</h2>
@@ -723,7 +723,7 @@ export default function AccountPage() {
                     </p>
                   </div>
                   {avatarFile && (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-[#D96B27] dark:bg-orange-950/50 animate-pulse">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-stone-100 text-stone-800 dark:bg-slate-700 dark:text-stone-300 border border-stone-200 dark:border-slate-600 animate-pulse">
                       Ảnh mới chưa lưu
                     </span>
                   )}
@@ -744,7 +744,7 @@ export default function AccountPage() {
                     <div className="space-y-1.5 text-center sm:text-left flex-1">
                       <label
                         htmlFor="avatar-upload-main"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-amber-900/15 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-[#D96B27] hover:text-[#D96B27] shadow-xs cursor-pointer transition-all"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-stone-300 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-slate-900 hover:text-slate-900 dark:hover:text-white dark:hover:border-white shadow-xs cursor-pointer transition-all"
                       >
                         <Camera className="w-3.5 h-3.5" />
                         Tải ảnh mới từ thiết bị
@@ -774,7 +774,7 @@ export default function AccountPage() {
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="Ví dụ: Nguyễn Văn An"
                         required
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white transition-all"
                       />
                       <p className="text-[11px] text-slate-400 mt-1">Yêu cầu tối thiểu 2 từ.</p>
                     </div>
@@ -790,7 +790,7 @@ export default function AccountPage() {
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           placeholder="0912345678"
-                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white transition-all"
                         />
                       </div>
                       <p className="text-[11px] text-slate-400 mt-1">Chuẩn 10 số di động Việt Nam.</p>
@@ -812,7 +812,7 @@ export default function AccountPage() {
                       <button
                         type="button"
                         onClick={() => setActiveTab('security')}
-                        className="text-[11px] text-[#D96B27] font-semibold mt-1 hover:underline inline-block cursor-pointer"
+                        className="text-[11px] text-stone-700 dark:text-stone-300 font-semibold mt-1 hover:underline hover:text-slate-900 dark:hover:text-white inline-block cursor-pointer"
                       >
                         Đổi địa chỉ email qua OTP &rarr;
                       </button>
@@ -834,7 +834,7 @@ export default function AccountPage() {
                     <button
                       type="submit"
                       disabled={isSavingProfile}
-                      className="px-6 py-2.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20 transition-all disabled:opacity-50 cursor-pointer"
+                      className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer"
                     >
                       {isSavingProfile ? 'Đang lưu thay đổi...' : 'Lưu thông tin'}
                     </button>
@@ -845,7 +845,7 @@ export default function AccountPage() {
 
             {/* TAB 2: SỔ ĐỊA CHỈ NHẬN HÀNG */}
             {activeTab === 'addresses' && (
-              <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-amber-900/10 dark:border-slate-700 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-slate-700 shadow-sm">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700/60 pb-5 mb-6">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Sổ địa chỉ nhận hàng</h2>
@@ -856,7 +856,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={openNewAddressModal}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20 transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md transition-all cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     Thêm địa chỉ mới
@@ -886,8 +886,8 @@ export default function AccountPage() {
                         key={addr.id}
                         className={`p-5 rounded-2xl border transition-all ${
                           addr.isDefault
-                            ? 'border-[#D96B27] bg-orange-50/20 dark:bg-slate-800 shadow-sm'
-                            : 'border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-800/60 hover:border-slate-300'
+                            ? 'border-slate-900 bg-stone-50/60 dark:border-white dark:bg-slate-800 shadow-sm'
+                            : 'border-stone-200 dark:border-slate-700/80 bg-white dark:bg-slate-800/60 hover:border-slate-300'
                         }`}
                       >
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
@@ -901,7 +901,7 @@ export default function AccountPage() {
                             </span>
 
                             {/* Label badge */}
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-stone-100 text-stone-700 dark:bg-slate-700 dark:text-slate-300 border border-stone-200 dark:border-slate-600">
                               {addr.label === 'office' ? (
                                 <>
                                   <Building className="w-3 h-3" /> Văn phòng
@@ -915,7 +915,7 @@ export default function AccountPage() {
 
                             {/* Default badge */}
                             {addr.isDefault && (
-                              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-[#D96B27] text-white shadow-xs">
+                              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs">
                                 Mặc định
                               </span>
                             )}
@@ -926,7 +926,7 @@ export default function AccountPage() {
                               <button
                                 type="button"
                                 onClick={() => handleSetDefaultAddress(addr.id)}
-                                className="text-xs font-bold text-[#D96B27] hover:underline cursor-pointer"
+                                className="text-xs font-bold text-stone-700 dark:text-stone-300 hover:text-slate-900 dark:hover:text-white underline cursor-pointer"
                               >
                                 Đặt làm mặc định
                               </button>
@@ -964,10 +964,10 @@ export default function AccountPage() {
             {activeTab === 'security' && (
               <div className="space-y-6">
                 {/* Đổi Mật Khẩu */}
-                <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-amber-900/10 dark:border-slate-700 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-slate-700 shadow-sm">
                   <div className="border-b border-slate-100 dark:border-slate-700/60 pb-5 mb-6">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <KeyRound className="w-5 h-5 text-[#D96B27]" />
+                      <KeyRound className="w-5 h-5 text-slate-900 dark:text-white" />
                       Đổi mật khẩu tài khoản
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -987,7 +987,7 @@ export default function AccountPage() {
                           onChange={(e) => setCurrentPassword(e.target.value)}
                           required
                           placeholder="Nhập mật khẩu hiện tại"
-                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all pr-10"
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white transition-all pr-10"
                         />
                         <button
                           type="button"
@@ -1009,7 +1009,7 @@ export default function AccountPage() {
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
                         placeholder="Tối thiểu 6 ký tự"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white transition-all"
                       />
                     </div>
 
@@ -1023,14 +1023,14 @@ export default function AccountPage() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         placeholder="Nhập lại mật khẩu mới"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white transition-all"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={isChangingPassword}
-                      className="px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
+                      className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer"
                     >
                       {isChangingPassword ? 'Đang xác thực...' : 'Cập nhật mật khẩu'}
                     </button>
@@ -1038,7 +1038,7 @@ export default function AccountPage() {
                 </div>
 
                 {/* Đổi Email qua OTP 2 Bước */}
-                <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-amber-900/10 dark:border-slate-700 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-slate-700 shadow-sm">
                   <div className="border-b border-slate-100 dark:border-slate-700/60 pb-5 mb-6">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       <Mail className="w-5 h-5 text-blue-600" />
@@ -1061,13 +1061,13 @@ export default function AccountPage() {
                           onChange={(e) => setNewEmail(e.target.value)}
                           required
                           placeholder="vidu@gmail.com"
-                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all"
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white transition-all"
                         />
                       </div>
                       <button
                         type="submit"
                         disabled={isSendingOtp}
-                        className="px-6 py-2.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20 transition-all disabled:opacity-50 cursor-pointer"
+                        className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer"
                       >
                         {isSendingOtp ? 'Đang gửi mã...' : 'Gửi mã xác thực OTP'}
                       </button>
@@ -1092,7 +1092,7 @@ export default function AccountPage() {
                           onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, ''))}
                           required
                           placeholder="123456"
-                          className="w-full text-center tracking-widest text-lg font-black px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all"
+                          className="w-full text-center tracking-widest text-lg font-black px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white transition-all"
                         />
                       </div>
 
@@ -1100,7 +1100,7 @@ export default function AccountPage() {
                         <button
                           type="submit"
                           disabled={isVerifyingOtp}
-                          className="px-6 py-2.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20 transition-all disabled:opacity-50 cursor-pointer"
+                          className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer"
                         >
                           {isVerifyingOtp ? 'Đang xác thực...' : 'Xác thực & Cập nhật Email'}
                         </button>
@@ -1119,7 +1119,7 @@ export default function AccountPage() {
                         <button
                           type="button"
                           onClick={handleRequestEmailOtp}
-                          className="text-xs font-bold text-[#D96B27] hover:underline cursor-pointer"
+                          className="text-xs font-bold text-stone-700 dark:text-stone-300 hover:text-slate-900 dark:hover:text-white underline cursor-pointer"
                         >
                           Gửi lại mã OTP
                         </button>
@@ -1155,7 +1155,7 @@ export default function AccountPage() {
                   onChange={(e) => setAddressForm({ ...addressForm, name: e.target.value })}
                   placeholder="Ví dụ: Nguyễn Văn An"
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27]"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white"
                 />
               </div>
 
@@ -1169,7 +1169,7 @@ export default function AccountPage() {
                   onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
                   placeholder="0912345678"
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27]"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white"
                 />
               </div>
 
@@ -1183,8 +1183,8 @@ export default function AccountPage() {
                     onClick={() => setAddressForm({ ...addressForm, label: 'home' })}
                     className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       addressForm.label === 'home'
-                        ? 'border-[#D96B27] bg-orange-50 dark:bg-orange-950/30 text-[#D96B27]'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400'
                     }`}
                   >
                     <Home className="w-3.5 h-3.5" /> Nhà riêng
@@ -1194,8 +1194,8 @@ export default function AccountPage() {
                     onClick={() => setAddressForm({ ...addressForm, label: 'office' })}
                     className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       addressForm.label === 'office'
-                        ? 'border-[#D96B27] bg-orange-50 dark:bg-orange-950/30 text-[#D96B27]'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400'
                     }`}
                   >
                     <Building className="w-3.5 h-3.5" /> Văn phòng
@@ -1213,7 +1213,7 @@ export default function AccountPage() {
                   onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })}
                   placeholder="Số nhà, tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành Phố..."
                   required
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-[#D96B27]"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:focus:border-white"
                 />
               </div>
 
@@ -1223,7 +1223,7 @@ export default function AccountPage() {
                   id="is-default-addr"
                   checked={addressForm.isDefault}
                   onChange={(e) => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#D96B27] focus:ring-[#D96B27]"
+                  className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
                 />
                 <label htmlFor="is-default-addr" className="text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
                   Đặt làm địa chỉ nhận hàng mặc định
@@ -1240,7 +1240,7 @@ export default function AccountPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-full bg-[#D96B27] hover:bg-[#C85A17] text-white text-xs font-bold shadow-md shadow-orange-600/20 cursor-pointer"
+                  className="px-6 py-2.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-md cursor-pointer"
                 >
                   Lưu địa chỉ
                 </button>
