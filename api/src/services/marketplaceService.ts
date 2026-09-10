@@ -606,8 +606,9 @@ export async function updateOrderStatus(
   const ok = await marketplaceRepo.updateOrderStatus(id, status, reason ?? undefined);
   if (!ok) throw { status: 400, message: 'Không thể cập nhật trạng thái.' };
 
-  // ── Auto-refund khi hủy đơn đã thanh toán bằng CookPay ──
+  // ── Tự động hoàn kho & Auto-refund khi hủy đơn ──
   if (status === 'cancelled') {
+    await marketplaceRepo.restockOrderItems(id);
     const rawOrder = order as unknown as Record<string, unknown>;
     const paidVia = String(rawOrder.paid_via ?? '');
     const paidAmount = Number(rawOrder.paid_amount ?? 0);
@@ -879,6 +880,9 @@ export async function buyerCancelOrder(userId: number, idRaw: unknown, body: Rec
 
   const ok = await marketplaceRepo.updateOrderStatus(id, 'cancelled', reason);
   if (!ok) throw { status: 400, message: 'Không thể hủy đơn hàng.' };
+
+  // Tự động hoàn kho sản phẩm cho đơn hàng bị hủy
+  await marketplaceRepo.restockOrderItems(id);
 
   // ── Auto-refund khi hủy đơn đã thanh toán bằng CookPay ──
   const rawOrder = order as unknown as Record<string, unknown>;

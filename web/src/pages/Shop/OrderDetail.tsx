@@ -338,8 +338,18 @@ export default function OrderDetail() {
               'Đơn hàng'
             )}
           </h1>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium">
+            <span className="inline-flex items-center gap-1 font-mono font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800/50">
+              Mã đơn: {order.order_code || `CAM-${String(order.id).padStart(6, '0')}`}
+            </span>
+            <span>·</span>
             <span>{new Date(order.created_at).toLocaleString('vi-VN')}</span>
+            {(order.shipping_partner || order.tracking_code) && (
+              <>
+                <span>·</span>
+                <span className="text-blue-600 dark:text-blue-400 font-semibold">{order.shipping_partner || 'GHN Express'}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -447,8 +457,20 @@ export default function OrderDetail() {
                   <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <Truck className="w-5 h-5 text-amber-500" /> Thông tin vận đơn
                   </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Đơn vị: <span className="font-semibold text-gray-700 dark:text-gray-300">{transitData.carrier_name}</span> · Mã: <span className="font-semibold text-gray-700 dark:text-gray-300">{transitData.tracking_number}</span>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1.5 flex-wrap">
+                    <span>Đơn vị: <span className="font-semibold text-gray-700 dark:text-gray-300">{transitData.carrier_name || 'GHN Express'}</span></span>
+                    <span>·</span>
+                    <span>Mã: <span className="font-semibold font-mono text-gray-700 dark:text-gray-300">{transitData.tracking_number}</span></span>
+                    {transitData.tracking_number && (
+                      <a
+                        href={`https://donhang.ghn.vn/?order_code=${transitData.tracking_number}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-0.5 text-amber-600 hover:text-amber-700 dark:text-amber-400 font-semibold underline text-xs ml-1"
+                      >
+                        Tra cứu GHN ↗
+                      </a>
+                    )}
                   </p>
                 </div>
                 <div className="text-left md:text-right">

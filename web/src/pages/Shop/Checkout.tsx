@@ -607,16 +607,25 @@ export default function Checkout() {
                   ))}
 
                   {form.payment_method === 'momo' && (
-                    <div className="rounded-xl border border-pink-200 bg-pink-50/70 p-4 dark:border-pink-900/40 dark:bg-pink-900/10">
+                    <div className="rounded-xl border border-pink-200 bg-pink-50/70 p-4 dark:border-pink-900/40 dark:bg-pink-900/10 space-y-2.5">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-xl bg-pink-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
                           MoMo
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-pink-900 dark:text-pink-200">Cổng thanh toán MoMo Sandbox</p>
+                          <p className="text-sm font-bold text-pink-900 dark:text-pink-200">Cổng thanh toán MoMo All-In-One (Sandbox)</p>
                           <p className="text-xs text-pink-800 dark:text-pink-300 mt-1 leading-relaxed">
-                            Sau khi bấm "Xác nhận đặt hàng", hệ thống sẽ chuyển hướng bạn sang cổng MoMo an toàn để quét mã QR hoặc đăng nhập tài khoản MoMo.
+                            Hỗ trợ thanh toán đa năng: <strong>Quét mã MoMo QR</strong>, <strong>Thẻ ATM nội địa (Napas)</strong> hoặc <strong>Thẻ Visa/Mastercard</strong>.
                           </p>
+                        </div>
+                      </div>
+                      <div className="bg-white/90 dark:bg-slate-800/80 rounded-lg p-2.5 border border-pink-100 dark:border-pink-900/30 text-[11px] text-gray-700 dark:text-gray-300">
+                        <p className="font-semibold text-pink-700 dark:text-pink-300 mb-1">💳 Thẻ ATM Test thử nghiệm (NCB):</p>
+                        <div className="grid grid-cols-2 gap-1 font-mono text-[11px]">
+                          <span>Số thẻ: <strong>9704198526191432198</strong></span>
+                          <span>Tên: <strong>NGUYEN VAN A</strong></span>
+                          <span>Ngày: <strong>07/15</strong></span>
+                          <span>OTP: <strong>000000</strong></span>
                         </div>
                       </div>
                     </div>

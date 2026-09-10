@@ -42,6 +42,8 @@ export interface CreateGhnOrderInput {
   toWardCode: string;
   weightInGrams?: number;
   codAmount?: number;
+  isPaidOnline?: boolean;
+  paymentMethod?: string;
   items: Array<{
     name: string;
     code?: string;
@@ -183,8 +185,23 @@ export async function createShippingOrder(input: CreateGhnOrderInput): Promise<{
     weight: it.weight || Math.round(totalWeight / Math.max(1, input.items.length)),
   }));
 
+  // Quy tắc thanh toán cước GHN:
+  // 1: Người gửi trả cước (nếu đơn đã thanh toán online qua MoMo, VietQR, Ví CookPay)
+  // 2: Người nhận trả cước (nếu đơn COD người nhận thanh toán khi nhận hàng)
+  const isPaid = Boolean(input.isPaidOnline || (input.paymentMethod && input.paymentMethod !== 'cod'));
+  const paymentTypeId = isPaid ? 1 : 2;
+
+  // Safeguard hạn mức COD cho tài khoản shop test chưa KYC:
+  // Nếu shop chưa xác thực CCCD thì GHN giới hạn thu hộ tối đa 60.000đ.
+  // Nếu là đơn COD: an toàn giới hạn <= 50.000đ trong môi trường thử nghiệm
+  let codAmount = 0;
+  if (!isPaid) {
+    const rawCod = Number(input.codAmount) || 0;
+    codAmount = rawCod > 50_000 ? 50_000 : rawCod;
+  }
+
   const payload = {
-    payment_type_id: 1, // 1: Người gửi trả tiền, 2: Người nhận trả tiền
+    payment_type_id: paymentTypeId,
     note: input.note || `Đơn hàng #${input.orderId} từ Cooking Web`,
     required_note: 'CHOXEMHANGKHONGTHU',
     from_district_id: env.ghn.senderDistrictId,
@@ -194,7 +211,7 @@ export async function createShippingOrder(input: CreateGhnOrderInput): Promise<{
     to_address: input.toAddress,
     to_ward_code: String(input.toWardCode),
     to_district_id: Number(input.toDistrictId),
-    cod_amount: Number(input.codAmount) || 0,
+    cod_amount: codAmount,
     weight: totalWeight,
     length: 15,
     width: 15,

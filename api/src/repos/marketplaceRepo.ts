@@ -497,15 +497,20 @@ export async function createOrder(
     const estimatedDelivery = isInstant ? new Date(Date.now() + 90 * 60 * 1000) : null;
     const carrierName = isInstant ? 'Hỏa Tốc 1-2H (Shipper nội thành)' : null;
 
+    // Tạo mã đơn hàng độc nhất định dạng CAM-XXXXXX
+    const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+    const orderCode = `CAM-${randomSuffix}`;
+
     // Tạo order
     const orderResult = await client.query(
       `INSERT INTO orders (
          buyer_id, total_amount, shipping_name, shipping_phone, shipping_address,
          payment_method, note, shipping_fee, to_district_id, to_ward_code,
-         delivery_type, carrier_name, estimated_delivery_at, ref_recipe_id
+         delivery_type, carrier_name, estimated_delivery_at, ref_recipe_id,
+         order_code, shipping_partner
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-       RETURNING id`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'GHN Express')
+       RETURNING id, order_code`,
       [
         buyerId,
         totalAmount,
@@ -521,6 +526,7 @@ export async function createOrder(
         carrierName,
         estimatedDelivery,
         shipping.ref_recipe_id || null,
+        orderCode,
       ]
     );
     const orderId = Number(orderResult.rows[0]?.id);
@@ -710,7 +716,7 @@ export async function updateOrderStatus(orderId: number, status: string, reason?
   const params: unknown[] = [status];
 
   if (reason !== undefined) {
-    sets.push(`cancelled_reason = $${params.length + 1}`);
+    sets.push(`cancelled_reason = $${params.length + 1}`, `cancel_reason = $${params.length + 1}`);
     params.push(reason);
   }
   params.push(orderId);
@@ -720,6 +726,33 @@ export async function updateOrderStatus(orderId: number, status: string, reason?
     params
   );
   return (rowCount ?? 0) > 0;
+}
+
+/**
+ * Tự động hoàn kho sản phẩm khi hủy đơn hàng
+ */
+export async function restockOrderItems(orderId: number): Promise<void> {
+  try {
+    const { rows: items } = await pool.query<{ product_id: number; quantity: number }>(
+      'SELECT product_id, quantity FROM order_items WHERE order_id = $1',
+      [orderId]
+    );
+    for (const item of items) {
+      if (item.product_id && item.quantity > 0) {
+        await pool.query(
+          `UPDATE products 
+           SET stock = stock + $1, 
+               total_sold = GREATEST(0, total_sold - $1),
+               updated_at = NOW() 
+           WHERE id = $2`,
+          [item.quantity, item.product_id]
+        );
+      }
+    }
+    console.info(`[Restock] Hoàn kho thành công cho ${items.length} mặt hàng của đơn #${orderId}`);
+  } catch (err) {
+    console.error(`[Restock] Lỗi hoàn kho cho đơn #${orderId}:`, err);
+  }
 }
 
 /* ================================================================

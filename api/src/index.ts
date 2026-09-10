@@ -34,6 +34,49 @@ void (async () => {
     console.error("[db] Failed to ensure google_id on users table:", err);
   }
 
+  try {
+    console.log("[db] Ensuring order_code, tracking_code, and payment_transactions table...");
+    await pool.query(`
+      ALTER TABLE orders
+        ADD COLUMN IF NOT EXISTS order_code VARCHAR(30),
+        ADD COLUMN IF NOT EXISTS tracking_code VARCHAR(100),
+        ADD COLUMN IF NOT EXISTS shipping_partner VARCHAR(50) DEFAULT 'GHN Express',
+        ADD COLUMN IF NOT EXISTS discount_amount DECIMAL(12,2) DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS cancel_reason TEXT;
+
+      UPDATE orders 
+      SET order_code = 'CAM-' || LPAD(id::text, 6, '0') 
+      WHERE order_code IS NULL;
+
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_order_code ON orders(order_code);
+      CREATE INDEX IF NOT EXISTS idx_orders_tracking_code ON orders(tracking_code);
+
+      CREATE TABLE IF NOT EXISTS payment_transactions (
+        id BIGSERIAL PRIMARY KEY,
+        order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        gateway VARCHAR(50) NOT NULL DEFAULT 'momo',
+        gateway_order_id VARCHAR(100) NULL,
+        transaction_id VARCHAR(100) NULL,
+        amount DECIMAL(15, 2) NOT NULL,
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        result_code INT NULL,
+        message VARCHAR(255) NULL,
+        request_payload JSONB NULL,
+        response_payload JSONB NULL,
+        paid_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_payment_transactions_order_id ON payment_transactions(order_id);
+      CREATE INDEX IF NOT EXISTS idx_payment_transactions_gateway_order_id ON payment_transactions(gateway_order_id);
+      CREATE INDEX IF NOT EXISTS idx_payment_transactions_transaction_id ON payment_transactions(transaction_id);
+    `);
+    console.log("[db] Ensured payment_transactions and orders columns successfully!");
+  } catch (err) {
+    console.error("[db] Failed to ensure payment_transactions / orders columns:", err);
+  }
+
 
   try {
     console.log("[db] Running chat migration to unify Shopee-style chats...");
@@ -176,9 +219,10 @@ app.use('/api/messages', messagesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/ewallet', ewalletRouter);
 
-// MoMo IPN Webhook URL directly matching MOMO_IPN_URL config
-import { handleMoMoIpnHandler } from './routes/marketplace.js';
+// MoMo Webhooks and Callbacks directly matching MOMO config
+import { handleMoMoIpnHandler, handleMoMoCallbackHandler } from './routes/marketplace.js';
 app.post('/api/v1/payment/momo/ipn', handleMoMoIpnHandler);
+app.get('/payment/momo/callback', handleMoMoCallbackHandler);
 
 app.use(errorHandler);
 

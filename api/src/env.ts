@@ -91,13 +91,15 @@ export const env = {
     senderWardCode: String(process.env.GHN_SENDER_WARD_CODE ?? '1A0607').replace(/['"]/g, ''),
   },
 
-  /** MoMo Sandbox Payment Gateway */
+  /** MoMo Sandbox All-In-One Payment Gateway (Napas ATM + QR + Visa) */
   momo: {
-    partnerCode: process.env.MOMO_PARTNER_CODE ?? 'MOMOR78120260520_TEST',
-    accessKey: process.env.MOMO_ACCESS_KEY ?? 'LcNmWV2YZglxe76U',
-    secretKey: process.env.MOMO_SECRET_KEY ?? 'lYj7X4SNGWKIuLEbrgVjNwiNhJ2xNK6r',
+    partnerCode: process.env.MOMO_PARTNER_CODE ?? 'MOMOBKUN20180529',
+    accessKey: process.env.MOMO_ACCESS_KEY ?? 'klm05TvNBzhg7h7j',
+    secretKey: process.env.MOMO_SECRET_KEY ?? 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa',
     endpoint: process.env.MOMO_ENDPOINT ?? 'https://test-payment.momo.vn/v2/gateway/api/create',
-    redirectUrl: process.env.MOMO_REDIRECT_URL ?? 'http://127.0.0.1:8000/order-success',
+    redirectUrl: process.env.MOMO_REDIRECT_URL ?? 'http://127.0.0.1:8000/payment/momo/callback',
     ipnUrl: process.env.MOMO_IPN_URL ?? 'http://127.0.0.1:8000/api/v1/payment/momo/ipn',
+    requestType: process.env.MOMO_REQUEST_TYPE ?? 'payWithMethod',
+    verifySsl: (process.env.MOMO_VERIFY_SSL ?? 'false').toLowerCase() !== 'false',
   },
 };

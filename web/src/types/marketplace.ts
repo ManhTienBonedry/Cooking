@@ -76,6 +76,10 @@ export interface Order {
   ref_recipe_id?: number | null;
   commission_amount?: number;
   commission_paid?: boolean;
+  order_code?: string;
+  tracking_code?: string;
+  shipping_partner?: string;
+  discount_amount?: number;
 }
 
 export interface OrderItem {

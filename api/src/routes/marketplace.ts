@@ -17,6 +17,7 @@ import * as logisticsService from '../services/logisticsService.js';
 import * as ghnService from '../services/ghnService.js';
 import * as momoService from '../services/momoService.js';
 import { pool } from '../db/pool.js';
+import { env } from '../env.js';
 import { httpError } from '../lib/httpError.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 
@@ -161,6 +162,11 @@ marketplaceRouter.get('/orders/:id', requireAuth, asyncHandler(async (req, res) 
 }));
 
 marketplaceRouter.put('/orders/:id/cancel', requireAuth, requireCsrf, asyncHandler(async (req, res) => {
+  const result = await marketplaceService.buyerCancelOrder(req.session.userId!, req.params.id, req.body);
+  res.json(result);
+}));
+
+marketplaceRouter.post('/orders/:id/cancel', requireAuth, requireCsrf, asyncHandler(async (req, res) => {
   const result = await marketplaceService.buyerCancelOrder(req.session.userId!, req.params.id, req.body);
   res.json(result);
 }));
@@ -361,23 +367,72 @@ marketplaceRouter.post('/orders/:id/momo', requireAuth, asyncHandler(async (req,
     qrCodeUrl: result.qrCodeUrl,
     deeplink: result.deeplink,
     orderId: order.id,
+    orderCode: order.order_code || `CAM-${String(order.id).padStart(6, '0')}`,
   });
 }));
 
-// POST /api/marketplace/payment/momo/ipn — Webhook IPN xử lý kết quả MoMo
-export async function handleMoMoIpnHandler(req: any, res: any) {
+// POST /api/marketplace/orders/:id/momo-repay — Thanh toán lại đơn hàng MoMo
+marketplaceRouter.post('/orders/:id/momo-repay', requireAuth, asyncHandler(async (req, res) => {
+  const orderId = Number(req.params.id);
+  const userId = req.session.userId!;
+
+  const { rows } = await pool.query('SELECT * FROM orders WHERE id = $1', [orderId]);
+  const order = rows[0];
+  if (!order) {
+    throw httpError(404, 'Đơn hàng không tồn tại.');
+  }
+  if (order.buyer_id !== userId) {
+    throw httpError(403, 'Bạn không có quyền thanh toán đơn hàng này.');
+  }
+  if (order.payment_status === 'paid') {
+    return res.json({ success: true, message: 'Đơn hàng đã được thanh toán trước đó.', paid: true });
+  }
+  if (order.status === 'cancelled') {
+    throw httpError(400, 'Không thể thanh toán đơn hàng đã bị hủy.');
+  }
+
+  const result = await momoService.createPaymentUrl({
+    orderId: order.id,
+    amount: Number(order.total_amount),
+    orderInfo: `Thanh toan lai don hang #${order.order_code || order.id} tai Cooking Web`,
+  });
+
+  await pool.query('UPDATE orders SET momo_request_id = $1 WHERE id = $2', [result.requestId, order.id]);
+
+  res.json({
+    success: true,
+    payUrl: result.payUrl,
+    qrCodeUrl: result.qrCodeUrl,
+    deeplink: result.deeplink,
+    orderId: order.id,
+    orderCode: order.order_code || `CAM-${String(order.id).padStart(6, '0')}`,
+  });
+}));
+
+// GET /api/marketplace/payment/momo/callback & /payment/momo/callback — Xử lý kết quả khi khách thanh toán xong quay về
+export async function handleMoMoCallbackHandler(req: any, res: any) {
   try {
-    const isValid = momoService.verifyIpnSignature(req.body);
-    if (!isValid) {
-      console.warn('[MoMo IPN] Chữ ký không hợp lệ:', req.body);
-      return res.status(400).json({ message: 'Invalid signature' });
-    }
+    const isValid = momoService.verifyIpnSignature(req.query);
+    const { orderId, resultCode, amount, transId, requestId, message } = req.query;
 
-    const { orderId, resultCode, amount, transId, requestId } = req.body;
-    console.info(`[MoMo IPN] Đơn hàng ${orderId}, ResultCode: ${resultCode}, TransId: ${transId}`);
+    console.info(`[MoMo Callback] Đơn hàng ${orderId}, ResultCode: ${resultCode}, TransId: ${transId}`);
 
-    if (String(resultCode) === '0') {
-      const orderRes = await pool.query<{ total_amount: number }>('SELECT total_amount FROM orders WHERE id = $1', [Number(orderId)]);
+    const numOrderId = Number(String(orderId).replace(/\D/g, ''));
+
+    // Ghi nhận / Cập nhật kết quả giao dịch vào payment_transactions
+    await momoService.updatePaymentTransaction({
+      orderId: numOrderId,
+      gatewayOrderId: String(orderId),
+      transId: transId ? String(transId) : undefined,
+      resultCode: Number(resultCode),
+      message: String(message || ''),
+      responsePayload: req.query,
+    });
+
+    const clientBase = (env.corsOrigins[0] || 'http://localhost:5173').replace(/\/+$/, '');
+
+    if (isValid && String(resultCode) === '0' && numOrderId > 0) {
+      const orderRes = await pool.query<{ total_amount: number }>('SELECT total_amount FROM orders WHERE id = $1', [numOrderId]);
       if (orderRes.rows.length > 0) {
         const expectedTotal = Number(orderRes.rows[0].total_amount);
         const paidAmount = Number(amount) || 0;
@@ -392,7 +447,65 @@ export async function handleMoMoIpnHandler(req: any, res: any) {
                  momo_request_id = $3,
                  updated_at = NOW()
              WHERE id = $4`,
-            [paidAmount, String(transId), String(requestId), Number(orderId)]
+            [paidAmount, String(transId), String(requestId), numOrderId]
+          );
+        }
+      }
+      return res.redirect(`${clientBase}/order-success?id=${numOrderId}&payment=momo&status=success`);
+    } else {
+      const errMsg = encodeURIComponent(String(message || 'Giao dịch MoMo không thành công hoặc đã bị hủy'));
+      return res.redirect(`${clientBase}/orders?payment=momo&status=failed&orderId=${numOrderId}&message=${errMsg}`);
+    }
+  } catch (err) {
+    console.error('[MoMo Callback] Lỗi xử lý callback:', err);
+    const clientBase = (env.corsOrigins[0] || 'http://localhost:5173').replace(/\/+$/, '');
+    return res.redirect(`${clientBase}/orders?payment=momo&status=error`);
+  }
+}
+
+marketplaceRouter.get('/payment/momo/callback', handleMoMoCallbackHandler);
+
+// POST /api/marketplace/payment/momo/ipn — Webhook IPN xử lý kết quả MoMo
+export async function handleMoMoIpnHandler(req: any, res: any) {
+  try {
+    const isValid = momoService.verifyIpnSignature(req.body);
+    if (!isValid) {
+      console.warn('[MoMo IPN] Chữ ký không hợp lệ:', req.body);
+      return res.status(400).json({ message: 'Invalid signature' });
+    }
+
+    const { orderId, resultCode, amount, transId, requestId, message } = req.body;
+    console.info(`[MoMo IPN] Đơn hàng ${orderId}, ResultCode: ${resultCode}, TransId: ${transId}`);
+
+    const numOrderId = Number(String(orderId).replace(/\D/g, ''));
+
+    // Cập nhật kết quả vào payment_transactions
+    await momoService.updatePaymentTransaction({
+      orderId: numOrderId,
+      gatewayOrderId: String(orderId),
+      transId: transId ? String(transId) : undefined,
+      resultCode: Number(resultCode),
+      message: String(message || ''),
+      responsePayload: req.body,
+    });
+
+    if (String(resultCode) === '0' && numOrderId > 0) {
+      const orderRes = await pool.query<{ total_amount: number }>('SELECT total_amount FROM orders WHERE id = $1', [numOrderId]);
+      if (orderRes.rows.length > 0) {
+        const expectedTotal = Number(orderRes.rows[0].total_amount);
+        const paidAmount = Number(amount) || 0;
+        if (paidAmount >= expectedTotal) {
+          await pool.query(
+            `UPDATE orders 
+             SET payment_status = 'paid',
+                 paid_amount = $1,
+                 paid_via = 'momo',
+                 status = CASE WHEN status = 'pending' THEN 'confirmed' ELSE status END,
+                 momo_trans_id = $2,
+                 momo_request_id = $3,
+                 updated_at = NOW()
+             WHERE id = $4`,
+            [paidAmount, String(transId), String(requestId), numOrderId]
           );
         } else {
           console.warn(`[MoMo IPN] Số tiền thanh toán (${paidAmount}) nhỏ hơn tổng đơn hàng (${expectedTotal}) cho đơn #${orderId}!`);
@@ -473,6 +586,8 @@ marketplaceRouter.post('/seller/orders/:id/ghn-create', requireAuth, requireSell
   const toDistrictId = order.to_district_id || req.body.to_district_id || 1442;
   const toWardCode = order.to_ward_code || req.body.to_ward_code || '20101';
 
+  const isPaidOnline = order.payment_status === 'paid' || order.payment_method !== 'cod';
+
   const ghnResult = await ghnService.createShippingOrder({
     orderId: order.id,
     toName: order.shipping_name,
@@ -481,6 +596,8 @@ marketplaceRouter.post('/seller/orders/:id/ghn-create', requireAuth, requireSell
     toDistrictId: Number(toDistrictId),
     toWardCode: String(toWardCode),
     codAmount: order.payment_method === 'cod' ? Number(order.total_amount) : 0,
+    isPaidOnline,
+    paymentMethod: order.payment_method,
     items: itemRows.map((item: any) => ({
       name: item.product_name,
       quantity: item.quantity,
@@ -497,7 +614,9 @@ marketplaceRouter.post('/seller/orders/:id/ghn-create', requireAuth, requireSell
      SET status = 'shipping',
          carrier_name = 'Giao Hàng Nhanh (GHN)',
          tracking_number = $1,
+         tracking_code = $1,
          ghn_order_code = $1,
+         shipping_partner = 'GHN Express',
          estimated_delivery_at = $2,
          updated_at = NOW()
      WHERE id = $3`,
