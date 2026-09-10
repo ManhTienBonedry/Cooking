@@ -231,14 +231,6 @@ export default function KitchenCookNavbar() {
                         Tài khoản & Sổ địa chỉ
                       </Link>
                       <Link
-                        to="/orders"
-                        onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-slate-700 dark:text-slate-200 hover:bg-amber-50/60 dark:hover:bg-slate-700/50"
-                      >
-                        <Package className="w-4 h-4 text-[#D96B27]" />
-                        Lịch sử đơn hàng
-                      </Link>
-                      <Link
                         to="/"
                         onClick={() => setShowUserMenu(false)}
                         className="flex items-center gap-2.5 px-4 py-2.5 text-slate-700 dark:text-slate-200 hover:bg-amber-50/60 dark:hover:bg-slate-700/50 border-t border-slate-100 dark:border-slate-700/60"
